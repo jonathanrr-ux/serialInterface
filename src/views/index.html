@@ -1,0 +1,175 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Serial Interface</title>
+
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<!-- Body -->
+<body class="size-full bg-background text-text text-2xl">
+
+    <!-- Header -->
+    <header class="flex w-full border-b-2 items-center justify-between p-5 border-border bg-surface">
+        <div class="flex w-1/2 justify-end">
+            <div class="font-bold">
+                <p>Serial Interface</p>
+                <p class="text-center text-[0.6em] text-text-secondary">
+                    Comunicação Serial
+                </p>
+            </div>
+        </div>
+        <div class="flex w-1/2 justify-end">
+            <p class="rounded-md bg-danger p-2 text-[0.7em] font-bold">
+                Desconectado
+            </p>
+        </div>
+    </header>
+
+    <main class="flex size-full items-center justify-center gap-6">
+
+        <!-- Painel principal -->
+        <section class="flex flex-col w-[70rem] h-[50rem] rounded-xl justify-between border-2 mt-10 gap-5 border-border bg-surface p-6">
+
+            <!-- Cabeçalho -->
+            <div class="flex flex-col">
+                <div class="flex items-center justify-between">
+                    <p class="font-bold">Pacote Manual</p>
+    
+                    <!-- Pop hover -->
+                    <details class="relative inline-block">
+                        <summary class="flex gap-2 rounded-md bg-primary hover:bg-primary-hover p-2 text-text text-[0.8em]">
+                            <img src="/img/icons/add.svg">
+                            Novo pacote
+                        </summary>
+    
+                        <!-- Menu pop hover -->
+                        <div class="flex flex-col absolute right-0 mt-2 w-[20rem] rounded-lg border-2 border-border bg-surface p-4 gap-2">
+                            <!-- Conteúdo -->
+                            <p class="border-b-2 border-border">Quantidade de bytes</p>
+                            <input type="number" min="1" max="255" value="9" class="w-full rounded border-2 p-2 outline-none border-border bg-background focus:border-primary">
+                            <button class="py-2 rounded-md bg-primary">Criar</button>
+                        </div>
+                    </details>
+                </div>
+
+                <hr class="text-border my-3">
+    
+                <!-- Bytes -->
+                <div class="flex flex-col max-h-96 overflow-y-auto gap-5 font-mono">
+                    <!-- Pacotes -->
+                    <div class="flex w-full justify-between">
+                        <!-- Inputs -->
+                        <div class="flex flex-col w-1/12 gap-2">
+                            <label class="block text-[0.7em] text-text-secondary">Byte 1</label>
+                            <input maxlength="2" value="00" class=" rounded-lg border border-border bg-background p-3 text-center outline-none focus:border-primary">
+                        </div>
+                        <div class="flex flex-col w-1/12 gap-2">
+                            <label class="block text-[0.7em] text-text-secondary">Byte 2</label>
+                            <input maxlength="2" value="00"
+                                class="rounded-lg border border-border bg-background p-3 text-center outline-none focus:border-primary">
+                        </div>
+                        <div class="flex flex-col w-1/12 gap-2">
+                            <label class="block text-[0.7em] text-text-secondary">Byte 3</label>
+                            <input maxlength="2" value="00"
+                                class="rounded-lg border border-border bg-background p-3 text-center outline-none focus:border-primary">
+                        </div>
+                        <div class="flex flex-col w-1/12 gap-2">
+                            <label class="block text-[0.7em] text-text-secondary">Byte 4</label>
+                            <input maxlength="2" value="00"
+                                class="rounded-lg border border-border bg-background p-3 text-center outline-none focus:border-primary">
+                        </div>
+                        <div class="flex flex-col w-1/12 gap-2">
+                            <label class="block text-[0.7em] text-text-secondary">Byte 5</label>
+                            <input maxlength="2" value="00"
+                                class="rounded-lg border border-border bg-background p-3 text-center outline-none focus:border-primary">
+                        </div>
+                        <div class="flex flex-col w-1/12 gap-2">
+                            <label class="block text-[0.7em] text-text-secondary">Byte 6</label>
+                            <input maxlength="2" value="00"
+                                class="rounded-lg border border-border bg-background p-3 text-center outline-none focus:border-primary">
+                        </div>
+                        <div class="flex flex-col w-1/12 gap-2">
+                            <label class="block text-[0.7em] text-text-secondary">Byte 7</label>
+                            <input maxlength="2" value="00"
+                                class="rounded-lg border border-border bg-background p-3 text-center outline-none focus:border-primary">
+                        </div>
+                        <div class="flex flex-col w-1/12 gap-2">
+                            <label class="block text-[0.7em] text-text-secondary">Byte 8</label>
+                            <input maxlength="2" value="00"
+                                class="rounded-lg border border-border bg-background p-3 text-center outline-none focus:border-primary">
+                        </div>
+                        <div class="flex flex-col w-1/12 gap-2">
+                            <label class="block text-[0.7em] text-text-secondary">Byte 9</label>
+                            <input maxlength="2" value="00"
+                                class="rounded-lg border border-border bg-background p-3 text-center outline-none focus:border-primary">
+                        </div>
+                        <div class="flex flex-col gap-2">
+                            <label class="invisible block text-[0.7em] text-text-secondary">Byte 9</label>
+                            <img src="/img/icons/trash.svg" class="size-[3.5rem] bg-danger p-2 rounded-md">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Pacote e botão -->
+            <div class="flex flex-col w-full gap-5">
+                <!-- Pacote -->
+                <div>
+                    <p class="font-bold">Pacote</p>
+                    <div class="h-[15rem] w-full resize-none rounded-lg border-2 border-border bg-background p-4 text-success outline-none">
+                        <input maxlength="2" value="00" class="w-[2.5rem] bg-transparent text-center font-mono text-success outline-none">
+                        <input maxlength="2" value="00" class="w-[2.5rem] bg-transparent text-center font-mono text-success outline-none">
+                        <input maxlength="2" value="00" class="w-[2.5rem] bg-transparent text-center font-mono text-success outline-none">
+                        <input maxlength="2" value="00" class="w-[2.5rem] bg-transparent text-center font-mono text-success outline-none">
+                        <input maxlength="2" value="00" class="w-[2.5rem] bg-transparent text-center font-mono text-success outline-none">
+                        <input maxlength="2" value="00" class="w-[2.5rem] bg-transparent text-center font-mono text-success outline-none">
+                        <input maxlength="2" value="00" class="w-[2.5rem] bg-transparent text-center font-mono text-success outline-none">
+                        <input maxlength="2" value="00" class="w-[2.5rem] bg-transparent text-center font-mono text-success outline-none">
+                        <input maxlength="2" value="00" class="w-[2.5rem] bg-transparent text-center font-mono text-success outline-none">
+                    </div>
+                </div>
+    
+                <hr class="text-border">
+
+                <!-- Botão -->
+                <button class="rounded-lg bg-primary px-6 py-3 font-semibold transition hover:bg-primary-hover">
+                    Enviar
+                </button>
+            </div>
+    
+        </section>
+
+        <!-- Painel lateral -->
+        <section class="flex flex-col h-[50rem] w-[20rem] justify-between mt-10">
+
+            <!-- Templates -->
+            <section class="h-[45%] rounded-xl border-2 border-border bg-surface p-6">
+                <p class="font-bold mb-3">Templates</p>
+
+                <div class="flex flex-col gap-3">
+                </div>
+            </section>
+
+            <!-- Logs -->
+            <section class="h-[45%] rounded-xl border-2 border-border bg-surface p-6">
+                <p class="font-bold">Log</p>
+
+                <textarea
+                    class="h-[85%] w-full resize-none rounded-lg border-2 border-border bg-background p-4 font-mono text-sm text-success outline-none"
+                    readonly></textarea>
+            </section>
+        </section>
+
+    </main>
+
+
+    <script type="module" src="/js/index.js"></script>
+
+</body>
+
+</html>

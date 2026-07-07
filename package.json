@@ -1,0 +1,28 @@
+{
+  "name": "serialinterface",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "dev:server": "nodemon server.js",
+    "tailwind:watch": "npx @tailwindcss/cli -i ./public/css/tailwind/input.css -o ./public/css/style.css --watch",
+    "tailwind:build": "npx @tailwindcss/cli -i ./public/css/tailwind/input.css -o ./public/css/style.css --minify",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "serialport": "^13.0.0",
+    "winston": "^3.19.0",
+    "winston-daily-rotate-file": "^5.0.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/cli": "^4.3.2",
+    "nodemon": "^3.1.14",
+    "tailwindcss": "^4.3.2"
+  }
+}
