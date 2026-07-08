@@ -1,6 +1,7 @@
 import { createSerialConnection, closeSerialConnection, getSerialConnection } from './connection.js';
 import { send } from './sender.js';
 import { log } from '../modules/shared/utils/logger.js';
+import { sendEvent } from './events.js';
 
 // Função para inicializar o serial
 function setupSerialEvents() {
@@ -13,8 +14,13 @@ function setupSerialEvents() {
     });
     
     // Evento de escuta para para recebimento de dados
-    parser.on('data', (data) => {
-        console.log('RX >', data)
+    port.on('data', (data) => {
+        console.log('RX >', data);
+
+        sendEvent({
+            type: 'serial-rx',
+            bytes: [...data]
+        });
     });
 
     // Evento de escuta de fechamento da comunicação serial

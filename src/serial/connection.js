@@ -1,4 +1,4 @@
-import { SerialPort } from 'serialport';
+import { ReadlineParser, SerialPort } from 'serialport';
 import { ByteLengthParser } from '@serialport/parser-byte-length';
 
 // Variáveis globais para controle da porta serial

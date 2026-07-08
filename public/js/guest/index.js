@@ -1,4 +1,5 @@
 import FetchService from '../utils/fetchService.js';
+const source = new EventSource('/api/guest/serial/events');
 
 //* ======================{ Variáveis Globais }======================
 
@@ -9,6 +10,7 @@ const sendAllBtn = document.getElementById('send-all-button');
 const templatesList = document.getElementById('templates-list');
 const packetName = document.getElementById('packet-name');
 const logsList = document.getElementById('logs-list');
+const receivedList = document.getElementById('received-list');
 
 // Modal de save template
 const dataTemplate = document.querySelector('[data-template]');
@@ -405,3 +407,31 @@ async function sendSerialBuffer({ packet }) {
 document.addEventListener('DOMContentLoaded', () => {
     getTemplates();
 })
+
+source.onmessage = event => {
+    // Limpa lista
+    receivedList.innerHTML = '';
+
+    // Transforma data em JSOn
+    const data = JSON.parse(event.data);
+    
+    // Transforma em array
+    const packets = Array.isArray(data.bytes[0]) ? data.bytes : [data.bytes];
+
+    for(const item of packets) {
+        // Texto dos logs
+        const logText = `Recebido: ${item.map(byte => byte.toString(16).toUpperCase().padStart(2, '0')).join(' ')}`;
+
+        // Texto do recebido
+        const receivedText = `${item.map(byte => byte.toString(16).toUpperCase().padStart(2, '0')).join(' ')}`;
+
+        const log = document.createElement('p');
+        log.textContent = logText;
+
+        const received = document.createElement('p');
+        received.textContent = receivedText;
+
+        logsList.appendChild(log);
+        receivedList.appendChild(received);
+    }
+};

@@ -18,4 +18,7 @@ router.delete('/:id/delete', controller.deleteTemplate);
 // Rota responsável por obter templates
 router.get('/templates', controller.getTemplates);
 
+// Rota responsável pro mandar o data
+router.get('/serial/events', controller.getSerialEvents);
+
 export default router;

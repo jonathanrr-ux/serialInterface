@@ -1,4 +1,5 @@
 const { default: services } = await import('./services/index.js');
+import { addClient } from '../../../serial/events.js';
 
 export async function postSendBytes(req, res, next) {
     try {
@@ -43,4 +44,17 @@ export async function getTemplates(req, res, next) {
     } catch(err) {
         next(err);
     } 
+}
+
+export function getSerialEvents(req, res, next) {
+    try {
+        res.setHeader('Content-Type', 'text/event-stream');
+        res.setHeader('Cache-Control', 'no-cache');
+        res.setHeader('Connection', 'keep-alive');
+        
+        addClient(res);
+
+    } catch(err) {
+        next(err);
+    }
 }
