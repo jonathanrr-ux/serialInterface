@@ -4,7 +4,7 @@ import path from 'path';
 
 const router = express.Router();
 
-// Rota para buscar a conexão
-router.get('/api/serial', controller.getSerial);
+// Rota /
+router.get('/', controller.getIndex);
 
 export default router;

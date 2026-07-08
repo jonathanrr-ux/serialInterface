@@ -1,0 +1,19 @@
+<div class="flex w-1/2 justify-end">
+    <div class="font-bold">
+        <p>Serial Interface</p>
+        <p class="text-center text-[0.6em] text-text-secondary">
+            Comunicação Serial
+        </p>
+    </div>
+</div>
+<div class="flex w-1/2 justify-end">
+    {{#if connected}}
+        <p class="rounded-md bg-success p-2 text-[0.7em] font-bold">
+            Conectado
+        </p>
+    {{else}}
+        <p class="rounded-md bg-danger p-2 text-[0.7em] font-bold">
+            Desconectado
+        </p>
+    {{/if}}
+</div>

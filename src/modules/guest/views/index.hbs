@@ -1,0 +1,141 @@
+<section class="flex size-full items-center justify-center gap-3">
+    {{!-- Painel principal --}}
+    <div class="flex flex-col justify-between w-[60rem] h-[90%] p-5 border-2 rounded-xl border-border bg-surface">
+        {{!-- Parte de cima --}}
+        <div class="flex flex-col w-full">
+            {{!-- Cabeçalho --}}
+            <div class="flex justify-between items-center w-full">
+                <p id="packet-name" class="font-bold">Pacote manual</p>
+
+                <!-- Pop hover -->
+                <details class="relative inline-block">
+                    <summary class="flex items-center gap-2 rounded-md p-2 text-text font-bold text-[0.8em] bg-primary hover:bg-primary-hover">
+                        <img src="/img/icons/add.svg" class="size-[2rem]">
+                        Novo pacote
+                    </summary>
+
+                    <!-- Menu pop hover -->
+                    <div class="flex flex-col absolute right-0 mt-2 w-[20rem] rounded-lg border-2 border-border bg-surface p-4 gap-2">
+                        <!-- Conteúdo -->
+                        <p class="border-b-2 border-border">Quantidade de bytes</p>
+                        <input id="bytes-quantity-input" type="number" min="1" max="9" value="9" class="w-full rounded border-2 p-2 outline-none border-border bg-background focus:border-primary">
+                        <button {{#if (not connected)}}disabled{{/if}} id="create-new-packet" class="disabled:opacity-30 py-2 rounded-md bg-primary hover:bg-primary-hover font-bold">Criar</button>
+                    </div>
+                </details>
+            </div>
+
+            <hr class="text-border w-full my-3">
+            
+            {{!-- Lista de bytes --}}
+            <div id="packet-list" class="flex flex-col w-full max-h-[20rem] overflow-y-auto gap-5 font-mono">
+            </div>
+        </div>
+        
+        {{!-- Parte de baixo --}}
+        <div class="flex flex-col w-full gap-3">
+            <div>
+                <p class="font-bold">Recebido</p>
+                <div class="h-[15rem] w-full resize-none rounded-lg border-2 border-border bg-background p-4 text-success outline-none">
+                    <p class="font-mono text-success">00 00 00 00 00 00 00 00 00</p>
+                </div>
+            </div>
+
+            <hr class="text-border">
+
+            <!-- Botão -->
+            <div class="flex w-full justify-between">
+                <button 
+                    commandfor="template-modal" 
+                    command="show-modal"
+                    {{#if (not connected)}}disabled{{/if}} 
+                    class="w-[48%] disabled:opacity-30 rounded-lg px-6 py-3 font-semibold transition bg-success hover:bg-success-hover"
+                >
+                    Salvar template
+                </button>
+
+                <button id="send-all-button" {{#if (not connected)}}disabled{{/if}} class="w-[48%] disabled:opacity-30 rounded-lg px-6 py-3 font-semibold transition bg-primary hover:bg-primary-hover">
+                    Enviar todos
+                </button>
+            </div>
+        </div>
+    </div>
+
+    {{!-- Lateral --}}
+    <div class="flex flex-col w-[20%] h-[90%] justify-between gap-3">
+        {{!-- Templates --}}
+        <div class="flex flex-col w-full h-[50%] p-5 border-2 rounded-xl border-border bg-surface">
+            <p class="font-bold mb-3">Templates</p>
+
+            {{!-- Itens --}}
+            <div id="templates-list" class="flex flex-col h-full gap-3 overflow-y-scroll">
+                <div class="">
+
+                </div>
+            </div>
+        </div>
+
+        {{!-- Lateral --}}
+        <div class="flex flex-col w-full h-[50%] p-5 border-2 rounded-xl border-border bg-surface">
+            <p class="font-bold">Logs</p>
+
+            <textarea
+                class="h-full w-full resize-none rounded-lg border-2 border-border bg-background p-4 font-mono text-sm text-success outline-none"
+                readonly></textarea>
+        </div>
+    </div>
+
+    {{!-- Modal --}}
+    <dialog id="template-modal" class="m-auto w-[32rem] rounded-xl border-2 border-border bg-surface p-0 text-text backdrop:bg-black/50">
+
+        {{!-- Cabeçalho --}}
+        <div class="border-b-2 border-border p-5">
+            <p class="font-bold">Salvar template</p>
+            <p class="mt-1 text-[0.7em] text-text-secondary">Escolha como deseja salvar este pacote.</p>
+        </div>
+
+        {{!-- Conteúdo --}}
+        <div data-template="new-template" class="group flex flex-col gap-5 p-5">
+            <label class="flex items-center gap-2">
+                <input type="radio" value="new-template" name="template-type" checked>
+                Novo template
+            </label>
+
+            <label class="flex items-center gap-2">
+                <input type="radio" value="exist-template" name="template-type">
+                Adicionar a um template existente
+            </label>
+
+            {{!-- Input de nome --}}
+            <div class="group-data-[template=new-template]:flex hidden flex-col gap-2">
+                <p class="text-[0.7em] text-text-secondary">Nome</p>
+                <input id="name-input" type="text" placeholder="Ex.: Abrir gaveta" class="h-[3rem] rounded-lg border-2 border-border bg-background p-2 outline-none focus:border-primary">
+            </div>
+
+            {{!-- Select --}}
+            <div class="group-data-[template=exist-template]:flex hidden flex-col w-[50%] gap-2">
+                <p class="text-[0.7em] text-text-secondary">Template</p>
+                <select id="select-list" class="h-[3rem] w-full bg-background border-2 rounded-md border-border outline-none focus:bg-primary">
+                </select>
+            </div>
+        </div>
+
+        {{!-- Rodapé --}}
+        <div class="flex justify-end gap-3 border-t-2 border-border p-5">
+            <button
+                commandfor="template-modal"
+                command="close"
+                class="rounded-lg border-2 border-border px-5 py-2 hover:bg-surface-light">
+                Cancelar
+            </button>
+
+            <button 
+                commandfor="template-modal"
+                command="close"
+                id="save-template-button" class="rounded-lg bg-success px-5 py-2 font-bold hover:bg-success-hover">
+                Salvar
+            </button>
+
+        </div>
+
+    </dialog>
+</section>

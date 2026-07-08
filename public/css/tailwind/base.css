@@ -1,0 +1,7 @@
+body {
+    @apply h-screen text-2xl bg-background text-text select-none;
+}
+
+header {
+    @apply flex w-full border-b-2 items-center justify-between p-5 border-border bg-surface;
+}

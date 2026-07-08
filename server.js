@@ -1,5 +1,5 @@
 import { createServer } from 'http';
-import { log } from './src/utils/logger.js';
+import { log } from './src/modules/shared/utils/logger.js';
 import 'dotenv/config';
 import app from './app.js';
 

@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "./base.css";
 
 /** Global Tailwind var */
 @theme {
@@ -8,8 +9,10 @@
     --color-primary: #3b82f6;
     --color-primary-hover: #2563eb;
     --color-success: #22c55e;
+    --color-success-hover: #16a34a;
     --color-warning: #f59e0b;
     --color-danger: #ef4444;
+    --color-danger-hover: #dc2626;
     --color-text: #f8fafc;
     --color-text-secondary: #94a3b8;
     --color-border: #475569;
