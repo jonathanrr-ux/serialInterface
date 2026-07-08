@@ -18,6 +18,15 @@ export async function postSaveTemplate(req, res, next) {
     } 
 }
 
+export async function deleteTemplate(req, res, next) {
+    try {
+        const data = await services.deleteTemplate(req);
+        res.status(200).json(data);
+    } catch(err) {
+        next(err);
+    } 
+}
+
 export async function postEditTemplate(req, res, next) {
     try {
         const data = await services.postEditTemplate(req);

@@ -67,7 +67,7 @@
             <p class="font-bold mb-3">Templates</p>
 
             {{!-- Itens --}}
-            <div id="templates-list" class="flex flex-col h-full gap-3 overflow-y-scroll">
+            <div id="templates-list" class="flex flex-col h-full gap-3 overflow-y-auto scroll-auto">
                 <div class="">
 
                 </div>
@@ -78,9 +78,8 @@
         <div class="flex flex-col w-full h-[50%] p-5 border-2 rounded-xl border-border bg-surface">
             <p class="font-bold">Logs</p>
 
-            <textarea
-                class="h-full w-full resize-none rounded-lg border-2 border-border bg-background p-4 font-mono text-sm text-success outline-none"
-                readonly></textarea>
+            <div id="logs-list" class="h-full w-full resize-none rounded-lg border-2 border-border bg-background p-4 font-mono text-sm text-success outline-none">
+            </div>
         </div>
     </div>
 
