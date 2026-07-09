@@ -1,14 +1,43 @@
-<section class="flex size-full items-center justify-center gap-3">
+<section class="flex size-full items-center justify-center gap-3 p-8">
+
+    {{!-- Lateral direta --}}
+    <div class="flex flex-col w-[25%] h-full justify-between gap-3 p-4 border-2 rounded-xl border-border bg-surface">
+        {{!-- Templates --}}
+        <div class="flex justify-between items-center w-full">
+            <p class="font-bold">Templates</p>
+            <button class="w-[10rem] h-[2.5rem] rounded-md text-[0.8em] font-bold bg-danger">Excluir todos</button>
+        </div>
+
+        {{!-- Borda --}}
+        <hr class="w-full text-border my-2">
+
+        <div class="relative w-full h-[3.5rem]">
+            <input class="size-full border-2 border-border rounded-md outline-none bg-background pl-10">
+            <img src="/img/icons/search.svg" class="absolute top-[50%] -translate-y-1/2 left-2">
+        </div>
+
+        {{!-- Itens --}}
+        <div id="templates-list" class="flex flex-col h-full gap-3 overflow-y-auto scroll-auto">
+            <div aria-selected="true" class="flex justify-between w-full border-2 border-border p-3 rounded-md bg-surface-light aria-selected:border-primary aria-selected:shadow-lg aria-selected:shadow-primary/30">
+                <div class="flex items-center gap-3">
+                    <span class="w-3 h-3 rounded-full bg-green-500"></span>
+                    <p class="text-[0.9em]">Abrir gavetas</p>
+                </div>
+                <p>⋮</p>
+            </div>
+        </div>
+    </div>
+
     {{!-- Painel principal --}}
-    <div class="flex flex-col justify-between w-[60rem] h-[90%] p-5 border-2 rounded-xl border-border bg-surface">
+    <div class="flex flex-col justify-between w-[50%] h-full">
         {{!-- Parte de cima --}}
-        <div class="flex flex-col w-full">
+        <div class="flex flex-col w-full h-[52%] p-5 border-2 rounded-xl border-border bg-surface">
             {{!-- Cabeçalho --}}
             <div class="flex justify-between items-center w-full">
-                <p id="packet-name" class="font-bold">Pacote manual</p>
+                <p id="packet-name" class="font-bold">Editor de pacotes</p>
                 
                 <!-- Pop hover -->
-                <details class="relative inline-block">
+                <details class="relative inline-block z-10">
                     <summary class="flex items-center gap-2 rounded-md p-2 text-text font-bold text-[0.8em] bg-primary hover:bg-primary-hover">
                         <img src="/img/icons/add.svg" class="size-[2rem]">
                         Novo pacote
@@ -19,7 +48,7 @@
                         <!-- Conteúdo -->
                         <p class="border-b-2 border-border">Quantidade de bytes</p>
                         <input id="bytes-quantity-input" type="number" min="1" max="9" value="9" class="w-full rounded border-2 p-2 outline-none border-border bg-background focus:border-primary">
-                        <button {{#if (not connected)}}disabled{{/if}} id="create-new-packet" class="disabled:opacity-30 py-2 rounded-md bg-primary hover:bg-primary-hover font-bold">Criar</button>
+                        <button id="create-new-packet" class="disabled:opacity-30 py-2 rounded-md bg-primary hover:bg-primary-hover font-bold">Criar</button>
                     </div>
                 </details>
             </div>
@@ -27,15 +56,15 @@
             <hr class="text-border w-full my-3">
             
             {{!-- Lista de bytes --}}
-            <div id="packet-list" class="flex flex-col w-full max-h-[20rem] overflow-y-auto gap-5 font-mono">
+            <div id="packet-list" class="flex flex-col w-full h-[20rem] overflow-y-auto gap-5 font-mono">
             </div>
         </div>
         
         {{!-- Parte de baixo --}}
-        <div class="flex flex-col w-full gap-3">
+        <div class="flex flex-col justify-between w-full gap-3 h-[45%] p-5 border-2 rounded-xl border-border bg-surface">
             <div>
                 <p class="font-bold">Recebido</p>
-                <div id="received-list" class="font-mono h-[15rem] w-full resize-none rounded-lg border-2 border-border bg-background p-4 text-success outline-none">
+                <div id="received-list" class="font-mono h-[14rem] w-full resize-none rounded-lg border-2 border-border bg-background p-4 text-success outline-none">
                 </div>
             </div>
 
@@ -43,42 +72,44 @@
 
             <!-- Botão -->
             <div class="flex w-full justify-between">
-                <button 
+                <button
                     commandfor="template-modal" 
                     command="show-modal"
-                    {{#if (not connected)}}disabled{{/if}} 
                     class="w-[48%] disabled:opacity-30 rounded-lg px-6 py-3 font-semibold transition bg-success hover:bg-success-hover"
                 >
                     Salvar template
                 </button>
 
-                <button id="send-all-button" {{#if (not connected)}}disabled{{/if}} class="w-[48%] disabled:opacity-30 rounded-lg px-6 py-3 font-semibold transition bg-primary hover:bg-primary-hover">
+                <button id="send-all-button" {{#if (not system.serial.connected)}}disabled{{/if}} class="w-[48%] disabled:opacity-30 rounded-lg px-6 py-3 font-semibold transition bg-primary hover:bg-primary-hover">
                     Enviar todos
                 </button>
             </div>
         </div>
     </div>
 
-    {{!-- Lateral --}}
-    <div class="flex flex-col w-[20%] h-[90%] justify-between gap-3">
-        {{!-- Templates --}}
-        <div class="flex flex-col w-full h-[50%] p-5 border-2 rounded-xl border-border bg-surface">
-            <p class="font-bold mb-3">Templates</p>
-
-            {{!-- Itens --}}
-            <div id="templates-list" class="flex flex-col h-full gap-3 overflow-y-auto scroll-auto">
-                <div class="">
-
-                </div>
-            </div>
+    {{!-- Lateral esquerda --}}
+    <div class="flex flex-col w-[25%] h-full border-2 rounded-xl border-border">
+        {{!-- Logs --}}
+        <div class="flex justify-between items-center rounded-t-xl py-3 px-5 bg-surface">
+            <p class="font-bold">Logs</p>
+            <button class="flex h-[3rem] items-center border-2 border-border font-bold p-2 gap-2 rounded-md text-[0.8em] bg-surface-light">
+                <img src="/img/icons/trash.svg" class="">
+                Limpar
+            </button>
         </div>
 
-        {{!-- Lateral --}}
-        <div class="flex flex-col w-full h-[50%] p-5 border-2 rounded-xl border-border bg-surface">
-            <p class="font-bold">Logs</p>
+        <hr class="text-border">
 
-            <div id="logs-list" class="h-[20rem] w-full resize-none rounded-lg border-2 border-border bg-background p-4 font-mono text-sm text-success outline-none overflow-y-auto scroll-auto">
-            </div>
+        <div class="flex w-full justify-evenly my-2 text-[0.8em]">
+            <button class="rounded-md border-2 border-border py-1 px-3 font-bold bg-surface/50">Tudo</button>
+            <button class="rounded-md border-2 border-border py-1 px-5 font-bold text-primary bg-surface/50">TX</button>
+            <button class="rounded-md border-2 border-border py-1 px-5 font-bold text-success bg-surface/50">RX</button>
+            <button class="rounded-md border-2 border-border py-1 px-5 font-bold text-danger bg-surface/50">Erro</button>
+        </div>
+
+        <hr class="text-border">
+
+        <div id="logs-list" class="h-[42rem] p-5 font-mono overflow-y-auto scroll-auto">
         </div>
     </div>
 
@@ -137,3 +168,4 @@
 
     </dialog>
 </section>
+

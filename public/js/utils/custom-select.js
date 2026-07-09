@@ -3,6 +3,8 @@
  */
 export default class CustomSelect {
     #config;
+    #readyPromise;
+    #resolveReady;
     #isOpen = false;
 
     /** @type {string|null} Valor selecionado atualmente */
@@ -25,6 +27,10 @@ export default class CustomSelect {
 
         // Caso não seja passado elemento, retorna
         if(!this.containerEl) return;
+
+        this.#readyPromise = new Promise(resolve => {
+            this.#resolveReady = resolve;
+        });
 
         // Cria uma variável de configurações
         this.#config = {
@@ -49,6 +55,8 @@ export default class CustomSelect {
             if (this.#config.initialValue !== null) {
                 this.#setValue(this.#config.initialValue);
             }
+
+            this.#resolveReady();
         };
 
         const loadOptions = config.options;
@@ -295,6 +303,10 @@ export default class CustomSelect {
         this.#renderDropdownList();
     }
 
+    ready() {
+        return this.#readyPromise;
+    }
+    
     /**
      * Reseta o estado do componente de seleção.
      *

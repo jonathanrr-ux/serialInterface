@@ -7,7 +7,7 @@ export function send(bytes) {
     // Verifica se a porta está aberta
     if(!port?.isOpen) {
         console.log("[serial] Porta fechada");
-        return;
+        return false;
     }
 
     // Manda buffer
@@ -17,4 +17,6 @@ export function send(bytes) {
 
     // Escreve
     port.write(buffer);
+
+    return true;
 }

@@ -2,14 +2,21 @@ import { createSerialConnection, closeSerialConnection, getSerialConnection } fr
 import { send } from './core/sender.js';
 import { log } from '../shared/utils/logger.js';
 import { sendEvent } from './core/events.js';
+import { setSystemConfig } from '../../config/system.js';
+import { getIO } from '../../sockets/index.js';
 
 // Função para inicializar o serial
 function setupSerialEvents() {
     // Conexão serial
     const { port, parser } = getSerialConnection();
     
-    // Evento de abertura da comunicação serial
     port.on('open', () => {
+        // Salva configuração
+        setSystemConfig({ serial: { connected: true } });
+        
+        // Emite socket para enviar a conexão aberta
+        getIO()?.emit('serial:open', { port: port.settings.path, baudRate: port.settings.baudRate });
+
         log.success("[serial] Connection started");
     });
     
@@ -25,6 +32,10 @@ function setupSerialEvents() {
 
     // Evento de escuta de fechamento da comunicação serial
     port.on('close', async () => {
+        setSystemConfig({ serial: { connected: false } });
+
+        getIO()?.emit('serial:close');
+
         log.warn('[serial] Connection closed');
     });
     

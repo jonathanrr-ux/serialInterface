@@ -7,14 +7,79 @@
     </div>
 
     {{#unless hide}}
-        <div id="serial-connection-button" data-connected="{{system.serial.connected}}" class="group absolute right-0">
-            <button class="group-data-[connected=true]:block hidden rounded-md p-2 text-[0.7em] font-bold bg-success hover:bg-success-hover ">
-                Conectado
-            </button>
-            <button class="group-data-[connected=false]:block hidden rounded-md p-2 text-[0.7em] font-bold bg-danger hover:bg-danger-hover">
-                Desconectado
+        <button commandfor="settings-modal" command="show-modal" class="absolute left-0 size-[2.5rem] rounded-md bg-primary hover:bg-primary-hover">
+            <img src="/img/icons/settings.svg" class="size-full p-1">
+        </button>
+
+        {{!-- Informações de conexão --}}
+        <div data-connected="{{system.serial.connected}}" class="group absolute flex right-0 h-[3.5rem] w-[24rem] rounded-lg border border-border bg-surface-light">
+            <div class="flex flex-1 items-center gap-3 border-r border-border px-4">
+
+                <span class="group-data-[connected=true]:bg-success size-3 rounded-full bg-danger"></span>
+
+                <div class="leading-tight">
+                    <p class="group-data-[connected=true]:hidden block text-[0.7em] font-bold text-danger">Desconectado</p>
+                    <p class="group-data-[connected=true]:block hidden text-[0.7em] font-bold text-success">Conectado</p>
+                    <p id="serial-status-info" class="group-data-[connected=true]:block hidden text-[0.5em] text-text-secondary">{{system.settings.serialPort}} • {{system.settings.baudRate}} baud</p>
+                </div>
+            </div>
+
+            <button id="serial-connection-button" class="text-[0.8em] w-[9rem] rounded-r-lg group-data-[connected=true]:bg-danger bg-success font-bold transition-colors">
+                <p class="group-data-[connected=true]:hidden block">Conectar</p>
+                <p class="group-data-[connected=true]:block hidden">Desconectar</p>
             </button>
         </div>
     {{/unless}}
 
+    {{!-- Modal --}}
+    <dialog id="settings-modal" class="m-auto w-[32rem] rounded-xl border-2 border-border bg-surface p-0 text-text backdrop:bg-black/50">
+
+        {{!-- Cabeçalho --}}
+        <div class="border-b-2 border-border p-5">
+            <p class="font-bold">Configuração Serial</p>
+            <p class="mt-1 text-[0.7em] text-text-secondary">Configure a conexão com o dispositivo</p>
+        </div>
+
+        {{!-- Porta serial --}}
+        <div class="flex flex-col gap-2 p-3">
+            <p class="font-bold">Porta Serial</p>
+            <div class="w-full font-normal relative h-[3rem] aria-disabled:opacity-50 aria-disabled:pointer-events-none" id="edit-serial-port"></div>
+        </div>
+
+        {{!-- Baud rate --}}
+        <div class="flex flex-col gap-2 p-3">
+            <p class="font-bold">Baudrate</p>
+            <div class="w-full font-normal relative h-[3rem] aria-disabled:opacity-50 aria-disabled:pointer-events-none" id="edit-baud-rate"></div>
+        </div>
+
+        <div class="flex items-center gap-3 p-3">
+            <input id="edit-auto-reconnect" type="checkbox" class="size-5"/>
+
+            <label for="edit-auto-reconnect">
+                Reconectar automaticamente
+            </label>
+        </div>
+
+        {{!-- Rodapé --}}
+        <div class="flex justify-end gap-3 border-t-2 border-border p-5">
+            <button
+                commandfor="settings-modal"
+                command="close"
+                class="rounded-lg border-2 border-border px-5 py-2 hover:bg-surface-light">
+                Cancelar
+            </button>
+
+            <button 
+                commandfor="settings-modal"
+                command="close"
+                id="save-config-button" class="rounded-lg bg-success px-5 py-2 font-bold hover:bg-success-hover">
+                Salvar
+            </button>
+
+        </div>
+
+    </dialog>
+
 </div>
+
+<script type="module" src="/js/partials/header.js"></script>

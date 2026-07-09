@@ -12,4 +12,7 @@ router.post('/connect', controller.postConnect);
 // Rota responsável por desconectar serial
 router.post('/disconnect', controller.postDisconnect);
 
+// Rota responsável por enviar os byes
+router.post('/send', controller.postSendBytes);
+
 export default router;

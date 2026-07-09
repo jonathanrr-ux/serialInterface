@@ -16,8 +16,7 @@ const selectBaudRate = new CustomSelect('select-baud-rate',
             { value: 38400, name: '38400' },
             { value: 57600, name: '57600' },
             { value: 115200, name: '115200' },
-            { value: 230400, name: '230400' },
-            { value: 'other', name: 'Outro' }
+            { value: 230400, name: '230400' }
         ] 
     }
 );
@@ -32,13 +31,6 @@ connectBtn.addEventListener('click', async function() {
     // Faz requisição para salvar as configs
     const { success } = await api.request('/api/settings/save', { method: 'POST', body: { serialPort: selectSerialPort.value, baudRate: selectBaudRate.value, autoReconnect: autoReconnect.checked } });
     if(!success) return;
-
-    // Conecta ao serial
-    const { message, success } = await api.request('/api/serial/connect', { method: 'POST' });
-    if(!success) {
-        showToast({ message });
-        return;
-    }
 
     window.location.href = '/home';
 });

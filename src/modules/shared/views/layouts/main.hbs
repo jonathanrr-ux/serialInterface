@@ -19,6 +19,9 @@
         <main class="h-full">{{{body}}}</main>
     </div>
 
+    {{!-- Biblioteca do Socket.IO --}}
+    <script src="/socket.io/socket.io.js"></script>
+    
     {{!-- Importa JS da página --}}
     {{#each js}} <script type="module" src="/js/{{this}}.js"></script> {{/each}}
     

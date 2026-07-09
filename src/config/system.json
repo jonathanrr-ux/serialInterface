@@ -2,7 +2,7 @@
     "settings": {
         "serialPort": "/dev/ttyUSB0",
         "baudRate": 115200,
-        "autoReconnect": true
+        "autoReconnect": false
     },
     "serial": {
         "connected": true

@@ -2,7 +2,7 @@ import express from 'express';
 
 import { getSystemConfig } from '../config/system.js';
 
-import { web as interfaceWeb } from './interface/index.js';
+import { web as interfaceWeb, api as interfaceApi } from './interface/index.js';
 import { web as settingsWeb, api as settingsApi } from './settings/index.js';
 import { api as serialApi } from './serial/index.js';
 
@@ -27,5 +27,6 @@ router.use('/home', interfaceWeb);
 // API routes
 router.use('/api/settings', settingsApi);
 router.use('/api/serial', serialApi);
+router.use('/api/interface', interfaceApi);
 
 export default router;
