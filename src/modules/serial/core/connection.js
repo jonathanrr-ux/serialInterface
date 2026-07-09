@@ -6,16 +6,16 @@ let port = null;
 let parser = null;
 
 // Função para criar a conexão com a porta serial
-export function createSerialConnection() {
+export function createSerialConnection({ serialPort, baudRate }) {
     // Configuração da porta serial
     port = new SerialPort({ 
-        path: process.env.PORT_PATH, 
-        baudRate: Number(process.env.BAUD_RATE)
+        path: serialPort, 
+        baudRate
     });
     
     // Parser para a comunicação serial
     parser = port.pipe(new ByteLengthParser({ length: 9 }));
-
+    
     // Retorna dados da comunicação
     return { port, parser };
 };

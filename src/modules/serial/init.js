@@ -1,7 +1,7 @@
-import { createSerialConnection, closeSerialConnection, getSerialConnection } from './connection.js';
-import { send } from './sender.js';
-import { log } from '../modules/shared/utils/logger.js';
-import { sendEvent } from './events.js';
+import { createSerialConnection, closeSerialConnection, getSerialConnection } from './core/connection.js';
+import { send } from './core/sender.js';
+import { log } from '../shared/utils/logger.js';
+import { sendEvent } from './core/events.js';
 
 // Função para inicializar o serial
 function setupSerialEvents() {
@@ -35,7 +35,7 @@ function setupSerialEvents() {
 }
 
 // Função para inicializar a conexão serial
-export function initSerial() {
-    createSerialConnection();
+export function initSerial({ serialPort, baudRate }) {
+    createSerialConnection({ serialPort, baudRate });
     setupSerialEvents();
 }

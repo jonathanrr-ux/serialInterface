@@ -21,7 +21,7 @@ export default (app) => {
     // Views dos módulos
     const views = modules
         .filter(dir => path.basename(dir) !== 'shared')
-        .map(dir => path.join(dir, 'views'))
+        .map(dir => path.join(dir, 'web', 'views'))
         .filter(dir => fs.existsSync(dir));
 
 

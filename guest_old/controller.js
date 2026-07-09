@@ -18,3 +18,21 @@ export async function getIndex(req, res, next) {
         else next(new Error());
     }
 }
+
+// Renderiza a página padrão
+export async function getHome(req, res, next) {
+    try {
+        const config = await services.getSerialConnection(req);
+
+        // Carrega página
+        res.render('home', {
+            js: ["guest/home"],
+            ...config
+        });
+    } catch (err) {
+        log.error('Error rendering home page: ', err);
+
+        if (err instanceof Error) next(err);
+        else next(new Error());
+    }
+}

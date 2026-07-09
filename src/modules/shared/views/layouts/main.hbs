@@ -11,9 +11,12 @@
 </head>
 
 <body>
-    <div class="grid grid-rows-[5rem_auto] size-full">
+
+    <div class="grid grid-rows-[5rem_1fr] size-full">
         <header>{{>header}}</header>
-        <main>{{{body}}}</main>
+
+
+        <main class="h-full">{{{body}}}</main>
     </div>
 
     {{!-- Importa JS da página --}}

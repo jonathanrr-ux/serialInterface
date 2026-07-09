@@ -1,19 +1,20 @@
-<div class="flex w-1/2 justify-end">
+<div class="relative flex w-full justify-center items-center">
     <div class="font-bold">
         <p>Serial Interface</p>
         <p class="text-center text-[0.6em] text-text-secondary">
             Comunicação Serial
         </p>
     </div>
-</div>
-<div class="flex w-1/2 justify-end">
-    {{#if connected}}
-        <p class="rounded-md bg-success p-2 text-[0.7em] font-bold">
-            Conectado
-        </p>
-    {{else}}
-        <p class="rounded-md bg-danger p-2 text-[0.7em] font-bold">
-            Desconectado
-        </p>
-    {{/if}}
+
+    {{#unless hide}}
+        <div id="serial-connection-button" data-connected="{{system.serial.connected}}" class="group absolute right-0">
+            <button class="group-data-[connected=true]:block hidden rounded-md p-2 text-[0.7em] font-bold bg-success hover:bg-success-hover ">
+                Conectado
+            </button>
+            <button class="group-data-[connected=false]:block hidden rounded-md p-2 text-[0.7em] font-bold bg-danger hover:bg-danger-hover">
+                Desconectado
+            </button>
+        </div>
+    {{/unless}}
+
 </div>

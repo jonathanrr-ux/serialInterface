@@ -1,10 +1,9 @@
 import express from 'express';
 import * as controller from './controller.js';
-import path from 'path';
 
 const router = express.Router();
 
-// Rota /
-router.get('/', controller.getIndex);
+// Rota home
+router.get('/', controller.getHome);
 
 export default router;

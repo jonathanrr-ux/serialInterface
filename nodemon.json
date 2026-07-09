@@ -1,0 +1,5 @@
+{
+    "watch": ["src"],
+    "ignore": ["public/**", "src/config/system.json"],
+    "ext": "js,json,hbs"
+}
