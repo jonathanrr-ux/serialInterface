@@ -3,16 +3,19 @@ import fs from 'fs/promises';
 import path from 'path';
 
 export default async function getTemplates(req) {
-    const { id } = req.params;
-
     try {       
         // Obtêm a pasta de templates
-        const templateDir = path.join(process.cwd(), 'src', 'templates');
+        const templateDir = path.join(process.cwd(), 'src', 'modules', 'templates', 'saved');
 
-        // Lê diretório
-        const filePath = path.join(templateDir, `${id}.json`);
+        // Lê todos os arquivos
+        const files = await fs.readdir(templateDir);
 
-        await fs.unlink(filePath);
+        // Exclui todos
+        await Promise.all(
+            files.map(file =>
+                fs.unlink(path.join(templateDir, file))
+            )
+        );
 
         return {};
     } catch (err) {

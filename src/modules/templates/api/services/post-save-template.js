@@ -5,11 +5,11 @@ import { randomUUID } from 'crypto';
 
 export default async function postSaveTemplate(req) {
     // Obtêm o nome e pacote a salvar
-    const { name, packet } = req.body
+    const { name, packet, response } = req.body
     
     try {       
         // Obtêm a pasta de templates
-        const templateDir = path.join(process.cwd(), 'src', 'templates');
+        const templateDir = path.join(process.cwd(), 'src', 'modules', 'templates', 'saved');
 
         // Cria a pasta caso não exista
         await fs.mkdir(templateDir, { recursive: true });
@@ -21,12 +21,13 @@ export default async function postSaveTemplate(req) {
         const template = {
             id,
             name,
-            packets: packet
+            packets: packet,
+            response
         };
 
         // Escreve no arquivo
         await fs.writeFile(
-            path.join(process.cwd(), 'src', 'templates', `${id}.json`),
+            path.join(process.cwd(), 'src', 'modules', 'templates', 'saved', `${id}.json`),
             JSON.stringify(template, null, 4)
         );
 

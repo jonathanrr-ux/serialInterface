@@ -1,9 +1,7 @@
 import { ReadlineParser, SerialPort } from 'serialport';
-import { ByteLengthParser } from '@serialport/parser-byte-length';
 
 // Variáveis globais para controle da porta serial
 let port = null;
-let parser = null;
 
 // Função para criar a conexão com a porta serial
 export function createSerialConnection({ serialPort, baudRate }) {
@@ -13,11 +11,8 @@ export function createSerialConnection({ serialPort, baudRate }) {
         baudRate
     });
     
-    // Parser para a comunicação serial
-    parser = port.pipe(new ByteLengthParser({ length: 9 }));
-    
     // Retorna dados da comunicação
-    return { port, parser };
+    return { port };
 };
 
 // Função para fechar a conexão com a porta serial
@@ -35,5 +30,5 @@ export async function closeSerialConnection() {
 
 // Função para obter a instância atual
 export function getSerialConnection() {
-    return { port, parser }
+    return { port }
 };

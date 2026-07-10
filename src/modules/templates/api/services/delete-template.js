@@ -7,7 +7,7 @@ export default async function getTemplates(req) {
 
     try {       
         // Obtêm a pasta de templates
-        const templateDir = path.join(process.cwd(), 'src', 'templates');
+        const templateDir = path.join(process.cwd(), 'src', 'modules', 'templates', 'saved');
 
         // Lê diretório
         const filePath = path.join(templateDir, `${id}.json`);

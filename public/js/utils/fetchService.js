@@ -41,7 +41,7 @@ export default class FetchService {
      *
      * @throws {Error} Pode relançar erros inesperados não tratados explicitamente.
      */
-    async request(url, { method = 'GET', body = null, headers = {}, timeout = 20000 } = {}){
+    async request(url, { method = 'GET', body = null, headers = {} } = {}){
 
         const options = {
             method,
@@ -53,7 +53,6 @@ export default class FetchService {
             credentials: 'include',
         }
         
-        if (timeout) options.signal = AbortSignal.timeout(timeout);
         if (body) options.body = JSON.stringify(body);
 
         try {
@@ -80,17 +79,6 @@ export default class FetchService {
             };
         } catch (err) {
             console.error(err)
-
-            // Timeout do fetch excedido
-            if (err.name === 'TimeoutError') {
-                return {
-                    success: false,
-                    status: '408',
-                    message: 'Request timeout, try again',
-                    fields: undefined,
-                    ui: {}
-                }
-            }
         }
     }
 }

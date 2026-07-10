@@ -5,6 +5,6 @@
         "autoReconnect": false
     },
     "serial": {
-        "connected": true
+        "connected": false
     }
 }
