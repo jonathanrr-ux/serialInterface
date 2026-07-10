@@ -79,9 +79,9 @@ export function createPacketEl({ parent, item, value = 0 }) {
     const byte = document.createElement('div');
     byte.className = 'packet-byte relative flex flex-col gap-1';
     byte.innerHTML = `
-        <input type="text" maxlength="2" value="${value.toString(16).padStart(2, '0').toUpperCase()}" class="text-center border-2 border-border rounded-md size-[3.5rem] bg-background outline-none p-2">
+        <input type="text" maxlength="2" value="${value.toString(16).padStart(2, '0').toUpperCase()}" class="text-center border-2 border-border rounded-md size-[3rem] bg-background outline-none p-2">
         <label class="text-center text-[0.6em]">Byte ${item + 1}</label>
-        <div class="x-btn absolute right-0 top-0 -translate-x-1/2 text-sm cursor-pointer">X</div>
+        <div class="x-btn absolute right-0 top-0 -translate-x-2/2 text-[0.5em] cursor-pointer">X</div>
     `;
     
     const addContainer = parent.querySelector('.add-container');
@@ -135,7 +135,7 @@ packetList.addEventListener('click', async(e) => {
     // Envia pacote
     if (e.target.closest('.send-btn')) {
         const packetData = [...packet.querySelectorAll('.packet-byte input')].map(input => parseInt(input.value, 16));
-        
+        console.log('oi')
         const { message, success } = await api.request('/api/serial/send', { method: 'POST', body: { bytes: packetData, responseLength: Number(responseInput.value) } });
         if(!success) { 
             return 

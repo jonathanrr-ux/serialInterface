@@ -78,7 +78,15 @@ export default class FetchService {
                 ui: data?.ui || {}
             };
         } catch (err) {
-            console.error(err)
+            console.error(err);
+
+            return {
+                success: false,
+                status: '500',
+                data: {},
+                message: err.message || 'Request failed',
+                ui: {}
+            };
         }
     }
 }

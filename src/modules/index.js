@@ -15,7 +15,7 @@ router.get('/', (req, res) => {
     const { settings } = getSystemConfig();
 
     // Caso tenha as configurações vai para a home direto
-    if (settings?.serialPort && settings?.baudRate) return res.redirect('/home');
+    if (settings?.serialPort !== null && settings?.baudRate !== null) return res.redirect('/home');
 
     // Se não vai para settings
     return res.redirect('/settings');

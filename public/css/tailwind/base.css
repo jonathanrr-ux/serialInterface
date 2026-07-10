@@ -1,5 +1,5 @@
 body {
-    @apply h-screen text-2xl bg-background text-text select-none;
+    @apply h-screen text-xl 2xl:text-2xl bg-background text-text select-none;
 }
 
 header {
