@@ -6,19 +6,9 @@
     "auditLog": "/home/tramontina/SmartSystem/SerialInterface/logs/.81f13e843f9ef25881cd017723824544bfad8e57-audit.json",
     "files": [
         {
-            "date": 1783531221260,
-            "name": "/home/tramontina/SmartSystem/SerialInterface/logs/2026-07-08.log",
-            "hash": "ba4ccf66f34a60c39a3894dd15c71f9f1ab94a7c49a87efd4670d11d7e295b4b"
-        },
-        {
-            "date": 1783591218098,
-            "name": "/home/tramontina/SmartSystem/SerialInterface/logs/2026-07-09.log",
-            "hash": "4df2844f02457e1d8c20baab7d75bfc132260b7b41362947848c66300dffb673"
-        },
-        {
-            "date": 1783678842232,
-            "name": "/home/tramontina/SmartSystem/SerialInterface/logs/2026-07-10.log",
-            "hash": "19fbd82d73316838aed5dfce3dde16d9043d703ba64ed08474b8ffda83ff096f"
+            "date": 1783943066185,
+            "name": "/home/tramontina/SmartSystem/SerialInterface/logs/2026-07-13.log",
+            "hash": "89d88904fc37a20851f68014771b70e15ef004dc0348cd1b76f1d3b6e56a693e"
         }
     ],
     "hashType": "sha256"

@@ -1,6 +1,5 @@
 import { getSerialConnection } from "./connection.js";
 import { setExpectedLength, waitResponse } from './receiver.js';
-import { getIO } from "../../../sockets/index.js";
 import { serialLog } from '../../shared/utils/serial-logger.js';
 import { LOGS_DEFINITIONS } from "../../../../public/js/utils/logs-definitions.js";
 
@@ -19,7 +18,7 @@ export async function send({ bytes, responseLength }) {
     const responsePromise = waitResponse();
 
     // Manda buffer
-    const buffer = Buffer.from(bytes);
+    const buffer = Buffer.from(bytes); 
 
     // Cria log
     const log = LOGS_DEFINITIONS["tx"];

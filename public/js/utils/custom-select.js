@@ -131,7 +131,7 @@ export default class CustomSelect {
             this.#createElement({ 
                 parentEl: this.ul,
                 element: 'li',
-                className: `${this.#config.textCenter ? 'text-center' : ''} break-all w-full border-b-2 last:border-b-0 p-2 last:rounded-b-sm first:rounded-t-sm cursor-pointer active:bg-surface-light border-border cursor-pointer hover:bg-surface-light`,
+                className: `${this.#config.textCenter ? 'text-center' : ''} break-all w-full border-b-2 last:border-b-0 p-2 last:rounded-b-sm first:rounded-t-sm cursor-pointer active:bg-surface-3 border-border cursor-pointer hover:bg-surface-3`,
                 attr: 'data-value',
                 attrVal: value,
                 text: `${item.name}`
@@ -215,11 +215,11 @@ export default class CustomSelect {
 
             const options = this.ul.querySelectorAll('li');
     
-            options.forEach(o => o.classList.remove('bg-surface-light'));
+            options.forEach(o => o.classList.remove('bg-surface-3'));
 
             this.labelEl.textContent = item.textContent;
             this.selectedValue = item.dataset.value;
-            item.classList.add('bg-surface-light');
+            item.classList.add('bg-surface-3');
 
             // Dispara evento de mudança de elemento selecionado
             this.containerEl.dispatchEvent(new CustomEvent('change', { bubbles: true }));
@@ -250,7 +250,7 @@ export default class CustomSelect {
         if (value === null || value === undefined) {
             this.selectedValue = null;
 
-            options?.forEach(o => o.classList.remove('bg-surface-light'));
+            options?.forEach(o => o.classList.remove('bg-surface-3'));
 
             if (this.labelEl) {
                 this.labelEl.textContent = this.#config.placeholderText;
@@ -263,12 +263,12 @@ export default class CustomSelect {
 
         if (!option) return;
 
-        options.forEach(o => o.classList.remove('bg-surface-light'));
+        options.forEach(o => o.classList.remove('bg-surface-3'));
 
         this.labelEl.textContent = option.textContent;
         this.selectedValue = value;
 
-        option.classList.add('bg-surface-light');
+        option.classList.add('bg-surface-3');
     }
     
 
@@ -326,6 +326,6 @@ export default class CustomSelect {
 
         this.optionsEl = this.containerEl?.querySelectorAll('li');
 
-        this.optionsEl?.forEach(o => o.classList.remove('bg-surface-light'));
+        this.optionsEl?.forEach(o => o.classList.remove('bg-surface-3'));
     }
 }

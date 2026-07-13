@@ -1,5 +1,7 @@
 import FetchService from "../utils/fetchService.js";
 import CustomSelect from '../utils/custom-select.js';
+import showToast from '../utils/toast-notifications.js';
+import { setFlashMessage } from '../utils/flash-message.js';
 
 //* ======================{ Variáveis globais }======================
 
@@ -26,12 +28,19 @@ const selectBaudRate = new CustomSelect('select-baud-rate',
 // Adiciona evento de clique ao botão de conectar
 connectBtn.addEventListener('click', async function() {
     // Verifica para retornar
-    if(!selectSerialPort.value || !selectBaudRate.value) return;
+    if(!selectSerialPort.value || !selectBaudRate.value) {
+        showToast({ message: 'A porta serial e o baudrate devem ser preenchidos' });
+        return;
+    }
 
     // Faz requisição para salvar as configs
-    const { success } = await api.request('/api/settings/save', { method: 'POST', body: { serialPort: selectSerialPort.value, baudRate: selectBaudRate.value, autoReconnect: autoReconnect.checked } });
+    const { message, success } = await api.request('/api/settings/save', { method: 'POST', body: { serialPort: selectSerialPort.value, baudRate: selectBaudRate.value, autoReconnect: autoReconnect.checked } });
+    
+    // Mostra notificação
+    setFlashMessage({ type: success ? 'success' : 'error', message });
     if(!success) return;
 
+    // Caso obteve sucesso redireciona
     window.location.href = '/home';
 });
 
@@ -39,8 +48,11 @@ connectBtn.addEventListener('click', async function() {
 
 // Função responsável por obter todas portas seriais e preencher o select
 async function getSerialPorts() {
-    const { success, data } = await api.request('/api/serial/ports');
-    if(!success) return;
+    const { message, success, data } = await api.request('/api/serial/ports');
+    if(!success) {
+        showToast({ message });
+        return;
+    }
     
     return data.ports.map(p => ({ value: p.path, name: `${p.path} - ${p.manufacturer}` }));
 }

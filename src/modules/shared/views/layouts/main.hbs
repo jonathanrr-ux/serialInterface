@@ -8,15 +8,20 @@
 
     {{!-- CSS --}}
     <link rel="stylesheet" href="/css/style.css">
+    
+    {{!-- Flash Message --}}
+    <script type="module" src="/js/utils/flash-message.js"></script>
 </head>
 
 <body>
 
     <div class="grid grid-rows-[5rem_1fr] size-full">
-        <header>{{>header}}</header>
+        <header>
+            {{>header}}
+        </header>
 
 
-        <main class="h-full">{{{body}}}</main>
+        <main class="min-h-0 overflow-hidden">{{{body}}}</main>
     </div>
 
     {{!-- Biblioteca do Socket.IO --}}

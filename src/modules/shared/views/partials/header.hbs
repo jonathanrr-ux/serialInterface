@@ -1,22 +1,30 @@
 <div class="relative flex w-full justify-center items-center">
     <div class="font-bold">
-        <p>Serial Interface</p>
+        <p class="text-2xl">Serial Interface</p>
         <p class="text-center text-[0.6em] text-text-secondary">
             Comunicação Serial
         </p>
     </div>
 
     {{#unless hide}}
-        <button commandfor="settings-modal" command="show-modal" class="absolute left-0 size-[2.5rem] rounded-md bg-primary hover:bg-primary-hover">
-            <img src="/img/icons/settings.svg" class="size-full p-1">
+        <button 
+            commandfor="settings-modal" 
+            command="show-modal" 
+            class="config-button">
+            <img src="/img/icons/settings.svg" class="size-full p-[0.40rem]">
         </button>
 
         {{!-- Informações de conexão --}}
-        <div data-connected="{{system.serial.connected}}" class="group absolute flex right-0 h-[3.5rem] lg:w-[20rem] xl:w-[24rem] rounded-lg border border-border bg-surface-light">
-            <div class="flex flex-1 items-center gap-3 border-r border-border px-4">
-
-                <span class="group-data-[connected=true]:bg-success size-3 rounded-full bg-danger"></span>
-
+        <div data-connected="{{system.serial.connected}}" class="group absolute flex right-0 h-[3rem] gap-5">
+            <div class="
+                flex w-[15rem] items-center gap-3 px-4 py-3 rounded-2xl
+                bg-linear-to-b from-surface-2 to-surface shadow-[0_8px_24px_rgba(0,0,0,.35),inset_rgba(255,255,255,.05)_1px_1px_1px]
+            ">
+                <span 
+                    class="size-3 rounded-full bg-danger shadow-[0_0_8px_rgba(239,68,68,0.8)] 
+                    group-data-[connected=true]:bg-success 
+                    group-data-[connected=true]:shadow-[0_0_10px_rgba(34,197,94,0.9)] 
+                "></span>
                 <div class="leading-tight">
                     <p class="group-data-[connected=true]:hidden block text-[0.7em] font-bold text-danger">Desconectado</p>
                     <p class="group-data-[connected=true]:block hidden text-[0.7em] font-bold text-success">Conectado</p>
@@ -24,8 +32,16 @@
                 </div>
             </div>
 
-            <button id="serial-connection-button" class="text-[0.8em] w-[9rem] rounded-r-lg group-data-[connected=true]:bg-danger bg-success font-bold transition-colors">
-                <p class="group-data-[connected=true]:hidden block">Conectar</p>
+            <button id="serial-connection-button" 
+                class="text-[0.8em] w-[12rem] rounded-3xl font-bold transition-all duration-300
+                    bg-success shadow-[0_0_16px_rgba(34,197,94,0.7)] hover:-translate-y-0.5 hover:shadow-[0_15px_35px_rgba(34,197,94,0.3)]
+                    group-data-[connected=true]:bg-danger 
+                    group-data-[connected=true]:shadow-[0_0_16px_rgba(239,68,68,0.7)] group-data-[connected=true]:hover:-translate-y-0.5 group-data-[connected=true]:hover:shadow-[0_15px_35px_rgba(239,68,68,0.3)]
+            ">
+                <div class="flex items-center justify-center group-data-[connected=true]:hidden gap-3">
+                    <img src="/img/icons/connect.svg">
+                    Conectar
+                </div>
                 <p class="group-data-[connected=true]:block hidden">Desconectar</p>
             </button>
         </div>
@@ -65,14 +81,14 @@
             <button
                 commandfor="settings-modal"
                 command="close"
-                class="rounded-lg border-2 border-border px-5 py-2 hover:bg-surface-light">
+                class="base-button px-5 py-2 rounded-xl">
                 Cancelar
             </button>
 
             <button 
                 commandfor="settings-modal"
                 command="close"
-                id="save-config-button" class="rounded-lg bg-success px-5 py-2 font-bold hover:bg-success-hover">
+                id="save-config-button" class="base-button success px-5 py-2 rounded-xl">
                 Salvar
             </button>
 

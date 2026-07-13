@@ -1,103 +1,115 @@
-<section class="flex size-full items-center justify-center gap-3 p-8">
+<section class="flex h-full min-h-0 items-center justify-center gap-3 p-8">
     {{!-- Lateral esquerda --}}
-    <div class="flex flex-col h-full w-[25%] p-4 border-2 rounded-xl border-border bg-surface">
+    <div class="flex flex-col h-full min-h-0 w-[23%] p-4 card gap-2">
         {{!-- Título --}}
-        <div class="flex justify-between items-center w-full">
-            <p class="font-bold">Templates</p>
-            <button id="delete-all-templates" class="lg:w-[5rem] xl:w-[8rem] 2xl:w-[10rem] h-[2.5rem] rounded-md text-[0.8em] font-bold bg-danger">Excluir todos</button>
+        <div class="flex justify-between items-center w-full p-2">
+            <div class="flex font-bold gap-2">
+                <img src="/img/icons/folder.svg" class="size-[2rem] drop-shadow-[0_0_8px_rgba(99,102,241,0.6)]">
+                Templates
+            </div>
+
+            {{!-- Botões --}}
+            <button class="size-[2.5rem]">
+                <img src="/img/icons/add.svg" class="base-button primary size-full">
+            </button>
         </div>
 
         {{!-- Borda --}}
-        <hr class="w-full text-border my-2">
+        <hr class="w-full text-border">
 
+
+        {{!-- Search --}}
         <div class="relative w-full h-[3rem] 2xl:h-[3.5rem]">
-            <input id="search-bar" class="size-full border-2 border-border rounded-md outline-none bg-background pl-10">
+            <input id="search-bar" placeholder="Busque o template" class="input size-full !pl-10">
             <img src="/img/icons/search.svg" class="absolute top-[50%] -translate-y-1/2 left-2">
         </div>
 
-        <hr class="w-full text-border my-2">
+        {{!-- Botão --}}
+        <div class="flex justify-end w-full">
+            <button id="delete-all-templates" class="lg:w-[5rem] xl:w-[8rem] 2xl:w-[10rem] h-[2.5rem] rounded-md text-[0.8em] font-bold base-button danger">Excluir todos</button>
+        </div>
+
+        <hr class="w-full text-border">
 
         {{!-- Itens --}}
-        <div id="templates-list" class="flex flex-col lg:h-[29rem] xl:h-[30rem] 2xl:h-[40rem] gap-3 overflow-y-auto scroll-auto">
+        <div id="templates-list" class="flex-1 min-h-0 flex flex-col gap-4 overflow-y-auto">
         </div>
     </div>
 
     {{!-- Centro --}}
-    <div class="flex flex-col justify-between h-full w-[43%] p-4 border-2 rounded-xl border-border bg-surface">
-
-        <div>
+    <div class="h-full min-h-0 w-[43%] p-4 card">
+        {{!-- Wrapper --}}
+        <div class="hidden flex-col h-full min-h-0 justify-between">
             {{!-- Título --}}
             <div class="flex justify-between items-center w-full">
-                <p class="font-bold">Editor de pacotes</p>
-                <div class="flex gap-3">
-                    <p class="self-center text-[0.8em]">Tamanho da resposta:</p>
-                    <input id="response-input" value="0" maxlength="2" class="bg-background size-[3rem] outline-none border-2 border-border text-center p-2 rounded-md">
-                    <details class="relative inline-block z-10">
-                        <summary class="flex items-center gap-2 rounded-md p-2 text-text font-bold text-[0.8em] bg-primary hover:bg-primary-hover">
-                            <img src="/img/icons/add.svg" class="size-[2rem]">
-                            Novo pacote
-                        </summary>
-
-                        <!-- Menu pop hover -->
-                        <div class="flex flex-col absolute right-0 mt-2 w-[20rem] rounded-lg border-2 border-border bg-surface p-4 gap-2">
-                            <!-- Conteúdo -->
-                            <p class="">Quantidade de bytes</p>
-                            <input id="bytes-quantity-input" type="number" min="1" max="9" value="9" class="w-full rounded border-2 p-2 outline-none border-border bg-background focus:border-primary">
-                            
-                            <hr class="text-border">
-                            <button id="create-new-packet-button" class="disabled:opacity-30 py-2 rounded-md bg-primary hover:bg-primary-hover font-bold">Criar</button>
-                        </div>
-                    </details>
+                <div class="flex font-bold gap-3">
+                    <img src="/img/icons/packet.svg" class="size-[2rem] drop-shadow-[0_0_8px_rgba(99,102,241,0.6)]">
+                    Editor de pacotes
                 </div>
+                <details class="relative inline-block z-10">
+                    <summary class="base-button primary flex items-center gap-2 p-2 text-text font-bold text-[0.8em]">
+                        <img src="/img/icons/add.svg" class="size-[2rem]">
+                        Novo pacote
+                    </summary>
+
+                    <!-- Menu pop hover -->
+                    <div class="flex flex-col absolute right-0 mt-2 w-[20rem] rounded-lg border-2 border-border bg-surface p-4 gap-2">
+                        <!-- Conteúdo -->
+                        <p class="">Quantidade de bytes</p>
+                        <input id="bytes-quantity-input" type="number" min="1" max="9" value="9" class="w-full rounded border-2 p-2 outline-none border-border bg-background focus:border-primary">
+                        
+                        <hr class="text-border">
+                        <button id="create-new-packet-button" class="disabled:opacity-30 py-2 rounded-md bg-primary hover:bg-primary-hover font-bold">Criar</button>
+                    </div>
+                </details>
             </div>
 
             <hr class="text-border w-full my-3">
 
             {{!-- Lista de bytes --}}
-            <div id="packet-list" class="flex flex-col w-full lg:h-[25rem] xl:h-[29rem] 2xl:h-[39rem] overflow-y-auto gap-3 font-mono">
+            <div id="packet-list" class="flex flex-col w-full flex-1 min-h-0 overflow-y-auto gap-3 font-mono">
             </div>
-            <hr class="text-border w-full my-3">
-        </div>
 
-            
-        <!-- Botão -->
-        <div class="flex w-full justify-between">
-            <button
-                id="add-new-template-button"
-                commandfor="template-modal" 
-                command="show-modal"
-                class="w-[48%] disabled:opacity-30 rounded-lg px-6 py-3 font-semibold transition bg-success hover:bg-success-hover"
-            >
-                Salvar template
-            </button>
+            <!-- Botão -->
+            <div class="flex w-full justify-between">
+                <button
+                    id="add-new-template-button"
+                    commandfor="template-modal" 
+                    command="show-modal"
+                    class="w-[48%] disabled:opacity-30 rounded-lg px-6 py-3 font-semibold transition bg-success hover:bg-success-hover"
+                >
+                    Salvar template
+                </button>
 
-            <button id="send-all-button" class="w-[48%] disabled:opacity-30 rounded-lg px-6 py-3 font-semibold transition bg-primary hover:bg-primary-hover">
-                Enviar todos
-            </button>
+                <button id="send-all-button" class="w-[48%] disabled:opacity-30 rounded-lg px-6 py-3 font-semibold transition bg-primary hover:bg-primary-hover">
+                    Enviar todos
+                </button>
+            </div>
         </div>
     </div>
 
     {{!-- Lateral direita --}}
-    <div class="flex flex-col h-full w-[35%] border-2 rounded-xl border-border bg-surface">
-        <div class="flex justify-between items-center rounded-t-xl p-3 bg-surface">
-            <p class="font-bold">Logs</p>
-            <button id="clear-all-logs-button" class="flex h-[3rem] items-center border-2 border-border font-bold p-2 gap-2 rounded-md text-[0.8em] bg-surface-light hover:bg-surface">
+    <div class="flex flex-col flex-1 h-full min-h-0 card overflow-hidden">
+        <div class="flex w-full items-center justify-between p-4">
+            <div class="flex font-bold gap-3">
+                <img src="/img/icons/list.svg" class="size-[2rem] drop-shadow-[0_0_8px_rgba(99,102,241,0.6)]">
+                Logs
+            </div>
+            <button id="clear-all-logs-button" class="flex h-[3rem] base-button rounded-xl p-2 gap-2">
                 <img src="/img/icons/trash.svg" class="">
                 Limpar
             </button>
         </div>
 
-        <hr class="text-border">
-
-        <div class="flex w-full justify-evenly my-2 text-[0.8em]">
-            <button class="rounded-md border-2 border-border py-1 px-5 font-bold text-primary bg-surface/50">Enviado</button>
-            <button class="rounded-md border-2 border-border py-1 px-5 font-bold text-success bg-surface/50">Recebido</button>
-            <button class="rounded-md border-2 border-border py-1 px-5 font-bold text-danger bg-surface/50">Erro</button>
+        <div class="flex w-full justify-evenly text-[0.8em]">
+            <button class="rounded-xl py-1 px-5 font-bold text-primary bg-linear-to-b from-primary/30 to-primary/10 shadow-[0_8px_24px_rgba(0,0,0,.35),inset_rgba(255,255,255,.05)_1px_1px_1px] hover:shadow-[0_5px_15px_rgba(99,102,241,0.3)]">Enviado</button>
+            <button class="rounded-xl py-1 px-5 font-bold text-success bg-linear-to-b from-success/30 to-success/10 shadow-[0_8px_24px_rgba(0,0,0,.35),inset_rgba(255,255,255,.05)_1px_1px_1px] hover:shadow-[0_5px_15px_rgba(34,197,94,0.3)]">Recebido</button>
+            <button class="rounded-xl py-1 px-5 font-bold text-danger bg-linear-to-b from-danger/30 to-danger/10 shadow-[0_8px_24px_rgba(0,0,0,.35),inset_rgba(255,255,255,.05)_1px_1px_1px] hover:shadow-[0_5px_15px_rgba(239,68,68,0.3)]">Erro</button>
         </div>
 
-        <hr class="text-border">
+        <hr class="text-border mt-4">
 
-        <div id="logs-list" class="xl:h-[33rem] 2xl:h-[42rem] p-5 font-mono text-[0.7em] overflow-y-auto scroll-auto">
+        <div id="logs-list" class="h-full min-h-0 font-mono text-[0.7em] overflow-y-auto bg-background p-4">
         </div>
     </div>
 

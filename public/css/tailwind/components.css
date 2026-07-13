@@ -1,0 +1,73 @@
+.config-button {
+    @apply 
+    absolute left-0 size-[3rem] rounded-lg transition-all duration-300 cursor-pointer
+    bg-linear-to-br from-cyan-500 from-15% via-primary via-30% to-primary-hover to-80% 
+    shadow-[0_0_12px_rgb(99,102,241)]
+    hover:-translate-y-0.5
+    hover:shadow-[0_15px_35px_rgba(99,102,241,0.8)];
+}
+
+.base-button {
+    @apply flex justify-center items-center font-bold cursor-pointer transition-all duration-300 hover:-translate-y-0.5 bg-surface shadow-[0_0_16px_rgba(255,255,255,0.3)] hover:shadow-[0_15px_35px_rgba(255,255,255,0.3)];
+
+    &.success { @apply bg-success shadow-[0_0_16px_rgba(34,197,94,0.7)] hover:shadow-[0_15px_35px_rgba(34,197,94,0.3)] }
+    &.danger { @apply bg-danger shadow-[0_0_16px_rgba(239,68,68,0.7)] hover:shadow-[0_15px_35px_rgba(239,68,68,0.3)] }
+    &.primary { @apply rounded-xl shadow-[0_8px_30px_rgba(99,102,241,.35)] hover:shadow-[0_15px_35px_rgba(99,102,241,.50)]; background: linear-gradient(135deg, #4F46E5, #6366F1, #7C3AED);}
+}
+
+.card {
+    @apply rounded-2xl border border-border transition-all duration-200;
+    background: linear-gradient(180deg, var(--color-surface-2), var(--color-surface), var(--color-background-2));
+    box-shadow: 0 15px 45px rgba(0,0,0,.35);
+}
+
+.card::before {
+    content: "";
+    @apply absolute top-0 left-0 w-full h-px;
+    background: linear-gradient(90deg, transparent, var(--color-primary), transparent);
+    opacity: .4;
+}
+
+.card:hover {
+    border-color: rgba(99,102,241,.30);
+    box-shadow: 0 15px 45px rgba(0,0,0,.45), 0 0 25px rgba(99,102,241,.30);
+}
+
+.input{
+    @apply rounded-xl px-4 py-3 outline-none border-1 border-border/80 text-[0.7em] transition-all duration-300;
+    background:linear-gradient(180deg, #161d2d, #111827);
+}
+
+.input:focus{
+    border-color:#6366F1;
+    box-shadow: 0 0 0 4px rgba(99,102,241,.18);
+}
+
+.badge-send{
+    color:#60A5FA;
+}
+
+.badge-received{
+    color:#22C55E;
+}
+
+.badge-error{
+    color:#EF4444;
+}
+
+::-webkit-scrollbar{
+    width:10px;
+}
+
+::-webkit-scrollbar-track{
+    background:#0f172a;
+}
+
+::-webkit-scrollbar-thumb{
+    background:#334155;
+    border-radius:999px;
+}
+
+::-webkit-scrollbar-thumb:hover{
+    background:#475569;
+}

@@ -134,12 +134,25 @@ packetList.addEventListener('click', async(e) => {
 
     // Envia pacote
     if (e.target.closest('.send-btn')) {
-        const packetData = [...packet.querySelectorAll('.packet-byte input')].map(input => parseInt(input.value, 16));
-        console.log('oi')
-        const { message, success } = await api.request('/api/serial/send', { method: 'POST', body: { bytes: packetData, responseLength: Number(responseInput.value) } });
-        if(!success) { 
-            return 
-        };
+        const btn = e.target.closest('.send-btn');
+
+        if (btn.disabled) return;
+
+        btn.disabled = true;
+
+        try {
+            const packetData = [...packet.querySelectorAll('.packet-byte input')].map(input => parseInt(input.value, 16));
+
+            await api.request('/api/serial/send', {
+                method: 'POST',
+                body: {
+                    bytes: packetData,
+                    responseLength: Number(responseInput.value)
+                }
+            });
+        } finally {
+            btn.disabled = false;
+        }
     }
 });
 

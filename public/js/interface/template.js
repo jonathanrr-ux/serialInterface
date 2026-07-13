@@ -172,7 +172,10 @@ function createTemplatesList({ list }) {
 function createTemplateEl({ item }) {
     // Cria elemento
     const div = document.createElement('div');
-    div.className = 'template flex justify-between w-full border-2 border-border p-3 rounded-md bg-surface-light aria-selected:border-primary aria-selected:shadow-lg aria-selected:shadow-primary/30';
+    div.className = `template flex justify-between w-full p-5 rounded-xl transition-all duration-300
+        bg-linear-to-b from-surface-3 to-surface shadow-[0_8px_24px_rgba(0,0,0,.35),inset_rgba(31,41,55)_1px_1px_1px] 
+        hover:-translate-y-1 hover:border-primary hover:shadow-[0_5px_15px_rgba(99,102,241,.25),inset_1px_1px_1px_rgba(31,41,55,.8)]
+    aria-selected:border-primary`;
     div.setAttribute('aria-selected', false);
     div.dataset.id = item.id;
     div.innerHTML = `

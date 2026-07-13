@@ -44,16 +44,20 @@ serialConnectionBtn?.addEventListener('click', async function() {
 // Adiciona evento de clique ao botão de conectar
 saveConfigBtn?.addEventListener('click', async function() {
     // Verifica para retornar
-    if(!editSerialPort.value || !editBaudRate.value) return;
+    if(!editSerialPort.value || !editBaudRate.value) {
+        showToast({ message: 'A porta serial e o baudrate devem ser preenchidos' });
+        return;
+    }
 
     // Faz requisição para salvar as configs
-    const { success } = await api.request('/api/settings/save', { method: 'POST', body: { serialPort: editSerialPort.value, baudRate: editBaudRate.value, autoReconnect: editAutoReconnect.checked } });
+    const { message, success } = await api.request('/api/settings/save', { method: 'POST', body: { serialPort: editSerialPort.value, baudRate: editBaudRate.value, autoReconnect: editAutoReconnect.checked } });
+    
+    // Mostra notificação
+    showToast({ type: success ? 'success' : 'error', message });
     if(!success) return;
 
     // Desconecta da conexão atual
     stopSerialConnection();
-
-    window.location.href = '/home';
 });
 
 //* ======================{ Funções auxiliares }======================
@@ -61,8 +65,11 @@ saveConfigBtn?.addEventListener('click', async function() {
 // Função responsável por obter as configurações do usuário
 async function getSettings() {
     // Faz requisição para salvar as configs
-    const { success, data } = await api.request('/api/settings');
-    if(!success) return;
+    const { message, success, data } = await api.request('/api/settings');
+    if(!success) {
+        showToast({ message });
+        return;
+    }
     
     const { settings } = data;
 
@@ -74,8 +81,11 @@ async function getSettings() {
 
 // Função responsável por obter todas portas seriais e preencher o select
 async function getSerialPorts() {
-    const { success, data } = await api.request('/api/serial/ports');
-    if(!success) return;
+    const { message, success, data } = await api.request('/api/serial/ports');
+    if(!success) {
+        showToast({ message });
+        return;
+    }
     
     return data.ports.map(p => ({ value: p.path, name: `${p.path} - ${p.manufacturer}` }));
 }

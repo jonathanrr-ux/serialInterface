@@ -1,7 +1,51 @@
 body {
-    @apply h-screen text-xl 2xl:text-2xl bg-background text-text select-none;
+    @apply h-screen font-inter-text text-xl 2xl:text-2xl text-text antialiased select-none bg-background;
+
+    --color-primary-hover-50: rgba(5, 105, 166, 0.2);
+
+        background-image: linear-gradient(to bottom, var(--color-background) 40%, var(--color-primary-hover-50))
 }
 
 header {
-    @apply flex w-full border-b-2 items-center justify-between p-5 border-border bg-surface;
+    @apply
+        relative
+        flex
+        w-full
+        items-center
+        justify-between
+        px-8
+        py-5
+        border-b
+        border-white/10
+        overflow-hidden;
+
+    background: linear-gradient(
+        90deg,
+        #0b1020,
+        #11192d,
+        #151f38,
+        #11192d,
+        #0b1020
+    );
+
+    box-shadow:
+        0 1px rgba(255,255,255,.05),
+        0 10px 40px rgba(99,102,241,.08);
+}
+
+header::after {
+    @apply absolute left-[50%] -translate-x-1/2 bottom-0 translate-y-1/2 w-[30%];
+    content: "";
+
+    height: 40px;
+
+    background: radial-gradient(
+        ellipse at center,
+        rgb(104, 68, 189) 0%,
+        rgb(72, 9, 122) 50%,
+        rgba(99,102,241,.15) 55%,
+        transparent 100%
+    );
+
+    filter: blur(22px);
 }

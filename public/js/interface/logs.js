@@ -32,7 +32,7 @@ function createLog({ log }) {
     
     // Obtêm conteúdo do texto
     const content = log.bytes ? log.bytes.map(b => b.toString(16).padStart(2, '0').toUpperCase()).join(' ') : log.msg;
-
+    console.log(definition.color)
     const p = document.createElement('p');
     p.className = 'border-b-2 border-border py-2';
     p.innerHTML = `
@@ -57,8 +57,13 @@ async function getLogs() {
     data.logs.forEach(log => {
         logsList.appendChild(createLog({ log }));
     });
+
+    scrollLogsToBottom();
 }
 
+function scrollLogsToBottom() {
+    logsList.scrollTop = logsList.scrollHeight;
+}
 //* ======================{ Inicialização da página }======================
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -72,4 +77,6 @@ socket.on('serial:status', (data) => {
     // Cria logs
     const p = createLog({ log: data });
     logsList.appendChild(p);
+
+    scrollLogsToBottom();
 });

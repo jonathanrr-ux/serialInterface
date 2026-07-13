@@ -13,16 +13,16 @@ export const LOGS_DEFINITIONS = {
 
     'tx': {
         label: 'Enviado',
-        color: 'text-primary'
+        color: 'badge-send'
     },
 
     'rx': {
         label: 'Recebido',
-        color: 'text-success'
+        color: 'badge-received'
     },
 
     'error': {
         label: 'Erro',
-        color: 'text-danger'
+        color: 'badge-error'
     }
 }

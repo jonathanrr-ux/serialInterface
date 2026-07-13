@@ -10,7 +10,7 @@ export default async function postConfig(req) {
         // Atualiza informações do sistema
         setSystemConfig({ settings: { serialPort, baudRate: Number(baudRate), autoReconnect } });
 
-        return {};
+        return { message: 'Configurações salvas com sucesso' };
     } catch (err) {
         log.error('Erro saving config: ', err)
 
