@@ -88,7 +88,7 @@ export default class CustomSelect {
             parentEl: this.containerEl,
             element: 'button', 
             type: 'button', 
-            className: 'w-full h-full flex justify-between items-center px-2 border-2 border-border rounded-md bg-background',
+            className: 'w-full h-full flex justify-between items-center input',
             innerHTML: `<span class="text-start max-w-[85%] max-h-full break-all truncate">${this.#config.placeholderText}</span> <svg class="rotate-270 w-3 h-3" xmlns="http://www.w3.org/2000/svg" height="24px" width="24px" viewBox="0 0 24 32"><path stroke="#475569" stroke-width="2" d="M14.44,0,16,1.56,3.12,14.4,16,27.24,14.44,28.8,0,14.4Z"/></svg>`
         });
     }
@@ -131,7 +131,7 @@ export default class CustomSelect {
             this.#createElement({ 
                 parentEl: this.ul,
                 element: 'li',
-                className: `${this.#config.textCenter ? 'text-center' : ''} break-all w-full border-b-2 last:border-b-0 p-2 last:rounded-b-sm first:rounded-t-sm cursor-pointer active:bg-surface-3 border-border cursor-pointer hover:bg-surface-3`,
+                className: `${this.#config.textCenter ? 'text-center' : ''} break-all w-full border-b-2 last:border-b-0 p-2 last:rounded-b-sm first:rounded-t-sm cursor-pointer active:bg-surface-3 border-border cursor-pointer hover:bg-surface-3 text-[0.7em]`,
                 attr: 'data-value',
                 attrVal: value,
                 text: `${item.name}`

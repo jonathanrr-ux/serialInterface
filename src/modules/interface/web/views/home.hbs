@@ -37,14 +37,120 @@
     </div>
 
     {{!-- Centro --}}
-    <div class="h-full min-h-0 w-[45%] p-4 card">
-        {{!-- Wrapper --}}
-        <div data-active="false" class="data-[active=true]:flex hidden flex-col h-full min-h-0 justify-between">
+    <div id="package-editor-container" data-active="false" data-active-tab="rules" class="group flex flex-col h-full min-h-0 w-[45%] card">
+        {{!-- Tabs --}}
+        <div class="flex w-full border-b-2 border-border">
+            <button 
+                aria-selected="false" 
+                data-tab="packets"
+                class="group-data-[active=true]:flex hidden items-center gap-2 px-10 py-4 text-text font-bold 
+                    transition-all border-b-2 border-transparent -mb-0.5 aria-selected:[text-shadow:0_0_8px_var(--color-primary)]  
+                    aria-selected:border-b-2  aria-selected:border-primary  aria-selected:bg-primary/5 hover:[text-shadow:0_0_8px_var(--color-primary)] 
+                    hover:border-primary" 
+            >
+                <img src="/img/icons/packet.svg" class="size-5">
+                Pacotes
+            </button>
+
+            <button 
+                aria-selected="false" 
+                data-tab="rules"
+                class="flex items-center gap-2 px-10 py-4 -mb-0.5 border-b-2 aria-selected:border-b-2 font-bold 
+                    transition-all border-transparent aria-selected:border-primary hover:border-primary aria-selected:bg-primary/5 
+                    hover:[text-shadow:0_0_8px_var(--color-primary)] aria-selected:[text-shadow:0_0_8px_var(--color-primary)]" 
+                
+            >
+                <img src="/img/icons/rule.svg" class="size-5">
+                Regras
+            </button>
+        </div>
+
+        {{!-- Rules --}}
+        <div class="group-data-[active-tab=rules]:flex flex-col h-full min-h-0 hidden p-4">
+            {{!-- Título --}}
+            <div class="flex justify-between items-center w-full p-4">
+                <div class="flex flex-col font-bold gap-3">
+                    Motor de regras
+                    <p class="text-[0.7em] text-text-secondary font-normal">Defina ações automáticas baseadas nos dados recebidos</p>
+                </div>
+                <button commandfor="rules-modal" command="show-modal" class="base-button primary flex items-center gap-2 p-2 text-text font-bold text-[0.8em]">
+                    <img src="/img/icons/add.svg" class="size-[2rem]">
+                    Nova regra
+                </button>
+            </div>
+            <hr class="text-border w-full mt-2">
+
+            {{!-- Lista de regras --}}
+            <div id="rule-list" class="flex flex-col gap-4 p-4 overflow-y-auto flex-1 min-h-0">
+
+                <!-- Regra -->
+                <div class="card p-4">
+                    <div class="flex justify-between items-center">
+                        <div class="flex items-center gap-3">
+                            <span class="size-3 rounded-full bg-success"></span>
+                            <input class="input font-bold w-[18rem]" value="Recebe ACK">
+                        </div>
+
+                        <div class="flex gap-2">
+                            <button class="icon-button danger">
+                                <img src="/img/icons/trash.svg">
+                            </button>
+                        </div>
+                    </div>
+
+                    <hr class="my-4 text-border">
+
+                    <div class="grid grid-cols-[1fr_auto_1fr] gap-6">
+                        <div class="flex flex-col gap-2">
+                            <span class="font-bold text-text-secondary">Quando</span>
+                            <select class="input">
+                                <option>Último byte</option>
+                                <option>Primeiro byte</option>
+                                <option>Byte</option>
+                                <option>Sequência</option>
+                            </select>
+                            <select class="input">
+                                <option>Igual</option>
+                                <option>Diferente</option>
+                            </select>
+                            <input class="input" placeholder="06">
+                        </div>
+                        <div class="flex items-center text-4xl font-bold">
+                            →
+                        </div>
+                        <div class="flex flex-col gap-2">
+                            <span class="font-bold text-text-secondary">
+                                Então
+                            </span>
+                            <select class="input">
+                                <option>Enviar pacote</option>
+                                <option>Esperar</option>
+                                <option>Registrar Log</option>
+                            </select>
+                            <select class="input">
+                                <option>Status</option>
+                                <option>Abrir gaveta</option>
+                                <option>Reset</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="border-t-2 border-border flex justify-end pt-2">
+                <button class="base-button success rounded-xl px-6 py-3">
+                    Salvar regras
+                </button>
+            </div>
+        </div>
+
+        {{!-- Packets --}}
+        <div class="group-data-[active-tab=packets]:group-data-[active=true]:flex flex-1 hidden flex-col h-full min-h-0 p-4">
             {{!-- Título --}}
             <div class="flex justify-between items-center w-full">
-                <div class="flex font-bold gap-3">
-                    <img src="/img/icons/packet.svg" class="size-[2rem] drop-shadow-[0_0_8px_rgba(99,102,241,0.6)]">
+                <div class="flex flex-col font-bold gap-3 p-4">
                     Editor de pacotes
+                    <p class="text-[0.7em] text-text-secondary font-normal">Monte pacotes de dados para transmissão serial</p>
                 </div>
                 <details class="relative inline-block z-10">
                     <summary class="base-button primary flex items-center gap-2 p-2 text-text font-bold text-[0.8em]">
@@ -67,21 +173,19 @@
             <hr class="text-border w-full mt-2">
 
             {{!-- Lista de bytes --}}
-            <div id="packet-list" class="flex flex-col w-full flex-1 min-h-0 overflow-y-auto gap-3 font-mono">
-            </div>
+            <div class="flex flex-col flex-1 min-h-0">
+                <div id="packet-list" class="flex flex-col flex-1 min-h-0 overflow-y-auto gap-3 font-mono">
+                </div>
 
-            <!-- Botão -->
-            <div class="flex w-full justify-between">
-                <button
-                    id="save-template-button"
-                    class="w-[48%] disabled:opacity-30 px-6 py-3 base-button success rounded-xl"
-                >
-                    Salvar template
-                </button>
-
-                <button id="send-all-button" class="w-[48%] disabled:opacity-30 rounded-xl px-6 py-3 base-button primary">
-                    Enviar todos
-                </button>
+                <!-- Botão -->
+                <div class="flex w-full justify-between border-t-2 border-border pt-2">
+                    <button id="save-template-button" class="w-[48%] disabled:opacity-30 px-6 py-3 base-button success rounded-xl">
+                        Salvar template
+                    </button>
+                    <button id="send-all-button" class="w-[48%] disabled:opacity-30 rounded-xl px-6 py-3 base-button primary">
+                        Enviar todos
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -113,7 +217,7 @@
 
         <hr class="text-border mt-4">
 
-        <div id="logs-list" class="h-full min-h-0 font-mono text-[0.7em] overflow-y-auto bg-background p-4">
+        <div id="logs-list" class="w-full h-full min-h-0 font-mono text-[0.7em] overflow-y-auto bg-background p-4">
         </div>
     </div>
 
@@ -151,7 +255,69 @@
         </div>
 
     </dialog>
+
+    {{!-- Modal --}}
+    <dialog id="rules-modal" class="m-auto w-[45rem] rounded-xl border-2 border-border bg-surface p-0 text-text backdrop:bg-black/50">
+        {{!-- Cabeçalho --}}
+        <div class="border-b-2 border-border p-5">
+            <p class="font-bold">Adicionar regra</p>
+            <p class="mt-1 text-[0.7em] text-text-secondary">Escolha como esta regra será executada</p>
+        </div>
+
+        {{!-- Conteúdo --}}
+        <div class="grid grid-cols-[1fr_auto_1fr] gap-6 p-5">
+            {{!-- Selects quando --}}
+            <div class="flex flex-col gap-2">
+                {{!-- Condição --}}
+                <span class="font-bold text-text-secondary">Quando</span>
+                <div class="w-full font-normal relative h-[3rem] aria-disabled:opacity-50 aria-disabled:pointer-events-none" id="add-condition-type"></div>
+                
+                {{!-- Operador --}}
+                <div class="w-full font-normal relative h-[3rem] aria-disabled:opacity-50 aria-disabled:pointer-events-none" id="add-operator-type"></div>
+                
+                {{!-- Byte --}}
+                <input class="input" placeholder="Ex.: 06">
+            </div>
+            <div class="flex items-center text-4xl font-bold">
+                →
+            </div>
+            <div class="flex flex-col gap-2">
+                <span class="font-bold text-text-secondary">
+                    Então
+                </span>
+                <select class="input">
+                    <option>Enviar template completo</option>
+                    <option>Enviar pacotes específicos</option>
+                </select>
+                <select class="input">
+                    <option>Status</option>
+                    <option>Abrir gaveta</option>
+                    <option>Reset</option>
+                </select>
+            </div>
+        </div>
+
+        {{!-- Rodapé --}}
+        <div class="flex justify-end gap-3 border-t-2 border-border p-5">
+            <button
+                commandfor="rules-modal"
+                command="close"
+                class="base-button px-5 py-2 rounded-xl">
+                Cancelar
+            </button>
+
+            <button 
+                commandfor="rules-modal"
+                command="close"
+                id="save-new-rule-button" class="base-button success px-5 py-2 rounded-xl">
+                Salvar
+            </button>
+
+        </div>
+
+    </dialog>
 </section>
 
+<script type="module" src="/js/interface/rules.js"></script>
 <script type="module" src="/js/interface/template.js"></script>
 <script type="module" src="/js/interface/logs.js"></script>

@@ -9,12 +9,26 @@ const createNewPacketBtn = document.getElementById('create-new-packet-button');
 const bytesQuantityInput = document.getElementById('bytes-quantity-input');
 const sendAllBtn = document.getElementById('send-all-button');
 const responseInput = document.getElementById('response-input');
+const tabsBtn = document.querySelectorAll('[data-tab]');
+const packageEditorContainer = document.getElementById('package-editor-container');
 
 // Editor de pacotes
 export const packetList = document.getElementById('packet-list');
 
 const api = new FetchService();
 const MAX_BYTES = 9;
+
+// Inicializa página
+packageEditorContainer.dataset.activeTab = '';
+
+//* ======================{ Controle das tabs }======================
+
+// Adiciona evento de clique as abas
+tabsBtn.forEach(t => {
+    t.addEventListener('click', function() {
+        changeTab({ tab: this.dataset.tab });
+    });
+})
 
 //* ======================{ Controle da página }======================
 
@@ -212,3 +226,17 @@ responseInput.addEventListener('input', async function () {
         }
     });
 })
+
+//* ======================{ Funções auxiliares }======================
+
+// Função responsável por selecionar a tab
+export function changeTab({ tab }) {
+    // Desabilita todos
+    tabsBtn.forEach(b => b.setAttribute('aria-selected', false));
+
+    // Seleciona tab certa
+    document.querySelector(`[data-tab="${tab}"]`).setAttribute('aria-selected', true);
+
+    // Seleciona
+    packageEditorContainer.dataset.activeTab = tab;
+}

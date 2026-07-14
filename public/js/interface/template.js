@@ -1,6 +1,6 @@
 import FetchService from "../utils/fetchService.js";
 import showToast from '../utils/toast-notifications.js';
-import { createPacket, packetList } from './home.js';
+import { createPacket, packetList, changeTab } from './home.js';
 import CustomSelect from '../utils/custom-select.js';
 
 //* ======================{ Variáveis globais }======================
@@ -194,7 +194,10 @@ function selectTemplate(templateEl) {
 
     // Seleciona
     templateEl.setAttribute('aria-selected', 'true');
+
+    // Ativa páginas
     editPacketWrapper.dataset.active = true;
+    changeTab({ tab: 'packets' });
 
     // Obtêm o template selecionado
     const template = templatesMap.get(templateEl.dataset.id);
