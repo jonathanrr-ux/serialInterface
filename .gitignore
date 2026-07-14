@@ -1,3 +1,4 @@
 node_modules/
 logs/
+src/modules/templates/saved/
 .env

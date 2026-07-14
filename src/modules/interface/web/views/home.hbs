@@ -9,7 +9,7 @@
             </div>
 
             {{!-- Botões --}}
-            <button class="size-[2.5rem]">
+            <button commandfor="template-modal" command="show-modal" id="add-new-template" class="size-[2.5rem]">
                 <img src="/img/icons/add.svg" class="base-button primary size-full">
             </button>
         </div>
@@ -37,9 +37,9 @@
     </div>
 
     {{!-- Centro --}}
-    <div class="h-full min-h-0 w-[43%] p-4 card">
+    <div class="h-full min-h-0 w-[45%] p-4 card">
         {{!-- Wrapper --}}
-        <div class="hidden flex-col h-full min-h-0 justify-between">
+        <div data-active="false" class="data-[active=true]:flex hidden flex-col h-full min-h-0 justify-between">
             {{!-- Título --}}
             <div class="flex justify-between items-center w-full">
                 <div class="flex font-bold gap-3">
@@ -56,15 +56,15 @@
                     <div class="flex flex-col absolute right-0 mt-2 w-[20rem] rounded-lg border-2 border-border bg-surface p-4 gap-2">
                         <!-- Conteúdo -->
                         <p class="">Quantidade de bytes</p>
-                        <input id="bytes-quantity-input" type="number" min="1" max="9" value="9" class="w-full rounded border-2 p-2 outline-none border-border bg-background focus:border-primary">
+                        <input id="bytes-quantity-input" type="number" min="1" max="9" value="9" maxlength="1" class="input w-full">
                         
                         <hr class="text-border">
-                        <button id="create-new-packet-button" class="disabled:opacity-30 py-2 rounded-md bg-primary hover:bg-primary-hover font-bold">Criar</button>
+                        <button id="create-new-packet-button" type="button" class="base-button primary disabled:opacity-30 py-2 rounded-xl">Criar</button>
                     </div>
                 </details>
             </div>
 
-            <hr class="text-border w-full my-3">
+            <hr class="text-border w-full mt-2">
 
             {{!-- Lista de bytes --}}
             <div id="packet-list" class="flex flex-col w-full flex-1 min-h-0 overflow-y-auto gap-3 font-mono">
@@ -73,15 +73,13 @@
             <!-- Botão -->
             <div class="flex w-full justify-between">
                 <button
-                    id="add-new-template-button"
-                    commandfor="template-modal" 
-                    command="show-modal"
-                    class="w-[48%] disabled:opacity-30 rounded-lg px-6 py-3 font-semibold transition bg-success hover:bg-success-hover"
+                    id="save-template-button"
+                    class="w-[48%] disabled:opacity-30 px-6 py-3 base-button success rounded-xl"
                 >
                     Salvar template
                 </button>
 
-                <button id="send-all-button" class="w-[48%] disabled:opacity-30 rounded-lg px-6 py-3 font-semibold transition bg-primary hover:bg-primary-hover">
+                <button id="send-all-button" class="w-[48%] disabled:opacity-30 rounded-xl px-6 py-3 base-button primary">
                     Enviar todos
                 </button>
             </div>
@@ -89,11 +87,15 @@
     </div>
 
     {{!-- Lateral direita --}}
-    <div class="flex flex-col flex-1 h-full min-h-0 card overflow-hidden">
+    <div class="flex flex-col flex-1 items-center h-full min-h-0 card overflow-hidden">
         <div class="flex w-full items-center justify-between p-4">
             <div class="flex font-bold gap-3">
                 <img src="/img/icons/list.svg" class="size-[2rem] drop-shadow-[0_0_8px_rgba(99,102,241,0.6)]">
                 Logs
+            </div>
+            <div class="flex justify-between bg-surface-light border-2 border-border font-bold rounded-md">
+                <p class="self-center text-[0.8em] px-2">Tamanho da resposta:</p>
+                <input id="response-input" value="9" maxlength="1" class="bg-background size-[3rem] outline-none text-center p-2 border-l-2 border-border">
             </div>
             <button id="clear-all-logs-button" class="flex h-[3rem] base-button rounded-xl p-2 gap-2">
                 <img src="/img/icons/trash.svg" class="">
@@ -101,10 +103,12 @@
             </button>
         </div>
 
-        <div class="flex w-full justify-evenly text-[0.8em]">
-            <button class="rounded-xl py-1 px-5 font-bold text-primary bg-linear-to-b from-primary/30 to-primary/10 shadow-[0_8px_24px_rgba(0,0,0,.35),inset_rgba(255,255,255,.05)_1px_1px_1px] hover:shadow-[0_5px_15px_rgba(99,102,241,0.3)]">Enviado</button>
-            <button class="rounded-xl py-1 px-5 font-bold text-success bg-linear-to-b from-success/30 to-success/10 shadow-[0_8px_24px_rgba(0,0,0,.35),inset_rgba(255,255,255,.05)_1px_1px_1px] hover:shadow-[0_5px_15px_rgba(34,197,94,0.3)]">Recebido</button>
-            <button class="rounded-xl py-1 px-5 font-bold text-danger bg-linear-to-b from-danger/30 to-danger/10 shadow-[0_8px_24px_rgba(0,0,0,.35),inset_rgba(255,255,255,.05)_1px_1px_1px] hover:shadow-[0_5px_15px_rgba(239,68,68,0.3)]">Erro</button>
+        <div id="filter-logs-buttons" class="flex flex-wrap w-full justify-evenly text-[0.8em] gap-2">
+            <button data-filter="tx">Enviado</button>
+            <button data-filter="rx">Recebido</button>
+            <button data-filter="connection">Conexão</button>
+            <button data-filter="error">Erro</button>
+            <button data-filter="all">Todos</button>
         </div>
 
         <hr class="text-border mt-4">
@@ -118,33 +122,14 @@
 
         {{!-- Cabeçalho --}}
         <div class="border-b-2 border-border p-5">
-            <p class="font-bold">Salvar template</p>
-            <p class="mt-1 text-[0.7em] text-text-secondary">Escolha como deseja salvar este pacote.</p>
+            <p class="font-bold">Adicionar template</p>
+            <p class="mt-1 text-[0.7em] text-text-secondary">Escolha como este template vai se chamar</p>
         </div>
 
-        {{!-- Conteúdo --}}
-        <div data-template="new-template" class="group flex flex-col gap-5 p-5">
-            <label class="flex items-center gap-2">
-                <input type="radio" value="new-template" name="template-type" checked>
-                Novo template
-            </label>
-
-            <label class="flex items-center gap-2">
-                <input type="radio" value="exist-template" name="template-type">
-                Adicionar a um template existente
-            </label>
-
-            {{!-- Input de nome --}}
-            <div class="group-data-[template=new-template]:flex hidden flex-col gap-2">
-                <p class="text-[0.7em] text-text-secondary">Nome</p>
-                <input id="template-name-input" type="text" placeholder="Ex.: Abrir gaveta" class="h-[3rem] rounded-lg border-2 border-border bg-background p-2 outline-none focus:border-primary">
-            </div>
-
-            {{!-- Select --}}
-            <div class="group-data-[template=exist-template]:flex hidden flex-col w-[50%] gap-2">
-                <p class="text-[0.7em] text-text-secondary">Template</p>
-                <div aria-disabled="false" class="relative w-full h-[3rem] aria-disabled:opacity-50 aria-disabled:pointer-events-none" id="select-template"></div>
-            </div>
+        {{!-- Input de nome --}}
+        <div class="flex flex-col gap-2 p-4">
+            <p class="text-[0.7em] text-text-secondary">Nome</p>
+            <input id="template-name-input" type="text" placeholder="Ex.: Abrir gaveta" class="input h-[3rem]">
         </div>
 
         {{!-- Rodapé --}}
@@ -152,14 +137,14 @@
             <button
                 commandfor="template-modal"
                 command="close"
-                class="rounded-lg border-2 border-border px-5 py-2 hover:bg-surface-light">
+                class="base-button px-5 py-2 rounded-xl">
                 Cancelar
             </button>
 
             <button 
                 commandfor="template-modal"
                 command="close"
-                id="save-template-button" class="rounded-lg bg-success px-5 py-2 font-bold hover:bg-success-hover">
+                id="save-new-template-button" class="base-button success px-5 py-2 rounded-xl">
                 Salvar
             </button>
 

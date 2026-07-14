@@ -1,5 +1,4 @@
 import { createServer } from 'http';
-import { log } from './src/modules/shared/utils/logger.js';
 import { setSystemConfig } from './src/config/system.js';
 import 'dotenv/config';
 import { Server } from 'socket.io';
@@ -15,5 +14,5 @@ setSystemConfig({ serial: { connected: false } });
 
 // Inicia a aplicação
 server.listen(process.env.PORT, '0.0.0.0' , () => {
-    log.success(`Server started: localhost:${process.env.PORT}`);
+    console.log(`Server started: localhost:${process.env.PORT}`);
 });

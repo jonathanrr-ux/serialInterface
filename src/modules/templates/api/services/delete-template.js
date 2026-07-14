@@ -1,8 +1,7 @@
-import { log } from '../../../shared/utils/logger.js';
 import fs from 'fs/promises';
 import path from 'path';
 
-export default async function getTemplates(req) {
+export default async function deleteTemplate(req) {
     const { id } = req.params;
 
     try {       
@@ -14,9 +13,9 @@ export default async function getTemplates(req) {
 
         await fs.unlink(filePath);
 
-        return {};
+        return { message: 'Template deletado com sucesso' };
     } catch (err) {
-        log.error('Erro getting templates: ', err)
+        console.error('Erro getting templates: ', err)
 
         if (err instanceof Error) throw err;
         else throw new Error();

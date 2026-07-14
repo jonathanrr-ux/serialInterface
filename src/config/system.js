@@ -1,6 +1,5 @@
 import fs from 'fs';
 import path from 'path';
-import { log } from '../modules/shared/utils/logger.js';
 
 // Caminho do arquivo de configuração .json
 const root = process.cwd();
@@ -27,12 +26,12 @@ function verifySystemConfig() {
             fs.writeFileSync(systemPath, JSON.stringify(initialConfig, null, 4), 'utf-8');
 
             // Log
-            log.info('[system] system.json created');
+            console.info('[system] system.json created');
         }
 
     } catch (err) {
         // Caso de erro na criação
-        log.error('[system] Error creating system.json:', err);
+        console.error('[system] Error creating system.json:', err);
     }
 }
 
@@ -49,7 +48,7 @@ function loadSystemConfig() {
         return JSON.parse(content);
     } catch (err) {
         // Log
-        log.error('[system] Failed to load system.json:', err);
+        console.error('[system] Failed to load system.json:', err);
 
         return {};
     }
@@ -67,10 +66,10 @@ fs.watchFile(systemPath, (curr, prev) => {
         try {
             systemConfig = loadSystemConfig();
 
-            log.info('[system] Configuration reloaded');
+            console.info('[system] Configuration reloaded');
 
         } catch (err) {
-            log.error('[system] Failed to reload config:', err);
+            console.error('[system] Failed to reload config:', err);
         }
     }
 });

@@ -1,6 +1,5 @@
 import { createSerialConnection, closeSerialConnection, getSerialConnection } from './core/connection.js';
 import { send } from './core/sender.js';
-import { log } from '../shared/utils/logger.js';
 import { setSystemConfig } from '../../config/system.js';
 import { handleData } from '../serial/core/receiver.js';
 import { getIO } from '../../sockets/index.js';
@@ -55,8 +54,6 @@ function setupSerialEvents() {
             label: log.label,
             msg: err.message
         }).catch(console.error);
-
-        log.error('[serial] Error starting serial connection: ', err);
     });
 }
 

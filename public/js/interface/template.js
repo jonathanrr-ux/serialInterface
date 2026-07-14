@@ -7,15 +7,14 @@ import CustomSelect from '../utils/custom-select.js';
 
 const api = new FetchService();
 
-const addNewTemplateBtn = document.getElementById('add-new-template-button');
 const templateNameInput = document.getElementById('template-name-input');
-const radioButtons = document.querySelectorAll('input[type="radio"]');
-const dataTemplate = document.querySelector('[data-template]');
-const saveTemplateBtn = document.getElementById('save-template-button');
-export const responseInput = document.getElementById('response-input');
+const saveNewTemplateBtn = document.getElementById('save-new-template-button');
 const templatesList = document.getElementById('templates-list');
 const deleteAllTemplates = document.getElementById('delete-all-templates');
+const editPacketWrapper = document.querySelector('[data-active]');
 const searchBar = document.getElementById('search-bar');
+const addNewTemplate = document.getElementById('add-new-template');
+const saveTemplateBtn = document.getElementById('save-template-button');
 
 const templateSelect = new CustomSelect('select-template', { options: [], dropdownMaxHeight: '6rem' });
 
@@ -31,35 +30,15 @@ const colors = [
     '#ec4899'
 ];
 
-
 //* ======================{ Controle do modal }======================
 
 //* Eventos:
 
-// Adiciona evento de clique ao botão de adicionar template
-addNewTemplateBtn.addEventListener('click', (e) => {
-    if(!responseInput.value || responseInput.value == 0) {
-        e.preventDefault();
-        e.stopPropagation();
-        showToast({ message: 'Digite o tamanho da resposta do pacote' });
-        return;
-    }
-
-    templateSelect.options = [...templatesMap.values()].map(t => ({ value: t.id, name: t.name }))
-
-    // Limpa input
-    templateNameInput.value = '';
-});
-
-// Adiciona evento a checkbox de change
-radioButtons.forEach(r => {
-    r.addEventListener('change', function() {
-        dataTemplate.dataset.template = this.value; 
-    })
-});
-
-// Adiciona evento de clique ao botão de salvar template
+// ADiciona evento de clique ao botão de salvar o template
 saveTemplateBtn.addEventListener('click', async() => {
+    // Obtêm elemento selecionado
+    const selected = templatesList.querySelector('[aria-selected=true]');
+
     // Pega todos bytes do pacote
     const packets = document.querySelectorAll('.packet');
 
@@ -69,31 +48,37 @@ saveTemplateBtn.addEventListener('click', async() => {
 
         return bytes;
     });
+    
+    // Cria ou edita template
+    const template = await postTemplate({ url: `/api/templates/${selected.dataset.id}/edit`, method: 'POST', body: { packet: packetData } });
+})
 
+// Adiciona evento de clique ao botão de salvar template
+saveNewTemplateBtn.addEventListener('click', async() => {
     // Verifica se está adicionando
-    const newTemplate = dataTemplate.dataset.template == 'new-template';
-    if(newTemplate && !templateNameInput.value) {
+    if(!templateNameInput.value) {
         showToast({ message: 'Nome inválido' })
         return;
     }
     
     // Cria ou edita template
-    const template = await postTemplate(
-        { 
-            url: newTemplate ? '/api/templates/save' : `/api/templates/${templateSelect.value}/edit`, 
-            method: 'POST', 
-            body: newTemplate ? { name: templateNameInput.value, packet: packetData, response: responseInput.value } : { packet: packetData, response: responseInput.value }
-        }
-    );
+    const template = await postTemplate({ url: '/api/templates/save', method: 'POST', body: { name: templateNameInput.value } });
 
     // Cria template
-    if(newTemplate) createTemplateEl({ item: template });
+    createTemplateEl({ item: template });
 });
 
 //* ======================{ Controle dos templates }======================
 
 //* Eventos:
 
+// Evento de clique ao botão de adicionar novo template
+addNewTemplate.addEventListener('click', () => {
+    // Limpa input
+    templateNameInput.value = '';
+});
+
+// ADiciona evento de input a search bar
 searchBar.addEventListener('input', (e) => {
     const search = e.target.value.toLowerCase();
 
@@ -116,44 +101,8 @@ deleteAllTemplates.addEventListener('click', async() => {
     // Manda notificação e recarrega templates
     showToast({ type: 'success', message: 'Templates deletados com sucesso' });
     templatesMap.clear();
-    getTemplates();
-});
-
-// Adiciona evento de clique a lista de templates
-templatesList.addEventListener('click', async function(e) {
-    // Obtêm o elemento
-    const el = e.target.closest('.template');
-    if(!el) return;
-    
-    packetList.innerHTML = '';
-
-    if(e.target.closest('.menu-btn')) {
-        // Verifica confirmação
-        if(!confirm('Deseja excluir o template?')) return;
-
-        // Faz requisição
-        const { success } = await api.request(`/api/templates/${el.dataset.id}/delete`, { method: 'DELETE' });
-        if(!success) return;
-
-        // Remove item
-        templatesMap.delete(el.dataset.id)
-        el.remove();
-        return;
-    }
-
-    // Desabilita botão habilitado
-    this.querySelectorAll('[aria-selected]').forEach(a => a.setAttribute('aria-selected', false));
-
-    // Adiciona aria selected
-    el.setAttribute('aria-selected', true);
-    
-    // Obtêm o template selecionado
-    const selectedTemplate = templatesMap.get(el.dataset.id);
-    responseInput.value = selectedTemplate.response;
-
-    selectedTemplate.packets.forEach(p => {
-        createPacket({ bytes: p.length, values: p });
-    });
+    editPacketWrapper.dataset.active = false;
+    templatesList.innerHTML = '';
 });
 
 //* Funções:
@@ -174,8 +123,8 @@ function createTemplateEl({ item }) {
     const div = document.createElement('div');
     div.className = `template flex justify-between w-full p-5 rounded-xl transition-all duration-300
         bg-linear-to-b from-surface-3 to-surface shadow-[0_8px_24px_rgba(0,0,0,.35),inset_rgba(31,41,55)_1px_1px_1px] 
-        hover:-translate-y-1 hover:border-primary hover:shadow-[0_5px_15px_rgba(99,102,241,.25),inset_1px_1px_1px_rgba(31,41,55,.8)]
-    aria-selected:border-primary`;
+        hover:-translate-y-1 border border-white/10 hover:border-primary hover:shadow-[0_5px_15px_rgba(99,102,241,.25),inset_1px_1px_1px_rgba(31,41,55,.8)]
+        aria-selected:border-primary group`;
     div.setAttribute('aria-selected', false);
     div.dataset.id = item.id;
     div.innerHTML = `
@@ -195,6 +144,63 @@ function createTemplateEl({ item }) {
 
     // Adiciona ao DOM
     templatesList.appendChild(div);
+
+    div.addEventListener('click', e => onTemplateClick(e, div));
+}
+
+// Função responsável por cuidar dos cliques no template
+async function onTemplateClick(e, templateEl) {
+    // Deleta template
+    if (e.target.closest('.menu-btn')) return deleteTemplate(templateEl);
+
+    // Seleciona template
+    selectTemplate(templateEl);
+}
+
+// Função responsável por deletar template
+async function deleteTemplate(templateEl) {
+    // Pede confirmação
+    if (!confirm('Deseja excluir o template?')) return;
+
+    // Faz requisição para deletar template
+    const { message, success } = await api.request(`/api/templates/${templateEl.dataset.id}/delete`, { method: 'DELETE' });
+    if (!success) {
+        showToast({ message });
+        return;
+    }
+
+    // Mostra notificação
+    showToast({ type: 'success', message });
+
+    // Deleta do Map e el
+    templatesMap.delete(templateEl.dataset.id);
+    templateEl.remove();
+
+    // Verifica se o elemento estava selecionado
+    const wasSelected = templateEl.getAttribute('aria-selected') === 'true';
+    if (wasSelected) {
+        packetList.innerHTML = '';
+        editPacketWrapper.dataset.active = false;
+    }
+}
+
+// Função responsável por selecionar o template
+function selectTemplate(templateEl) {
+    // Limpa lista
+    packetList.innerHTML = '';
+
+    // Remove seleção dos elementos
+    templatesList.querySelectorAll('[aria-selected="true"]').forEach(el => el.setAttribute('aria-selected', 'false'));
+
+    // Seleciona
+    templateEl.setAttribute('aria-selected', 'true');
+    editPacketWrapper.dataset.active = true;
+
+    // Obtêm o template selecionado
+    const template = templatesMap.get(templateEl.dataset.id);
+
+    // Cria pacotes
+    template.packets.forEach(packet => { createPacket({ bytes: packet.length, values: packet }) });
 }
 
 //* ======================{ Funções auxiliares }======================
@@ -208,7 +214,7 @@ async function postTemplate({ method, url, body }) {
     };
 
     // Mostra mensagem de sucesso
-    showToast({ type: 'success', message: 'Template salvo com sucesso' });
+    showToast({ type: 'success', message });
 
     // Cria template
     templatesMap.set(data.template.id, data.template);

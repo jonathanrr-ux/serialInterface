@@ -1,28 +1,28 @@
 export const LOGS_DEFINITIONS = {
     'connection-started': {
         msg: 'Conexão iniciada',
-        label: 'Iniciado',
+        label: 'Conexão',
         color: 'text-pink-500'
     },
 
     'connection-closed': {
         msg: 'Conexão fechada',
-        label: 'Fechada',
+        label: 'Conexão',
         color: 'text-red-500'
     },
 
     'tx': {
         label: 'Enviado',
-        color: 'badge-send'
+        color: 'text-secondary'
     },
 
     'rx': {
         label: 'Recebido',
-        color: 'badge-received'
+        color: 'text-success'
     },
 
     'error': {
         label: 'Erro',
-        color: 'badge-error'
+        color: 'text-danger'
     }
 }

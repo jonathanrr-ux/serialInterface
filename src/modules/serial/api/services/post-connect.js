@@ -1,4 +1,3 @@
-import { log } from '../../../shared/utils/logger.js';
 import CustomError from '../../../shared/utils/custom-error.js'
 import { getSystemConfig } from '../../../../config/system.js';
 import { initSerial } from '../../init.js';
@@ -19,7 +18,7 @@ export default async function postConnect(req) {
 
         return {};
     } catch (err) {
-        log.error('Erro connecting serial: ', err)
+        console.error('Erro connecting serial: ', err)
 
         if (err instanceof CustomError()) throw err;
         else throw new CustomError();

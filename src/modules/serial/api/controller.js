@@ -27,6 +27,15 @@ export async function postDisconnect(req, res, next) {
     } 
 }
 
+export async function postByteLength(req, res, next) {
+    try {
+        const data = await services.postByteLength(req);
+        res.status(200).json(data);
+    } catch(err) {
+        next(err);
+    } 
+}
+
 export async function postSendBytes(req, res, next) {
     try {
         const data = await services.postSendBytes(req);

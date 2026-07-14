@@ -1,4 +1,3 @@
-import { log } from '../../../shared/utils/logger.js';
 import fs from 'fs/promises';
 import path from 'path';
 
@@ -21,9 +20,9 @@ export default async function postEditTemplate(req) {
         // Escreve arquivo
         await fs.writeFile(file, JSON.stringify(template, null, 4));
         
-        return { data: { template } };
+        return { data: { template }, message: 'Template editado com sucesso' };
     } catch (err) {
-        log.error('Erro saving template: ', err)
+        console.error('Erro saving template: ', err)
 
         if (err instanceof Error) throw err;
         else throw new Error();

@@ -7,10 +7,23 @@ const socket = io();
 const api = new FetchService();
 const logsList = document.getElementById('logs-list');
 const clearAllLogsBtn = document.getElementById('clear-all-logs-button');
+const filterLogsBtn = document.querySelectorAll('#filter-logs-buttons button');
 
 //* ======================{ Controle dos logs }======================
 
 //* Eventos:
+filterLogsBtn.forEach(f => {
+    f.addEventListener('click', function() {
+        // Obtêm o tipo do botão clicado
+        const filter = f.dataset.filter;
+
+        // Itera sobre os logs
+        logsList.querySelectorAll('p').forEach(log => {
+            if (filter === 'all' || log.dataset.type === filter) log.classList.remove('hidden');
+            else log.classList.add('hidden');
+        });
+    });
+})
 
 // Adiciona evento de clique ao botão de limpar todos logs
 clearAllLogsBtn.addEventListener('click', async() => {
@@ -32,9 +45,10 @@ function createLog({ log }) {
     
     // Obtêm conteúdo do texto
     const content = log.bytes ? log.bytes.map(b => b.toString(16).padStart(2, '0').toUpperCase()).join(' ') : log.msg;
-    console.log(definition.color)
+    
     const p = document.createElement('p');
-    p.className = 'border-b-2 border-border py-2';
+    p.className = `border-b-2 border-border py-2`;
+    p.dataset.type = (log.type === 'connection-started') || (log.type === 'connection-closed') ? 'connection' : log.type;
     p.innerHTML = `
         <span class="${definition.color}">
             [${formatted}] ${definition.label}:

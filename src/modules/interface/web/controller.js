@@ -1,5 +1,3 @@
-import { log } from '../../shared/utils/logger.js';
-
 // Renderiza a página padrão
 export async function getHome(req, res, next) {
     try {
@@ -8,7 +6,7 @@ export async function getHome(req, res, next) {
             js: ["interface/home"]
         });
     } catch (err) {
-        log.error('Error rendering settings page: ', err);
+        console.error('Error rendering settings page: ', err);
 
         if (err instanceof Error) next(err);
         else next(new Error());

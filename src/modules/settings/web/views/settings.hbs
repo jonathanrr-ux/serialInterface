@@ -20,7 +20,12 @@
         </div>
 
         <div class="flex items-center gap-3 p-3">
-            <input id="auto-reconnect" type="checkbox" class="size-5"/>
+            <input id="auto-reconnect" type="checkbox" class=" size-5 appearance-none
+                rounded-md border border-border bg-surface cursor-pointer transition-all duration-200
+                checked:bg-primary checked:border-primary checked:shadow-[0_0_12px_rgba(99,102,241,0.45)]
+                checked:after:content-['✓'] checked:after:flex checked:after:items-center checked:after:justify-center
+                checked:after:text-white checked:after:font-bold checked:after:text-sm hover:border-primary
+            "/>
 
             <label for="auto-reconnect">
                 Reconectar automaticamente

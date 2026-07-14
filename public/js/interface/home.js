@@ -1,6 +1,5 @@
 import FetchService from '../utils/fetchService.js';
 import showToast from '../utils/toast-notifications.js';
-import { responseInput } from './template.js';
 
 //* ======================{ Variáveis Globais }======================
 
@@ -8,6 +7,8 @@ import { responseInput } from './template.js';
 const details = document.querySelector('details');
 const createNewPacketBtn = document.getElementById('create-new-packet-button');
 const bytesQuantityInput = document.getElementById('bytes-quantity-input');
+const sendAllBtn = document.getElementById('send-all-button');
+const responseInput = document.getElementById('response-input');
 
 // Editor de pacotes
 export const packetList = document.getElementById('packet-list');
@@ -25,14 +26,28 @@ document.addEventListener('click', (e) => {
     if (!details.contains(e.target)) details.removeAttribute('open');
 });
 
+sendAllBtn.addEventListener('click', async() => {
+    // Pega todos bytes do pacote
+    const packets = document.querySelectorAll('.packet');
+
+    // Obtêm pacotes
+    const packetData = [...packets].map(packet => {
+        const bytes = [...packet.querySelectorAll('.packet-byte input')].map(input => parseInt(input.value, 16));
+
+        return bytes;
+    });
+
+    // Faz requisição para enviar
+    const { message, success } = await api.request('/api/serial/send', { method: 'POST',  body: { bytes: packetData } });
+    if(!success) return;
+});
+
 //* ======================{ Controle do pop over }======================
 
 //* Eventos:
 
 // Adiciona evento de clique ao botão de criar novo pacote
 createNewPacketBtn.addEventListener('click', () => {
-    document.querySelectorAll('[aria-selected]').forEach(a => a.setAttribute('aria-selected', false));
-
     // Obtêm o input
     const value = Number(bytesQuantityInput.value);
 
@@ -50,15 +65,15 @@ createNewPacketBtn.addEventListener('click', () => {
 export function createPacket({ bytes, values = [] }) {
     if(!bytes) return;
     
-    // Cria elemento
     const packet = document.createElement('div');
-    packet.className = 'packet relative flex gap-3 border-b-2 border-border';
+    packet.className = 'packet-container flex w-full items-center justify-between border-b-2 border-border p-2';
     packet.innerHTML = `
-        <div class="flex absolute right-0 gap-2">
-            <div class="delete-btn size-[3rem] rounded-md bg-danger hover:bg-danger-hover">
+        <div class="packet flex items-center gap-1"></div>
+        <div class="flex gap-2">
+            <div class="delete-btn size-[3.5rem] rounded-xl base-button danger">
                 <img src="/img/icons/trash.svg" class="size-full p-2">
             </div>
-            <div class="send-btn size-[3rem] rounded-md bg-primary hover:bg-primary-hover">
+            <div class="send-btn size-[3.5rem] rounded-xl base-button primary">
                 <img src="/img/icons/send.svg" class="size-full p-2">
             </div>
         </div>`;
@@ -66,22 +81,25 @@ export function createPacket({ bytes, values = [] }) {
     // Adiciona a lista
     packetList.appendChild(packet);
 
+    // Obtêm o a div dos pacotes
+    const packetContent = packet.querySelector('.packet');
+
     // Cria cada byte
-    for(let i = 0; i < bytes; i++) createPacketEl({ parent: packet, item: i, value: values[i] });
+    for(let i = 0; i < bytes; i++) createPacketEl({ parent: packetContent, item: i, value: values[i] });
     
     // Cria botão de adicionar
-    updateAddButton(packet);
+    updateAddButton(packetContent);
 }
 
 // Função responsável por criar os bytes
 export function createPacketEl({ parent, item, value = 0 }) {
     // Cria el
     const byte = document.createElement('div');
-    byte.className = 'packet-byte relative flex flex-col gap-1';
+    byte.className = 'packet-byte group';
     byte.innerHTML = `
-        <input type="text" maxlength="2" value="${value.toString(16).padStart(2, '0').toUpperCase()}" class="text-center border-2 border-border rounded-md size-[3rem] bg-background outline-none p-2">
-        <label class="text-center text-[0.6em]">Byte ${item + 1}</label>
-        <div class="x-btn absolute right-0 top-0 -translate-x-2/2 text-[0.5em] cursor-pointer">X</div>
+        <input type="text" maxlength="2" value="${value.toString(16).padStart(2, '0').toUpperCase()}" class="size-full outline-none text-center">
+        <label class="text-center text-[0.6em]">${item + 1}</label>
+        <div class="x-btn absolute right-0 top-0 -translate-x-1/2 text-[0.6em] cursor-pointer">✕</div>
     `;
     
     const addContainer = parent.querySelector('.add-container');
@@ -97,8 +115,9 @@ export function createPacketEl({ parent, item, value = 0 }) {
 // Adiciona evento de clique a lista
 packetList.addEventListener('click', async(e) => {
     // Obtêm pacote
-    const packet = e.target.closest('.packet');
-    if (!packet) return;
+    const packetContainer = e.target.closest('.packet-container');
+    const packet = e.target.closest('.packet')
+    if (!packetContainer) return;
 
     // Remove byte
     if (e.target.closest('.x-btn')) {
@@ -128,31 +147,18 @@ packetList.addEventListener('click', async(e) => {
 
     // Remove pacote
     if (e.target.closest('.delete-btn')) {
-        packet.remove();
+        packetContainer.remove();
         return;
     }
 
     // Envia pacote
     if (e.target.closest('.send-btn')) {
-        const btn = e.target.closest('.send-btn');
+        // Obtêm o pacote
+        const packetData = [...packetContainer.querySelectorAll('.packet-byte input')].map(input => parseInt(input.value, 16));
 
-        if (btn.disabled) return;
-
-        btn.disabled = true;
-
-        try {
-            const packetData = [...packet.querySelectorAll('.packet-byte input')].map(input => parseInt(input.value, 16));
-
-            await api.request('/api/serial/send', {
-                method: 'POST',
-                body: {
-                    bytes: packetData,
-                    responseLength: Number(responseInput.value)
-                }
-            });
-        } finally {
-            btn.disabled = false;
-        }
+        // Faz requisição para enviar
+        const { message, success } = await api.request('/api/serial/send', { method: 'POST',  body: { bytes: packetData } });
+        if(!success) return;
     }
 });
 
@@ -161,7 +167,7 @@ packetList.addEventListener('click', async(e) => {
 // Função responsável por atualizar os labels
 function updateLabels(parent) {
     parent.querySelectorAll('.packet-byte').forEach((byte, index) => {
-        byte.querySelector('label').textContent = `Byte ${index + 1}`;
+        byte.querySelector('label').textContent = `${index + 1}`;
     });
 }
 
@@ -178,9 +184,9 @@ export function updateAddButton(parent) {
         if (!addContainer) {
             // Cria el
             const add = document.createElement('div');
-            add.className = 'add-container relative flex flex-col';
+            add.className = 'add-container relative flex flex-col w-[4rem] h-[5rem] items-center justify-between gap-1 rounded-xl p-2 bg-background border-dashed border-2 border-border cursor-pointer';
             add.innerHTML = `
-                <div class="add-btn border-dashed border-2 border-border rounded-md size-[3.5rem] bg-background p-2 hover:bg-surface-light">
+                <div class="add-btn rounded-md size-[3.5rem] bg-background p-2 hover:bg-surface-light">
                     <img src="/img/icons/add.svg" class="size-full">
                 </div>
 
@@ -192,4 +198,17 @@ export function updateAddButton(parent) {
     } else addContainer?.remove();
 }
 
-//* ======================{ Controle do envio de pacotes }======================
+//* ======================{ Controle do recebimento de pacotes }======================
+
+responseInput.addEventListener('input', async function () {
+    // Verifica se o valor escrito é valido
+    if (!this.value.trim().length) return;
+
+    // Envia novo valor a uma rota para fazer a alteração da leitura
+    await api.request('/api/serial/byte-length', {
+        method: 'POST',
+        body: {
+            byteLength: Number(this.value)
+        }
+    });
+})

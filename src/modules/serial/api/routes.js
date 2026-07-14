@@ -15,4 +15,7 @@ router.post('/disconnect', controller.postDisconnect);
 // Rota responsável por enviar os byes
 router.post('/send', controller.postSendBytes);
 
+// Rota responsável por enviar os byes
+router.post('/byte-length', controller.postByteLength);
+
 export default router;

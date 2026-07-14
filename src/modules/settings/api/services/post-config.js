@@ -1,4 +1,3 @@
-import { log } from '../../../shared/utils/logger.js';
 import CustomError from '../../../shared/utils/custom-error.js'
 import { setSystemConfig } from '../../../../config/system.js';
 
@@ -12,7 +11,7 @@ export default async function postConfig(req) {
 
         return { message: 'Configurações salvas com sucesso' };
     } catch (err) {
-        log.error('Erro saving config: ', err)
+        console.error('Erro saving config: ', err)
 
         if (err instanceof CustomError()) throw err;
         else throw new CustomError();

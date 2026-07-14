@@ -1,8 +1,7 @@
-import { log } from '../../../shared/utils/logger.js';
 import fs from 'fs/promises';
 import path from 'path';
 
-export default async function getTemplates(req) {
+export default async function deleteAllTemplates(req) {
     try {       
         // Obtêm a pasta de templates
         const templateDir = path.join(process.cwd(), 'src', 'modules', 'templates', 'saved');
@@ -11,15 +10,11 @@ export default async function getTemplates(req) {
         const files = await fs.readdir(templateDir);
 
         // Exclui todos
-        await Promise.all(
-            files.map(file =>
-                fs.unlink(path.join(templateDir, file))
-            )
-        );
+        await Promise.all(files.map(file => fs.unlink(path.join(templateDir, file))));
 
-        return {};
+        return { message: 'Templates deletados com sucesso' };
     } catch (err) {
-        log.error('Erro getting templates: ', err)
+        console.error('Erro getting templates: ', err)
 
         if (err instanceof Error) throw err;
         else throw new Error();

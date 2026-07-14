@@ -1,4 +1,3 @@
-import { log } from '../../../shared/utils/logger.js';
 import fs from 'fs/promises';
 import path from 'path';
 
@@ -23,7 +22,7 @@ export default async function getTemplates(req) {
 
         return { data: { templates } };
     } catch (err) {
-        log.error('Erro getting templates: ', err)
+        console.error('Erro getting templates: ', err)
 
         if (err instanceof Error) throw err;
         else throw new Error();

@@ -1,11 +1,10 @@
-import { log } from '../../../shared/utils/logger.js';
 import fs from 'fs/promises';
 import path from 'path';
 import { randomUUID } from 'crypto';
 
 export default async function postSaveTemplate(req) {
     // Obtêm o nome e pacote a salvar
-    const { name, packet, response } = req.body
+    const { name } = req.body
     
     try {       
         // Obtêm a pasta de templates
@@ -18,12 +17,7 @@ export default async function postSaveTemplate(req) {
         const id = randomUUID();
 
         // Cria escopo to template
-        const template = {
-            id,
-            name,
-            packets: packet,
-            response
-        };
+        const template = { id, name, packets: [] };
 
         // Escreve no arquivo
         await fs.writeFile(
@@ -31,9 +25,9 @@ export default async function postSaveTemplate(req) {
             JSON.stringify(template, null, 4)
         );
 
-        return { data: { template } };
+        return { data: { template }, message: 'Template adicionado com sucesso' };
     } catch (err) {
-        log.error('Erro saving template: ', err)
+        console.error('Erro saving template: ', err)
 
         if (err instanceof Error) throw err;
         else throw new Error();

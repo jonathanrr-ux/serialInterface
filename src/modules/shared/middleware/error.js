@@ -1,5 +1,4 @@
 import CustomError from "../../shared/utils/custom-error.js";
-import { log } from "../utils/logger.js";
 
 export default function errorHandler(err, req, res, next) {
     const isCustomError = err instanceof CustomError;
@@ -9,7 +8,7 @@ export default function errorHandler(err, req, res, next) {
     const fields = isCustomError ? err.fields : undefined;
     const messageOptions = isCustomError ? err.messageOptions : undefined;
 
-    log.error('ERROR: ', {
+    console.error('ERROR: ', {
         message,
         status,
         fields,
