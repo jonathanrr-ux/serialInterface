@@ -9,10 +9,12 @@ export default async function postRule(req) {
     
     try {       
         // Obtêm a pasta de rules
-        const ruleDir = path.join(process.cwd(), 'src', 'modules', 'rules', 'saved');
+        const ruleDir = path.join(process.cwd(), 'src', 'modules', 'rules', 'storage');
 
         // Cria a pasta caso não exista
         await fs.mkdir(ruleDir, { recursive: true });
+
+        const savedRules = [];
 
         // Salva as regras
         for (const rule of rules) {
@@ -22,9 +24,11 @@ export default async function postRule(req) {
 
             const file = path.join(ruleDir, `${id}.json`);
             await fs.writeFile(file, JSON.stringify(ruleData, null, 4), 'utf8');
+
+            savedRules.push(ruleData);
         }
 
-        return { message: 'Regra salva com sucesso' };
+        return { message: 'Regra salva com sucesso', data: { rules: savedRules } };
     } catch (err) {
         console.error('Erro getting serial ports: ', err)
 

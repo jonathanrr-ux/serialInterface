@@ -18,16 +18,6 @@ const addNewTemplate = document.getElementById('add-new-template');
 const saveTemplateBtn = document.getElementById('save-template-button');
 
 export let templatesMap = new Map();
-const colors = [
-    '#ef4444',
-    '#f97316',
-    '#eab308',
-    '#22c55e',
-    '#06b6d4',
-    '#3b82f6',
-    '#8b5cf6',
-    '#ec4899'
-];
 
 //* ======================{ Controle do modal }======================
 
@@ -119,7 +109,7 @@ deleteAllTemplates.addEventListener('click', async() => {
     // Manda notificação e recarrega templates
     showToast({ type: 'success', message: 'Templates deletados com sucesso' });
     templatesMap.clear();
-    refreshRulesTemplate({ templates: [] });
+    refreshRulesTemplate({ all: true });
     editPacketWrapper.dataset.active = false;
     templatesList.innerHTML = '';
 });
@@ -158,8 +148,11 @@ function createTemplateEl({ item }) {
     templatesMap.set(item.id, item);
 
     // Defini uma cor aleatória
+    const color = randomColor();
     const dot = div.querySelector('.color-dot');
-    dot.style.backgroundColor = randomColor();
+
+    dot.style.backgroundColor = color;
+    dot.style.boxShadow = `0 0 10px ${color}`;
 
     // Adiciona ao DOM
     templatesList.appendChild(div);
@@ -256,7 +249,9 @@ async function getTemplates() {
 
 // Pega cor aleatoria
 function randomColor() {
-    return colors[Math.floor(Math.random() * colors.length)];
+    const hue = Math.floor(Math.random() * 360);
+
+    return `hsl(${hue}, 80%, 60%)`;
 }
 
 //* ======================{ Inicialização da página }======================

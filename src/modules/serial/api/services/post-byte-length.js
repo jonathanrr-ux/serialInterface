@@ -1,5 +1,5 @@
 import { getNewParser } from '../../core/connection.js';
-import { handleData } from '../../core/receiver.js';
+import { handleData } from '../../core/handler.js';
 import CustomError from '../../../shared/utils/custom-error.js';
 import { serialLog } from '../../../shared/utils/serial-logger.js'; 
 import { LOGS_DEFINITIONS } from '../../../../../public/js/utils/logs-definitions.js';

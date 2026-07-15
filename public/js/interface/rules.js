@@ -19,10 +19,12 @@ newRuleBtn.addEventListener('click', () => {
 });
 
 // ADiciona botão de clique para salvar regra
-saveNewRuleBtn.addEventListener('click', async() => {
+saveNewRuleBtn.addEventListener('click', async(e) => {
+    const ruleListChildren = ruleList.children;
+
     // Obtêm regras 
-    const total = ruleList.children.length;
-    const rules = [...ruleList.children].map(validateFields).filter(Boolean);
+    const total = ruleListChildren.length;
+    const rules = [...ruleListChildren].map(validateFields).filter(Boolean);
 
     // Existem regras na tela, mas nenhuma válida
     if (total > 0 && rules.length === 0) {
@@ -34,9 +36,31 @@ saveNewRuleBtn.addEventListener('click', async() => {
     const { message, success, data } = await updateRules({ url: '/api/rules', method: "POST", body: { rules } });
     showToast({ type: success ? 'success' : 'error', message });
     if(!success) return;
+
+    // Atualiza IDs criados pelo backend
+    data.rules.forEach((savedRule, index) => {
+        const ruleElement = ruleListChildren[index];
+        if(ruleElement) ruleElement.dataset.id = savedRule.id;
+    });
+
+    // Atualiza os indicadores visuais
+    [...ruleListChildren].forEach(ruleElement => {
+        const enabled = ruleElement.querySelector('.toggle-response').checked;
+        const dot = ruleElement.querySelector('.status-dot');
+        
+        updateStatusDot(dot, enabled);
+    });
 })
 
 //* Funções:
+
+function updateStatusDot(dot, enabled) {
+    dot.classList.toggle('bg-success', enabled);
+    dot.classList.toggle('bg-danger', !enabled);
+
+    dot.classList.toggle('shadow-[0_0_10px_rgba(34,197,94,0.9)]', enabled);
+    dot.classList.toggle('shadow-[0_0_8px_rgba(239,68,68,0.8)]', !enabled);
+}
 
 // Função responsável por criar uma nova regra
 function createRule({ rule = null } = {}) {
@@ -48,8 +72,6 @@ function createRule({ rule = null } = {}) {
 
     // Obtêm HTML
     div.innerHTML = getRuleHTML({ rule });
-    
-    updateInputs({ input: div.querySelector('.condition-value') });
 
     // Cria selects de templates e adiciona evento
     setupTemplateSelect({ ruleElement: div, rule });
@@ -64,11 +86,22 @@ function getRuleHTML({ rule = null } = {}) {
     return `
         <div class="flex justify-between items-center">
             <div class="flex items-center gap-3">
-                <span class="size-3 rounded-full bg-success"></span>
-                <input class="input font-bold w-[18rem]" value="${rule?.name ?? 'Nova regra'}">
+                <span class="status-dot size-3 rounded-full ${rule?.enabled ? 'bg-success shadow-[0_0_10px_rgba(34,197,94,0.9)]' : 'bg-danger shadow-[0_0_8px_rgba(239,68,68,0.8)]'}"></span>
+                <input class="input name-input font-bold w-[18rem]" value="${rule?.name ?? 'Nova regra'}">
             </div>
 
-            <div class="flex gap-2">
+            <div class="flex gap-5">
+                <div class="flex items-center gap-2">
+                    <p class="text-[0.7em]">Resposta automática:</p>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" ${rule?.enabled ? 'checked' : ''} class="toggle-response sr-only peer">
+
+                        <div class="w-12 h-6 rounded-full bg-surface-3 peer-checked:bg-primary transition-colors"></div>
+                        <div class="absolute left-1 top-1 size-4 rounded-full bg-white transition-transform peer-checked:translate-x-6"></div>
+                    </label>
+                </div>
+
+
                 <button class="icon-button danger cursor-pointer">
                     <img src="/img/icons/trash.svg">
                 </button>
@@ -91,7 +124,7 @@ function getRuleHTML({ rule = null } = {}) {
                     <option value="different" ${rule?.condition?.operator === 'different' ? 'selected' : ''}>for diferente de</option>
                 </select>
                 
-                <input class="input condition-value" placeholder="Ex.: 06" value="${rule?.condition?.value ?? ''}">
+                <input class="input condition-value" placeholder="Ex.: 06" value="${formatConditionValue(rule?.condition?.value)}">
             </div>
             <div class="flex items-center text-4xl font-bold">
                 →
@@ -168,6 +201,8 @@ function setupEvents(rule) {
     // Obtêm select
     const select = rule.querySelector('.send-mode');
     const iconBtn = rule.querySelector('.icon-button');
+    const conditionField = rule.querySelector('.condition-field');
+    const conditionValueInp = rule.querySelector('.condition-value')
 
     // Muda estilo
     select.addEventListener('change', () => {
@@ -187,6 +222,26 @@ function setupEvents(rule) {
             if(!success) return;
         }
     });
+
+    // Função responsável por atualizar input
+    function updateConditionInput() {
+        conditionValueInp.value = formaVal(conditionValueInp.value);
+        conditionValueInp.oninput = () => { conditionValueInp.value = formaVal(conditionValueInp.value) };
+    }
+
+    // Função responsável por formatar input
+    function formaVal(value) {
+        // Remove espaços
+        value = value.replace(/\s/g, '').toUpperCase();
+
+        if (conditionField.value === 'sequence') return value.replace(/(.{2})/g, '$1 ').trim();
+
+        // Byte único: apenas FF
+        return value.slice(0, 2);
+    }
+
+    conditionField.addEventListener('change', updateConditionInput);
+    updateConditionInput();
 }
 
 //* ======================{ Funções auxiliares }======================
@@ -211,19 +266,20 @@ async function updateRules({ url, method, body }) {
 // Função responsável por extrair conteúdos para salvar
 function getRuleData(ruleElement) {
     const type = ruleElement.querySelector('.send-mode').value;
-
+    
     return {
         // Obtêm id
         id: ruleElement.dataset.id ?? null,
 
         // Obtêm nome
-        name: ruleElement.querySelector('input').value,
+        name: ruleElement.querySelector('.name-input').value,
+        enabled: ruleElement.querySelector('.toggle-response').checked,
 
         // Obtêm condições
         condition: {
             field: ruleElement.querySelector('.condition-field').value,
             operator: ruleElement.querySelector('.condition-operator').value,
-            value: ruleElement.querySelector('.condition-value').value
+            value: parseConditionValue(ruleElement)
         },
 
         // Obtêm ações
@@ -248,11 +304,11 @@ function validateFields(ruleElement) {
 }
 
 // Função responsável por recarregar as regras
-export function refreshRulesTemplate({ templates }) {
+export function refreshRulesTemplate({ templates = [], all = false }) {
     // Obtêm select dos templates
     document.querySelectorAll('.templates-select').forEach(async (select) => {
         // Caso sejam limpos os templates, limpa as regras
-        if(!templates.length) {
+        if(all) {
             ruleList.innerHTML = '';
 
             // Faz requisição para excluir todos templates
@@ -285,6 +341,28 @@ export function refreshRulesTemplate({ templates }) {
             container.innerHTML = '';
         }
     });
+}
+
+// Função responsável por formata input
+function formatSequence(value) {
+    return value.replace(/\s/g, '').replace(/(.{2})/g, '$1 ').trim().toUpperCase();
+}
+
+// Função responsável por verificar se é sequência
+function parseConditionValue(ruleElement) {
+    const field = ruleElement.querySelector('.condition-field').value;
+    const input = ruleElement.querySelector('.condition-value').value.trim();
+
+    if (field === "sequence") return input.split(/\s+/).map(byte => parseInt(byte, 16));
+
+    return parseInt(input, 16);
+}
+
+// Função responsável por formatar valor recebido
+function formatConditionValue(value) {
+    if (Array.isArray(value)) return value.map(byte => byte.toString(16).toUpperCase().padStart(2, "0")).join(" ");
+
+    return value?.toString(16).toUpperCase().padStart(2, "0") ?? '';
 }
 
 //* ======================{ Inicialização da página }======================

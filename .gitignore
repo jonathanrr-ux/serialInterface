@@ -1,4 +1,5 @@
 node_modules/
 logs/
-src/modules/templates/saved/
+src/modules/templates/storage/
+src/modules/rules/storage/
 .env

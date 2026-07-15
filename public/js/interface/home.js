@@ -20,8 +20,6 @@ export const packetList = document.getElementById('packet-list');
 const api = new FetchService();
 const MAX_BYTES = 9;
 
-// Inicializa página
-packageEditorContainer.dataset.activeTab = '';
 
 //* ======================{ Controle das tabs }======================
 
@@ -228,12 +226,10 @@ responseInput.addEventListener('input', async function () {
     if (!this.value.trim().length) return;
 
     // Envia novo valor a uma rota para fazer a alteração da leitura
-    await api.request('/api/serial/byte-length', {
-        method: 'POST',
-        body: {
-            byteLength: Number(this.value)
-        }
-    });
+    const { success } = await api.request('/api/serial/byte-length', { method: 'POST', body: { byteLength: Number(this.value) } });
+    if(!success) return;
+
+    await api.request('/api/settings/save', { method: 'POST', body: { responseLength: Number(this.value) } });
 })
 
 //* ======================{ Funções auxiliares }======================
@@ -277,6 +273,9 @@ export function updateInputs({ input }) {
 //* ======================{ Inicialização }======================
 
 document.addEventListener('DOMContentLoaded', async () => {
+    // Inicializa página
+    packageEditorContainer.dataset.activeTab = '';
+
     await initTemplates();
     await initRules();
 });

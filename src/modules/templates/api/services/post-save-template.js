@@ -8,7 +8,7 @@ export default async function postSaveTemplate(req) {
     
     try {       
         // Obtêm a pasta de templates
-        const templateDir = path.join(process.cwd(), 'src', 'modules', 'templates', 'saved');
+        const templateDir = path.join(process.cwd(), 'src', 'modules', 'templates', 'storage');
 
         // Cria a pasta caso não exista
         await fs.mkdir(templateDir, { recursive: true });
@@ -21,7 +21,7 @@ export default async function postSaveTemplate(req) {
 
         // Escreve no arquivo
         await fs.writeFile(
-            path.join(process.cwd(), 'src', 'modules', 'templates', 'saved', `${id}.json`),
+            path.join(process.cwd(), 'src', 'modules', 'templates', 'storage', `${id}.json`),
             JSON.stringify(template, null, 4)
         );
 

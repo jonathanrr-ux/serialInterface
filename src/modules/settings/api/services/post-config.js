@@ -1,19 +1,28 @@
 import CustomError from '../../../shared/utils/custom-error.js'
 import { setSystemConfig } from '../../../../config/system.js';
+import { response } from 'express';
 
 export default async function postConfig(req) {
     // Obtêm as informações da req
-    const { serialPort, baudRate, autoReconnect } = req.body;
+    const { serialPort, baudRate, autoReconnect, responseLength } = req.body;
 
     try {    
-        // Atualiza informações do sistema
-        setSystemConfig({ settings: { serialPort, baudRate: Number(baudRate), autoReconnect } });
+        const settings = {};
+
+        // Verifica opções
+        if (serialPort !== undefined) settings.serialPort = serialPort;
+        if (baudRate !== undefined) settings.baudRate = Number(baudRate);
+        if (autoReconnect !== undefined) settings.autoReconnect = autoReconnect;
+        if (responseLength !== undefined) settings.responseLength = responseLength;
+
+        // Atualiza configurações
+        setSystemConfig({ settings });
 
         return { message: 'Configurações salvas com sucesso' };
     } catch (err) {
         console.error('Erro saving config: ', err)
 
-        if (err instanceof CustomError()) throw err;
+        if (err instanceof CustomError) throw err;
         else throw new CustomError();
     }
 }

@@ -30,7 +30,7 @@ export default async function postSendBytes(req) {
         // Manda cada array
         for(const byte of packets) {
             // Envia bytes
-            await send({ bytes: byte, responseLength });
+            await send({ bytes: byte });
         }
 
         return {};

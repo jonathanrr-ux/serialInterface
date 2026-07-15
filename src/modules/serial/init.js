@@ -1,15 +1,16 @@
-import { createSerialConnection, closeSerialConnection, getSerialConnection } from './core/connection.js';
+import { createSerialConnection, closeSerialConnection, getSerialConnection, getNewParser } from './core/connection.js';
 import { send } from './core/sender.js';
 import { setSystemConfig } from '../../config/system.js';
-import { handleData } from '../serial/core/receiver.js';
+import { handleData } from '../serial/core/handler.js';
 import { getIO } from '../../sockets/index.js';
 import { serialLog } from '../shared/utils/serial-logger.js';
 import { LOGS_DEFINITIONS } from '../../../public/js/utils/logs-definitions.js';
 
 // Função para inicializar o serial
-function setupSerialEvents() {
+async function setupSerialEvents() {
     // Conexão serial
-    const { port, parser } = getSerialConnection();
+    const { port } = getSerialConnection();
+    const parser = getNewParser();
     
     port.on('open', () => {
         // Salva configuração
@@ -28,7 +29,7 @@ function setupSerialEvents() {
     });
     
     // Evento de escuta para para recebimento de dados
-    port.on('data', handleData);
+    parser.on('data', handleData);
 
     // Evento de escuta de fechamento da comunicação serial
     port.on('close', async () => {

@@ -93,10 +93,7 @@ async function getSerialPorts() {
 // Função responsável por iniciar a conexão serial
 async function startSerialConnection() {
     const { message, success } = await api.request('/api/serial/connect', { method: 'POST' });
-    if(!success) {
-        showToast({ message });
-        return;
-    }
+    if(!success) return;
 }
 
 // Função responsável por parar a conexão serial

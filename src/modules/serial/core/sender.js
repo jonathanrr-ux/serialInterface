@@ -3,7 +3,7 @@ import { serialLog } from '../../shared/utils/serial-logger.js';
 import { LOGS_DEFINITIONS } from "../../../../public/js/utils/logs-definitions.js";
 
 // Função responsável por enviar buffer
-export async function send({ bytes, responseLength }) {
+export async function send({ bytes }) {
     // Obtêm a porta da conexão serial
     const { port } = getSerialConnection();
 

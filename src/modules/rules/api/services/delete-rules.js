@@ -4,7 +4,7 @@ import path from 'path';
 export default async function deleteRules(req) {
     try {       
         // Obtêm a pasta de templates
-        const rulesDir = path.join(process.cwd(), 'src', 'modules', 'rules', 'saved');
+        const rulesDir = path.join(process.cwd(), 'src', 'modules', 'rules', 'storage');
 
         // Lê todos os arquivos
         const files = await fs.readdir(rulesDir);
