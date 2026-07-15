@@ -73,7 +73,7 @@
                     Motor de regras
                     <p class="text-[0.7em] text-text-secondary font-normal">Defina ações automáticas baseadas nos dados recebidos</p>
                 </div>
-                <button commandfor="rules-modal" command="show-modal" class="base-button primary flex items-center gap-2 p-2 text-text font-bold text-[0.8em]">
+                <button id="new-rule-button" class="base-button primary flex items-center gap-2 p-2 text-text font-bold text-[0.8em]">
                     <img src="/img/icons/add.svg" class="size-[2rem]">
                     Nova regra
                 </button>
@@ -82,62 +82,9 @@
 
             {{!-- Lista de regras --}}
             <div id="rule-list" class="flex flex-col gap-4 p-4 overflow-y-auto flex-1 min-h-0">
-
-                <!-- Regra -->
-                <div class="card p-4">
-                    <div class="flex justify-between items-center">
-                        <div class="flex items-center gap-3">
-                            <span class="size-3 rounded-full bg-success"></span>
-                            <input class="input font-bold w-[18rem]" value="Recebe ACK">
-                        </div>
-
-                        <div class="flex gap-2">
-                            <button class="icon-button danger">
-                                <img src="/img/icons/trash.svg">
-                            </button>
-                        </div>
-                    </div>
-
-                    <hr class="my-4 text-border">
-
-                    <div class="grid grid-cols-[1fr_auto_1fr] gap-6">
-                        <div class="flex flex-col gap-2">
-                            <span class="font-bold text-text-secondary">Quando</span>
-                            <select class="input">
-                                <option>Último byte</option>
-                                <option>Primeiro byte</option>
-                                <option>Byte</option>
-                                <option>Sequência</option>
-                            </select>
-                            <select class="input">
-                                <option>Igual</option>
-                                <option>Diferente</option>
-                            </select>
-                            <input class="input" placeholder="06">
-                        </div>
-                        <div class="flex items-center text-4xl font-bold">
-                            →
-                        </div>
-                        <div class="flex flex-col gap-2">
-                            <span class="font-bold text-text-secondary">
-                                Então
-                            </span>
-                            <select class="input">
-                                <option>Enviar pacote</option>
-                                <option>Esperar</option>
-                                <option>Registrar Log</option>
-                            </select>
-                            <select class="input">
-                                <option>Status</option>
-                                <option>Abrir gaveta</option>
-                                <option>Reset</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
             </div>
 
-            <div class="border-t-2 border-border flex justify-end pt-2">
+            <div id="save-new-rule-button" class="border-t-2 border-border flex justify-end pt-2">
                 <button class="base-button success rounded-xl px-6 py-3">
                     Salvar regras
                 </button>
@@ -163,7 +110,7 @@
                         <!-- Conteúdo -->
                         <p class="">Quantidade de bytes</p>
                         <input id="bytes-quantity-input" type="number" min="1" max="9" value="9" maxlength="1" class="input w-full">
-                        
+
                         <hr class="text-border">
                         <button id="create-new-packet-button" type="button" class="base-button primary disabled:opacity-30 py-2 rounded-xl">Criar</button>
                     </div>
@@ -255,69 +202,8 @@
         </div>
 
     </dialog>
-
-    {{!-- Modal --}}
-    <dialog id="rules-modal" class="m-auto w-[45rem] rounded-xl border-2 border-border bg-surface p-0 text-text backdrop:bg-black/50">
-        {{!-- Cabeçalho --}}
-        <div class="border-b-2 border-border p-5">
-            <p class="font-bold">Adicionar regra</p>
-            <p class="mt-1 text-[0.7em] text-text-secondary">Escolha como esta regra será executada</p>
-        </div>
-
-        {{!-- Conteúdo --}}
-        <div class="grid grid-cols-[1fr_auto_1fr] gap-6 p-5">
-            {{!-- Selects quando --}}
-            <div class="flex flex-col gap-2">
-                {{!-- Condição --}}
-                <span class="font-bold text-text-secondary">Quando</span>
-                <div class="w-full font-normal relative h-[3rem] aria-disabled:opacity-50 aria-disabled:pointer-events-none" id="add-condition-type"></div>
-                
-                {{!-- Operador --}}
-                <div class="w-full font-normal relative h-[3rem] aria-disabled:opacity-50 aria-disabled:pointer-events-none" id="add-operator-type"></div>
-                
-                {{!-- Byte --}}
-                <input class="input" placeholder="Ex.: 06">
-            </div>
-            <div class="flex items-center text-4xl font-bold">
-                →
-            </div>
-            <div class="flex flex-col gap-2">
-                <span class="font-bold text-text-secondary">
-                    Então
-                </span>
-                <select class="input">
-                    <option>Enviar template completo</option>
-                    <option>Enviar pacotes específicos</option>
-                </select>
-                <select class="input">
-                    <option>Status</option>
-                    <option>Abrir gaveta</option>
-                    <option>Reset</option>
-                </select>
-            </div>
-        </div>
-
-        {{!-- Rodapé --}}
-        <div class="flex justify-end gap-3 border-t-2 border-border p-5">
-            <button
-                commandfor="rules-modal"
-                command="close"
-                class="base-button px-5 py-2 rounded-xl">
-                Cancelar
-            </button>
-
-            <button 
-                commandfor="rules-modal"
-                command="close"
-                id="save-new-rule-button" class="base-button success px-5 py-2 rounded-xl">
-                Salvar
-            </button>
-
-        </div>
-
-    </dialog>
 </section>
 
-<script type="module" src="/js/interface/rules.js"></script>
 <script type="module" src="/js/interface/template.js"></script>
+<script type="module" src="/js/interface/rules.js"></script>
 <script type="module" src="/js/interface/logs.js"></script>

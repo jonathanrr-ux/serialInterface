@@ -1,6 +1,7 @@
 import FetchService from "../utils/fetchService.js";
 import showToast from '../utils/toast-notifications.js';
 import { createPacket, packetList, changeTab } from './home.js';
+import { refreshRulesTemplate } from "./rules.js";
 import CustomSelect from '../utils/custom-select.js';
 
 //* ======================{ Variáveis globais }======================
@@ -16,9 +17,7 @@ const searchBar = document.getElementById('search-bar');
 const addNewTemplate = document.getElementById('add-new-template');
 const saveTemplateBtn = document.getElementById('save-template-button');
 
-const templateSelect = new CustomSelect('select-template', { options: [], dropdownMaxHeight: '6rem' });
-
-let templatesMap = new Map();
+export let templatesMap = new Map();
 const colors = [
     '#ef4444',
     '#f97316',
@@ -34,24 +33,43 @@ const colors = [
 
 //* Eventos:
 
-// ADiciona evento de clique ao botão de salvar o template
+// Adiciona evento de clique ao botão de salvar o template
 saveTemplateBtn.addEventListener('click', async() => {
     // Obtêm elemento selecionado
     const selected = templatesList.querySelector('[aria-selected=true]');
 
-    // Pega todos bytes do pacote
-    const packets = document.querySelectorAll('.packet');
+    // Obtêm o container do pacote
+    const packetContainer = document.querySelectorAll('.packet-container');
 
     // Obtêm pacotes
-    const packetData = [...packets].map(packet => {
-        const bytes = [...packet.querySelectorAll('.packet-byte input')].map(input => parseInt(input.value, 16));
+    const packetData = [];
+    for (const packet of packetContainer) {
+        // Obtêm nome
+        const name = packet.querySelector('.packet-name').value;
+        const id = packet?.dataset?.id ?? null;
 
-        return bytes;
-    });
+        // Verifica se foi passado
+        if (!name) {
+            showToast({ message: "Nome inválido" });
+            return null;
+        }
+
+        const bytes = [...packet.querySelectorAll('.packet .packet-byte input')].map(input => parseInt(input.value, 16));
+        packetData.push({ id, name, bytes })
+    }
     
+    if(!packetData.length) {
+        showToast({ message: 'Nome inválido' });
+        return;
+    }
+
     // Cria ou edita template
-    const template = await postTemplate({ url: `/api/templates/${selected.dataset.id}/edit`, method: 'POST', body: { packet: packetData } });
-})
+    if (!selected) {
+        showToast({ message: 'Selecione um template' });
+        return;
+    }
+    await postTemplate({ url: `/api/templates/${selected.dataset.id}/edit`, method: 'POST', body: { packet: packetData } });
+});
 
 // Adiciona evento de clique ao botão de salvar template
 saveNewTemplateBtn.addEventListener('click', async() => {
@@ -101,6 +119,7 @@ deleteAllTemplates.addEventListener('click', async() => {
     // Manda notificação e recarrega templates
     showToast({ type: 'success', message: 'Templates deletados com sucesso' });
     templatesMap.clear();
+    refreshRulesTemplate({ templates: [] });
     editPacketWrapper.dataset.active = false;
     templatesList.innerHTML = '';
 });
@@ -123,7 +142,7 @@ function createTemplateEl({ item }) {
     const div = document.createElement('div');
     div.className = `template flex justify-between w-full p-5 rounded-xl transition-all duration-300
         bg-linear-to-b from-surface-3 to-surface shadow-[0_8px_24px_rgba(0,0,0,.35),inset_rgba(31,41,55)_1px_1px_1px] 
-        hover:-translate-y-1 border border-white/10 hover:border-primary hover:shadow-[0_5px_15px_rgba(99,102,241,.25),inset_1px_1px_1px_rgba(31,41,55,.8)]
+        border border-white/10 hover:border-primary hover:shadow-[0_5px_15px_rgba(99,102,241,.25),inset_1px_1px_1px_rgba(31,41,55,.8)]
         aria-selected:border-primary group`;
     div.setAttribute('aria-selected', false);
     div.dataset.id = item.id;
@@ -132,7 +151,7 @@ function createTemplateEl({ item }) {
             <span class="w-3 h-3 rounded-full color-dot"></span>
             <p class="text-[0.9em]">${item.name}</p>
         </div>
-        <img src='/img/icons/trash.svg' class="menu-btn">
+        <img src='/img/icons/trash.svg' class="menu-btn cursor-pointer">
     `;
 
     // Seta map
@@ -174,6 +193,7 @@ async function deleteTemplate(templateEl) {
 
     // Deleta do Map e el
     templatesMap.delete(templateEl.dataset.id);
+    refreshRulesTemplate({ templates: templatesMap });
     templateEl.remove();
 
     // Verifica se o elemento estava selecionado
@@ -201,9 +221,9 @@ function selectTemplate(templateEl) {
 
     // Obtêm o template selecionado
     const template = templatesMap.get(templateEl.dataset.id);
-
+    
     // Cria pacotes
-    template.packets.forEach(packet => { createPacket({ bytes: packet.length, values: packet }) });
+    template.packets.forEach(packet => { createPacket({ bytes: packet.bytes.length, values: packet.bytes, pck: packet }) });
 }
 
 //* ======================{ Funções auxiliares }======================
@@ -221,6 +241,7 @@ async function postTemplate({ method, url, body }) {
 
     // Cria template
     templatesMap.set(data.template.id, data.template);
+    refreshRulesTemplate({ templates: templatesMap });
     return data.template;
 }
 
@@ -231,8 +252,6 @@ async function getTemplates() {
     
     // Cria lista de templates
     createTemplatesList({ list: data.templates });
-
-    return data.templates.map(t => ({ value: t.id, name: t.name }));
 }
 
 // Pega cor aleatoria
@@ -242,6 +261,6 @@ function randomColor() {
 
 //* ======================{ Inicialização da página }======================
 
-document.addEventListener('DOMContentLoaded', () => {
-    getTemplates();
-})
+export async function initTemplates() {
+    await getTemplates();
+}

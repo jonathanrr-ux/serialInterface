@@ -5,6 +5,7 @@ import { getSystemConfig } from '../config/system.js';
 import { web as interfaceWeb, api as interfaceApi } from './interface/index.js';
 import { web as settingsWeb, api as settingsApi } from './settings/index.js';
 import { api as serialApi } from './serial/index.js';
+import { api as rulesApi } from './rules/index.js';
 import { api as templatesApi } from './templates/index.js';
 
 const router = express.Router();
@@ -28,6 +29,7 @@ router.use('/home', interfaceWeb);
 // API routes
 router.use('/api/settings', settingsApi);
 router.use('/api/serial', serialApi);
+router.use('/api/rules', rulesApi);
 router.use('/api/templates', templatesApi);
 router.use('/api/interface', interfaceApi);
 

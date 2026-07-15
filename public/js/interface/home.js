@@ -1,5 +1,7 @@
 import FetchService from '../utils/fetchService.js';
 import showToast from '../utils/toast-notifications.js';
+import { initRules } from './rules.js';
+import { initTemplates } from './template.js';
 
 //* ======================{ Variáveis Globais }======================
 
@@ -65,9 +67,6 @@ createNewPacketBtn.addEventListener('click', () => {
     // Obtêm o input
     const value = Number(bytesQuantityInput.value);
 
-    // Caso valor seja invalido retorna
-    if(!value || value > 9) return;
-
     // Cria pacote de bytes
     createPacket({ bytes: value });
 });
@@ -76,21 +75,28 @@ createNewPacketBtn.addEventListener('click', () => {
 //* Funções:
 
 // Função responsável por criar o pacote de bytes
-export function createPacket({ bytes, values = [] }) {
+export function createPacket({ bytes, values = [], pck = '' }) {
     if(!bytes) return;
     
     const packet = document.createElement('div');
-    packet.className = 'packet-container flex w-full items-center justify-between border-b-2 border-border p-2';
+    packet.className = 'packet-container flex flex-col border-b-2 border-border p-2 gap-2';
+    if(pck.id) packet.dataset.id = pck.id 
     packet.innerHTML = `
-        <div class="packet flex items-center gap-1"></div>
-        <div class="flex gap-2">
-            <div class="delete-btn size-[3.5rem] rounded-xl base-button danger">
-                <img src="/img/icons/trash.svg" class="size-full p-2">
-            </div>
-            <div class="send-btn size-[3.5rem] rounded-xl base-button primary">
-                <img src="/img/icons/send.svg" class="size-full p-2">
+        <div class="flex">
+            <input class="packet-name text-[0.8em] outline-none" value="${pck.name ? pck.name : 'Novo pacote'}">
+        </div>
+        <div class="flex w-full items-center justify-between">
+            <div class="packet flex gap-1"></div>
+            <div class="flex gap-2">
+                <div class="delete-btn size-[3.5rem] rounded-xl base-button danger">
+                    <img src="/img/icons/trash.svg" class="size-full p-2">
+                </div>
+                <div class="send-btn size-[3.5rem] rounded-xl base-button primary">
+                    <img src="/img/icons/send.svg" class="size-full p-2">
+                </div>
             </div>
         </div>`;
+
 
     // Adiciona a lista
     packetList.appendChild(packet);
@@ -116,6 +122,9 @@ export function createPacketEl({ parent, item, value = 0 }) {
         <div class="x-btn absolute right-0 top-0 -translate-x-1/2 text-[0.6em] cursor-pointer">✕</div>
     `;
     
+    const input = byte.querySelector('input');
+    updateInputs({ input });
+
     const addContainer = parent.querySelector('.add-container');
 
     if (addContainer) parent.insertBefore(byte, addContainer);
@@ -240,3 +249,34 @@ export function changeTab({ tab }) {
     // Seleciona
     packageEditorContainer.dataset.activeTab = tab;
 }
+
+
+// Função responsável por filtrar inputs
+export function updateInputs({ input }) {
+    input.addEventListener('input', () => {
+        // Mantém apenas caracteres hexadecimais
+        input.value = input.value.toUpperCase().replace(/[^0-9A-F]/g, '');
+
+        // Garante no máximo FF
+        if (input.value) {
+            const value = parseInt(input.value, 16);
+            if (value > 0xFF) input.value = 'FF';
+        }
+    });
+
+    input.addEventListener('blur', () => {
+        if (!input.value) {
+            input.value = '00';
+            return;
+        }
+
+        input.value = input.value.padStart(2, '0');
+    });
+}
+
+//* ======================{ Inicialização }======================
+
+document.addEventListener('DOMContentLoaded', async () => {
+    await initTemplates();
+    await initRules();
+});

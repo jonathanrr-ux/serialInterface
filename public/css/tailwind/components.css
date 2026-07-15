@@ -77,3 +77,15 @@
 [data-filter="all"] {
     @apply rounded-xl py-1 px-5 font-bold text-primary bg-linear-to-b from-primary/30 to-primary/10 shadow-[0_8px_24px_rgba(0,0,0,.35),inset_rgba(255,255,255,.05)_1px_1px_1px] hover:shadow-[0_5px_15px_rgba(99,102,241,0.3)];
 }
+
+.checkbox {
+    @apply size-5 appearance-none rounded-md border border-border bg-surface cursor-pointer transition-all duration-200
+    checked:bg-primary checked:border-primary checked:shadow-[0_0_12px_rgba(99,102,241,0.45)] checked:after:content-['✓'] 
+    checked:after:flex checked:after:items-center checked:after:justify-center checked:after:text-white checked:after:font-bold 
+    checked:after:text-sm hover:border-primary
+}
+
+select option {
+    background: #111827;
+    color: #F8FAFC;
+}
