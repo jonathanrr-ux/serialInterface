@@ -1,5 +1,5 @@
 {
     "watch": ["src"],
-    "ignore": ["public/**", "src/config/system.json", "logs/**", "src/modules/templates/storage/**", "src/modules/rules/storage/**"],
+    "ignore": ["public/**", "src/config/system.json", "logs/**", "data/**"],
     "ext": "js,json,hbs"
 }

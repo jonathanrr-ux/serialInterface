@@ -1,7 +1,7 @@
 import FetchService from '../utils/fetchService.js';
 import showToast from '../utils/toast-notifications.js';
-import { initRules } from './rules.js';
 import { initTemplates } from './template.js';
+import { refreshRulePackets } from './rules.js';
 
 //* ======================{ Variáveis Globais }======================
 
@@ -19,7 +19,7 @@ export const packetList = document.getElementById('packet-list');
 
 const api = new FetchService();
 const MAX_BYTES = 9;
-
+let draggedPacket = null;
 
 //* ======================{ Controle das tabs }======================
 
@@ -78,10 +78,11 @@ export function createPacket({ bytes, values = [], pck = '' }) {
     
     const packet = document.createElement('div');
     packet.className = 'packet-container flex flex-col border-b-2 border-border p-2 gap-2';
-    if(pck.id) packet.dataset.id = pck.id 
+    if(pck.id) packet.dataset.id = pck.id
     packet.innerHTML = `
-        <div class="flex">
-            <input class="packet-name text-[0.8em] outline-none" value="${pck.name ? pck.name : 'Novo pacote'}">
+        <div class="flex items-center gap-3">
+            <img src="/img/icons/grip.svg" class="cursor-grab drag-handle active:cursor-grabbing">
+            <input class="packet-name text-[0.8em] outline-none pt-1" value="${pck.name ? pck.name : 'Novo pacote'}">
         </div>
         <div class="flex w-full items-center justify-between">
             <div class="packet flex gap-1"></div>
@@ -98,6 +99,11 @@ export function createPacket({ bytes, values = [], pck = '' }) {
 
     // Adiciona a lista
     packetList.appendChild(packet);
+
+    // Ativa drag somente no ícone
+    const dragHandle = packet.querySelector('.drag-handle');
+
+    handleDragEvent({ drag: dragHandle, packet });
 
     // Obtêm o a div dos pacotes
     const packetContent = packet.querySelector('.packet');
@@ -128,6 +134,37 @@ export function createPacketEl({ parent, item, value = 0 }) {
     if (addContainer) parent.insertBefore(byte, addContainer);
     else parent.append(byte);
 };
+
+// Função responsável por controlar o evento de drag
+function handleDragEvent({ drag, packet }) {
+    // Liga o drag
+    drag.draggable = true;
+
+    // Evento de inicio do drag
+    drag.addEventListener('dragstart', () => {
+        draggedPacket = packet;
+        packet.classList.add('opacity-40');
+    });
+
+    // Evento de fim do drag
+    drag.addEventListener('dragend', () => {
+        draggedPacket = null;
+        packet.classList.remove('opacity-40');
+    });
+
+    // Ao passar em outros elementos
+    packet.addEventListener('dragover', (e) => {
+        e.preventDefault();
+
+        if (!draggedPacket || draggedPacket === packet) return;
+
+        const rect = packet.getBoundingClientRect();
+        const middle = rect.top + rect.height / 2;
+
+        if (e.clientY < middle) packet.before(draggedPacket);
+        else packet.after(draggedPacket);
+    });
+}
 
 //* ======================{ Controle da lista de bytes }======================
 
@@ -244,6 +281,8 @@ export function changeTab({ tab }) {
 
     // Seleciona
     packageEditorContainer.dataset.activeTab = tab;
+
+    if(tab === 'rules') refreshRulePackets();
 }
 
 
@@ -274,8 +313,7 @@ export function updateInputs({ input }) {
 
 document.addEventListener('DOMContentLoaded', async () => {
     // Inicializa página
-    packageEditorContainer.dataset.activeTab = '';
+    packageEditorContainer.dataset.activeTab = 'templates';
 
     await initTemplates();
-    await initRules();
 });

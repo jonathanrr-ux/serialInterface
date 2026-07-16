@@ -1,5 +1,5 @@
 import showToast from '../utils/toast-notifications.js';
-import { templatesMap } from './template.js';
+import { templatesMap, selectedTemplate } from './template.js';
 import { updateInputs } from './home.js';
 import FetchService from '../utils/fetchService.js';
 
@@ -8,7 +8,7 @@ import FetchService from '../utils/fetchService.js';
 const api = new FetchService();
 
 const newRuleBtn = document.getElementById('new-rule-button');
-const ruleList = document.getElementById('rule-list');
+export const ruleList = document.getElementById('rule-list');
 const saveNewRuleBtn = document.getElementById('save-new-rule-button');
 
 //* ======================{ Controle da página }======================
@@ -21,61 +21,53 @@ newRuleBtn.addEventListener('click', () => {
 // ADiciona botão de clique para salvar regra
 saveNewRuleBtn.addEventListener('click', async(e) => {
     const ruleListChildren = ruleList.children;
-
+    
     // Obtêm regras 
     const total = ruleListChildren.length;
-    const rules = [...ruleListChildren].map(validateFields).filter(Boolean);
+    const rules = [...ruleListChildren].map(validateFields);
 
-    // Existem regras na tela, mas nenhuma válida
-    if (total > 0 && rules.length === 0) {
-        showToast({ message: 'Campos inválidos' });
+    // Caso existam regras inválidas retorna
+    if (rules.some(rule => rule === null)) {
+        showToast({ message: 'Existem regras com campos obrigatórios não preenchidos' });
         return;
     }
-
+    
     // Faz requisição para salvar regra
-    const { message, success, data } = await updateRules({ url: '/api/rules', method: "POST", body: { rules } });
+    const { message, success, data } = await updateRules({ url: `/api/rules/${selectedTemplate.id}/template`, method: "POST", body: { rules } });
     showToast({ type: success ? 'success' : 'error', message });
     if(!success) return;
 
-    // Atualiza IDs criados pelo backend
-    data.rules.forEach((savedRule, index) => {
-        const ruleElement = ruleListChildren[index];
-        if(ruleElement) ruleElement.dataset.id = savedRule.id;
-    });
+    // Atualiza o Map
+    const template = templatesMap.get(selectedTemplate.id);
+    template.rules = data.rules;
 
     // Atualiza os indicadores visuais
-    [...ruleListChildren].forEach(ruleElement => {
-        const enabled = ruleElement.querySelector('.toggle-response').checked;
-        const dot = ruleElement.querySelector('.status-dot');
-        
-        updateStatusDot(dot, enabled);
-    });
+    [...ruleListChildren].forEach(ruleElement => { updateStatusDot({ el: ruleElement }) });
 })
 
 //* Funções:
 
-function updateStatusDot(dot, enabled) {
-    dot.classList.toggle('bg-success', enabled);
-    dot.classList.toggle('bg-danger', !enabled);
-
-    dot.classList.toggle('shadow-[0_0_10px_rgba(34,197,94,0.9)]', enabled);
-    dot.classList.toggle('shadow-[0_0_8px_rgba(239,68,68,0.8)]', !enabled);
-}
-
 // Função responsável por criar uma nova regra
-function createRule({ rule = null } = {}) {
-    // Cria  elemento
+export function createRule({ rule = null } = {}) {
+    // Cria elemento
     const div = document.createElement('div');
     if (rule?.id) div.dataset.id = rule.id;
     div.dataset.type = rule?.action?.type ?? 'template';
+    div.dataset.expanded = !rule ? true : false;
     div.className = 'card p-4 group';
 
     // Obtêm HTML
     div.innerHTML = getRuleHTML({ rule });
+    
+    // Renderiza os pacotes
+    const packetList = div.querySelector('.byte-packets-list')
+    renderPackets({ 
+        container: packetList,
+        selected: rule ? rule.action.packets : []
+    });
 
-    // Cria selects de templates e adiciona evento
-    setupTemplateSelect({ ruleElement: div, rule });
-    setupEvents(div);
+    // Gerencia eventos
+    setupEvents({ el: div, container: packetList });
 
     // Adiciona ao DOM
     ruleList.append(div);
@@ -85,7 +77,10 @@ function createRule({ rule = null } = {}) {
 function getRuleHTML({ rule = null } = {}) {
     return `
         <div class="flex justify-between items-center">
-            <div class="flex items-center gap-3">
+            <div class="flex items-center gap-5">
+                <svg class="group-data-[expanded=true]:rotate-270 show-rule rotate-180 w-3 h-3 cursor-pointer" xmlns="http://www.w3.org/2000/svg" height="24px" width="24px" viewBox="0 0 24 32">
+                    <path stroke="#6366F1" stroke-width="2" d="M14.44,0,16,1.56,3.12,14.4,16,27.24,14.44,28.8,0,14.4Z"/>
+                </svg>
                 <span class="status-dot size-3 rounded-full ${rule?.enabled ? 'bg-success shadow-[0_0_10px_rgba(34,197,94,0.9)]' : 'bg-danger shadow-[0_0_8px_rgba(239,68,68,0.8)]'}"></span>
                 <input class="input name-input font-bold w-[18rem]" value="${rule?.name ?? 'Nova regra'}">
             </div>
@@ -102,81 +97,62 @@ function getRuleHTML({ rule = null } = {}) {
                 </div>
 
 
-                <button class="icon-button danger cursor-pointer">
-                    <img src="/img/icons/trash.svg">
+                <button class="icon-button cursor-pointer size-[2rem]">
+                    <img src="/img/icons/trash.svg" class="size-full hover:opacity-100 hover:drop-shadow-[0_0_8px_rgba(239,68,68,.7)] opacity-40 transition-all duration-200">
                 </button>
             </div>
         </div>
 
-        <hr class="my-4 text-border">
+        <div class="rule-content grid group-data-[expanded=true]:grid-rows-[1fr] grid-rows-[0fr] transition-[grid-template-rows] duration-300 ease-in-out">
+            <div class="overflow-hidden">
+                <hr class="my-4 text-border">
 
-        <div class="grid grid-cols-[1fr_auto_1fr] gap-6">
-            <div class="flex flex-col gap-2">
-                <span class="font-bold text-text-secondary">Quando</span>
-                <select class="input condition-field">
-                    <option value="last" ${rule?.condition?.field === 'last' ? 'selected' : ''}>Último byte</option>
-                    <option value="first" ${rule?.condition?.field === 'first' ? 'selected' : ''}>Primeiro byte</option>
-                    <option value="byte" ${rule?.condition?.field === 'byte' ? 'selected' : ''}>Byte</option>
-                    <option value="sequence" ${rule?.condition?.field === 'sequence' ? 'selected' : ''}>Sequência</option>
-                </select>
-                <select class="input condition-operator">
-                    <option value="equal" ${rule?.condition?.operator === 'equal' ? 'selected' : ''}>for igual a</option>
-                    <option value="different" ${rule?.condition?.operator === 'different' ? 'selected' : ''}>for diferente de</option>
-                </select>
-                
-                <input class="input condition-value" placeholder="Ex.: 06" value="${formatConditionValue(rule?.condition?.value)}">
-            </div>
-            <div class="flex items-center text-4xl font-bold">
-                →
-            </div>
-            <div class="flex flex-col gap-2">
-                <span class="font-bold text-text-secondary">
-                    Então
-                </span>
-                <select class="input send-mode">
-                    <option value="template" ${rule?.action?.type === 'template' ? 'selected' : ''}>Enviar template completo</option>
-                    <option value="packets" ${rule?.action?.type === 'packets' ? 'selected' : ''}>Enviar pacotes específicos</option>
-                </select>
-                <select class="templates-select input">
-                    <option value="" disabled ${!rule ? 'selected' : ''}></option>
-                </select>
-                <div class="hidden flex-col group-data-[type=packets]:flex">
-                    <span class="font-bold text-text-secondary">
-                        Pacotes
-                    </span>
-                    <div class="byte-packets-list flex flex-col max-h-[10rem] p-2 text-[0.8em] rounded-xl gap-2 border border-border bg-linear-to-b from-background to-surface-2 shadow-[0_6px_16px_rgba(0,0,0,.35)] overflow-y-auto">
+                <div class="grid grid-cols-[1fr_auto_1fr] gap-6">
+                    <div class="flex flex-col gap-2">
+                        <span class="font-bold text-text-secondary">Quando</span>
+                        <select class="input condition-field">
+                            <option value="last" ${rule?.condition?.field === 'last' ? 'selected' : ''}>Último byte</option>
+                            <option value="first" ${rule?.condition?.field === 'first' ? 'selected' : ''}>Primeiro byte</option>
+                            <option value="byte" ${rule?.condition?.field === 'byte' ? 'selected' : ''}>Byte</option>
+                            <option value="sequence" ${rule?.condition?.field === 'sequence' ? 'selected' : ''}>Sequência</option>
+                        </select>
+                        <select class="input condition-operator">
+                            <option value="equal" ${rule?.condition?.operator === 'equal' ? 'selected' : ''}>for igual a</option>
+                            <option value="different" ${rule?.condition?.operator === 'different' ? 'selected' : ''}>for diferente de</option>
+                        </select>
+                        
+                        <input class="input condition-value" placeholder="Ex.: 06" value="${formatConditionValue(rule?.condition?.value)}">
+                    </div>
+                    <div class="flex items-center text-4xl font-bold">
+                        →
+                    </div>
+                    <div class="flex flex-col gap-2">
+                        <span class="font-bold text-text-secondary">
+                            Então
+                        </span>
+                        <select class="input send-mode">
+                            <option value="template" ${rule?.action?.type === 'template' ? 'selected' : ''}>Enviar template completo</option>
+                            <option value="packets" ${rule?.action?.type === 'packets' ? 'selected' : ''}>Enviar pacotes específicos</option>
+                        </select>
+                        <div class="hidden flex-col group-data-[type=packets]:flex">
+                            <span class="font-bold text-text-secondary">
+                                Pacotes
+                            </span>
+                            <div class="byte-packets-list flex flex-col max-h-[10rem] p-2 text-[0.8em] rounded-xl gap-2 border border-border bg-linear-to-b from-background to-surface-2 shadow-[0_6px_16px_rgba(0,0,0,.35)] overflow-y-auto">
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>`;
 }
 
-// Função responsável por criar select de templates e adicionar eventos
-function setupTemplateSelect({ ruleElement, rule = null }) {
-    // Obtêm os elementos
-    const select = ruleElement.querySelector('.templates-select');
-    const packetsList = ruleElement.querySelector('.byte-packets-list');
-    
-    // Cria as opções do select
-    templatesMap.forEach(template => {
-        select.add(new Option(template.name, template.id));
-    });
-
-    select.addEventListener('change', () => {
-        renderPackets({ container: packetsList, template: templatesMap.get(select.value) });
-    });
-
-    if (rule) {
-        select.value = rule.action.templateId;
-        renderPackets({ container: packetsList, template: templatesMap.get(rule.action.templateId), selected: rule.action.packets });
-    }
-}
-
 // Função responsável por renderizar os pacotes da lista
-function renderPackets({ container, template, selected = [] }) {
+function renderPackets({ container, selected = [] }) {
     // Limpa lista
     container.innerHTML = '';
-    if (!template) return;
+
+    const template = templatesMap.get(selectedTemplate.id);
 
     // Itera nos pacotes
     template.packets.forEach(packet => {
@@ -197,31 +173,36 @@ function renderPackets({ container, template, selected = [] }) {
 }
 
 // Função responsável por controlar o evento de select
-function setupEvents(rule) {
-    // Obtêm select
-    const select = rule.querySelector('.send-mode');
-    const iconBtn = rule.querySelector('.icon-button');
-    const conditionField = rule.querySelector('.condition-field');
-    const conditionValueInp = rule.querySelector('.condition-value')
-
-    // Muda estilo
-    select.addEventListener('change', () => {
-        rule.dataset.type = select.value;
+function setupEvents({ el, container }) {
+    
+    // Evento de seleção
+    const select = el.querySelector('.send-mode');
+    select.addEventListener('change', () => { 
+        // Altera dataset para estilo
+        el.dataset.type = select.value
+        
+        // Renderiza pacotes
+        renderPackets({ container })
     });
-
-    // Deleta regra
+    
+    // Evento para deletar regra
+    const iconBtn = el.querySelector('.icon-button');
     iconBtn.addEventListener('click', async() => {
         if(!confirm('Tem certeza que deseja excluir essa regra?')) return;
-
-        rule.remove();
-
-        // Caso seja uma regra já carrega deleta
-        if(rule?.dataset?.id) {
-            const { message, success } = await updateRules({ url: `/api/rules/${rule.dataset.id}`, method: 'DELETE' });
+        
+        el.remove();
+        
+        // Caso seja uma regra já carregada deleta
+        if(el?.dataset?.id) {
+            const { message, success } = await updateRules({ url: `/api/rules/${el.dataset.id}/template/${template}`, method: 'DELETE' });
             showToast({ type: success ? 'success' : 'error', message });
             if(!success) return;
         }
     });
+    
+    // Evento para inputs
+    const conditionField = el.querySelector('.condition-field');
+    const conditionValueInp = el.querySelector('.condition-value');
 
     // Função responsável por atualizar input
     function updateConditionInput() {
@@ -242,21 +223,15 @@ function setupEvents(rule) {
 
     conditionField.addEventListener('change', updateConditionInput);
     updateConditionInput();
+
+    // Evento de esconder/mostrar regra
+    const showRule = el.querySelector('.show-rule');
+    showRule.addEventListener('click', function() {
+        el.dataset.expanded === 'true' ? el.dataset.expanded = false : el.dataset.expanded = true; 
+    });
 }
 
 //* ======================{ Funções auxiliares }======================
-
-// Função responsável por obter as regras
-async function getRules() {
-    // Faz requisição para obter todas regras
-    const { message, success, data } = await updateRules({ url: '/api/rules' });
-    if(!success) {
-        showToast({ message });
-        return;
-    }
-    
-    data.rules.forEach(r => createRule({ rule: r }));
-}
 
 // Função responsável por fazer fetch
 async function updateRules({ url, method, body }) {
@@ -266,7 +241,7 @@ async function updateRules({ url, method, body }) {
 // Função responsável por extrair conteúdos para salvar
 function getRuleData(ruleElement) {
     const type = ruleElement.querySelector('.send-mode').value;
-    
+
     return {
         // Obtêm id
         id: ruleElement.dataset.id ?? null,
@@ -285,7 +260,6 @@ function getRuleData(ruleElement) {
         // Obtêm ações
         action: {
             type,
-            templateId: ruleElement.querySelector('.templates-select').value,
             packets: type === 'packets' ?  [...ruleElement.querySelectorAll('.byte-packets-list input:checked')].map(input => input.value) : null
         }
     };
@@ -296,51 +270,12 @@ function validateFields(ruleElement) {
     // Obtêm os objetos
     const rule = getRuleData(ruleElement);
     
+    // Verificações
     if(rule.name === '') return null;
-    if(rule.condition.field === '' || rule.condition.operator  === '' || rule.condition.value  === '') return null;
-    if(rule.action.type === '' || rule.action.templateId  === '') return null;
+    if(rule.condition.field === '' || rule.condition.operator  === '' || rule.condition.value == null || Number.isNaN(rule.condition.value)) return null;
+    if(rule.action.type === '') return null;
 
     return rule;
-}
-
-// Função responsável por recarregar as regras
-export function refreshRulesTemplate({ templates = [], all = false }) {
-    // Obtêm select dos templates
-    document.querySelectorAll('.templates-select').forEach(async (select) => {
-        // Caso sejam limpos os templates, limpa as regras
-        if(all) {
-            ruleList.innerHTML = '';
-
-            // Faz requisição para excluir todos templates
-            const { message, success, data } = await updateRules({ url: '/api/rules', method: "DELETE" });
-            if(!success) {
-                showToast({ message });
-                return;
-            }
-
-            return;
-        }
-
-        // Obtêm selecionado
-        const selected = select.value;
-        
-        // Limpa lista
-        select.innerHTML = '';
-
-        // Recria todas opções com o Map
-        templates.forEach(template => {
-            select.add(new Option(template.name, template.id));
-        });
-
-        // Tenta restaurar a seleção
-        if (templates.has(selected)) select.value = selected;
-        else {
-            // Template foi removido
-            const container = select.closest('.card').querySelector('.byte-packets-list');
-
-            container.innerHTML = '';
-        }
-    });
 }
 
 // Função responsável por formata input
@@ -365,8 +300,34 @@ function formatConditionValue(value) {
     return value?.toString(16).toUpperCase().padStart(2, "0") ?? '';
 }
 
-//* ======================{ Inicialização da página }======================
 
-export async function initRules() {
-    await getRules();
+// Função responsável por atualizar as bolinhas
+function updateStatusDot({ el }) {
+    const enabled = el.querySelector('.toggle-response').checked;
+    const dot = el.querySelector('.status-dot');
+
+    dot.classList.toggle('bg-success', enabled);
+    dot.classList.toggle('bg-danger', !enabled);
+
+    dot.classList.toggle('shadow-[0_0_10px_rgba(34,197,94,0.9)]', enabled);
+    dot.classList.toggle('shadow-[0_0_8px_rgba(239,68,68,0.8)]', !enabled);
 }
+
+// Função responsável por recarregar os pacotes das ferramentas
+export function refreshRulePackets() {
+    // Obtêm o template
+    const template = templatesMap.get(selectedTemplate.id);
+
+    // Obtêm o card
+    [...ruleList.children].forEach(ruleEl => {
+        // Obtêm lista de pacotes
+        const container = ruleEl.querySelector('.byte-packets-list');
+
+        // mantém os já marcados
+        const selected = [...container.querySelectorAll('input:checked')].map(input => input.value);
+
+        renderPackets({ container, selected });
+    });
+}
+
+//* ======================{ Inicialização da página }======================

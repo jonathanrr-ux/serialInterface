@@ -1,17 +1,8 @@
 const { default: services } = await import('./services/index.js');
 
-export async function postRule(req, res, next) {
+export async function postTemplateRule(req, res, next) {
     try {
-        const data = await services.postRule(req);
-        res.status(200).json(data);
-    } catch(err) {
-        next(err);
-    } 
-}
-
-export async function getRules(req, res, next) {
-    try {
-        const data = await services.getRules(req);
+        const data = await services.postTemplateRule(req);
         res.status(200).json(data);
     } catch(err) {
         next(err);

@@ -89,3 +89,10 @@ select option {
     background: #111827;
     color: #F8FAFC;
 }
+
+.template {
+    @apply flex justify-between w-full p-4 rounded-xl transition-all duration-300
+    bg-linear-to-b from-surface-3 to-surface shadow-[0_8px_24px_rgba(0,0,0,.35),inset_rgba(31,41,55)_1px_1px_1px] 
+    border border-white/10 hover:border-primary hover:shadow-[0_5px_15px_rgba(99,102,241,.25),inset_1px_1px_1px_rgba(31,41,55,.8)]
+    aria-selected:border-primary
+}

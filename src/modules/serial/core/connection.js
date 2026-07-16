@@ -1,8 +1,10 @@
 import { ByteLengthParser, ReadlineParser, SerialPort } from 'serialport';
+import { getSystemConfig } from '../../../config/system.js';
 
 // Variáveis globais para controle da porta serial
 let port = null;
 let parser = null;
+const system = getSystemConfig();
 
 // Função para criar a conexão com a porta serial
 export function createSerialConnection({ serialPort, baudRate }) {
@@ -47,7 +49,7 @@ export function getNewParser({ byteLength = 9 } = {}) {
         port.unpipe(parser);
     }
 
-    parser = new ByteLengthParser({ length: byteLength });
+    parser = new ByteLengthParser({ length: system.settings.responseLength || byteLength });
     port.pipe(parser);
 
     return parser;

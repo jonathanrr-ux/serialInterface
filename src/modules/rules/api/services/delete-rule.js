@@ -6,7 +6,7 @@ export default async function deleteRule(req) {
 
     try {       
         // Obtêm a pasta de templates
-        const rulesDir = path.join(process.cwd(), 'src', 'modules', 'rules', 'storage');
+        const rulesDir = path.join(process.cwd(), 'data', 'rules');
 
         // Lê diretório
         const filePath = path.join(rulesDir, `${id}.json`);

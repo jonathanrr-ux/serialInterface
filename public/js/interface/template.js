@@ -1,7 +1,7 @@
 import FetchService from "../utils/fetchService.js";
 import showToast from '../utils/toast-notifications.js';
 import { createPacket, packetList, changeTab } from './home.js';
-import { refreshRulesTemplate } from "./rules.js";
+import { ruleList, createRule } from "./rules.js";
 import CustomSelect from '../utils/custom-select.js';
 
 //* ======================{ Variáveis globais }======================
@@ -17,6 +17,7 @@ const searchBar = document.getElementById('search-bar');
 const addNewTemplate = document.getElementById('add-new-template');
 const saveTemplateBtn = document.getElementById('save-template-button');
 
+export let selectedTemplate = null;
 export let templatesMap = new Map();
 
 //* ======================{ Controle do modal }======================
@@ -25,9 +26,6 @@ export let templatesMap = new Map();
 
 // Adiciona evento de clique ao botão de salvar o template
 saveTemplateBtn.addEventListener('click', async() => {
-    // Obtêm elemento selecionado
-    const selected = templatesList.querySelector('[aria-selected=true]');
-
     // Obtêm o container do pacote
     const packetContainer = document.querySelectorAll('.packet-container');
 
@@ -38,27 +36,19 @@ saveTemplateBtn.addEventListener('click', async() => {
         const name = packet.querySelector('.packet-name').value;
         const id = packet?.dataset?.id ?? null;
 
-        // Verifica se foi passado
+        // Verifica se foi passado nome para os pacote
         if (!name) {
             showToast({ message: "Nome inválido" });
-            return null;
+            return;
         }
 
+        // Obtêm os bytes
         const bytes = [...packet.querySelectorAll('.packet .packet-byte input')].map(input => parseInt(input.value, 16));
-        packetData.push({ id, name, bytes })
-    }
-    
-    if(!packetData.length) {
-        showToast({ message: 'Nome inválido' });
-        return;
+        packetData.push({ id, name, bytes });
     }
 
-    // Cria ou edita template
-    if (!selected) {
-        showToast({ message: 'Selecione um template' });
-        return;
-    }
-    await postTemplate({ url: `/api/templates/${selected.dataset.id}/edit`, method: 'POST', body: { packet: packetData } });
+    // Edita template
+    await postTemplate({ url: `/api/templates/${selectedTemplate.id}/edit`, method: 'POST', body: { packet: packetData } });
 });
 
 // Adiciona evento de clique ao botão de salvar template
@@ -73,7 +63,7 @@ saveNewTemplateBtn.addEventListener('click', async() => {
     const template = await postTemplate({ url: '/api/templates/save', method: 'POST', body: { name: templateNameInput.value } });
 
     // Cria template
-    createTemplateEl({ item: template });
+    createTemplateEl({ item: template, creating: true });
 });
 
 //* ======================{ Controle dos templates }======================
@@ -108,10 +98,14 @@ deleteAllTemplates.addEventListener('click', async() => {
 
     // Manda notificação e recarrega templates
     showToast({ type: 'success', message: 'Templates deletados com sucesso' });
-    templatesMap.clear();
-    refreshRulesTemplate({ all: true });
-    editPacketWrapper.dataset.active = false;
+
+    // Limpa map e lista 
     templatesList.innerHTML = '';
+    templatesMap.clear();
+    selectedTemplate = null;
+
+    // Reseta estilo
+    editPacketWrapper.dataset.active = false;
 });
 
 //* Funções:
@@ -127,21 +121,34 @@ function createTemplatesList({ list }) {
 }
 
 // Função responsável por criar cada template
-function createTemplateEl({ item }) {
+function createTemplateEl({ item, creating = false }) {
+    // Caso esteja criando um novo no momento
+    if(creating) {
+        // Tira seleção de todos
+        templatesList.querySelectorAll('[aria-selected="true"]').forEach(el => el.setAttribute('aria-selected', 'false'));
+
+        // Limpa listas
+        packetList.innerHTML = '';
+        ruleList.innerHTML = '';
+
+        // Salva o template selecionado
+        selectedTemplate = item;
+    }
+
     // Cria elemento
     const div = document.createElement('div');
     div.className = `template flex justify-between w-full p-5 rounded-xl transition-all duration-300
         bg-linear-to-b from-surface-3 to-surface shadow-[0_8px_24px_rgba(0,0,0,.35),inset_rgba(31,41,55)_1px_1px_1px] 
         border border-white/10 hover:border-primary hover:shadow-[0_5px_15px_rgba(99,102,241,.25),inset_1px_1px_1px_rgba(31,41,55,.8)]
         aria-selected:border-primary group`;
-    div.setAttribute('aria-selected', false);
+    div.setAttribute('aria-selected', creating ? true : false);
     div.dataset.id = item.id;
     div.innerHTML = `
         <div class="flex items-center gap-3">
             <span class="w-3 h-3 rounded-full color-dot"></span>
             <p class="text-[0.9em]">${item.name}</p>
         </div>
-        <img src='/img/icons/trash.svg' class="menu-btn cursor-pointer">
+        <img src='/img/icons/trash.svg' class="menu-btn cursor-pointer hover:opacity-100 hover:drop-shadow-[0_0_8px_rgba(239,68,68,.7)] opacity-40 transition-all duration-200">
     `;
 
     // Seta map
@@ -186,12 +193,13 @@ async function deleteTemplate(templateEl) {
 
     // Deleta do Map e el
     templatesMap.delete(templateEl.dataset.id);
-    refreshRulesTemplate({ templates: templatesMap });
     templateEl.remove();
 
     // Verifica se o elemento estava selecionado
     const wasSelected = templateEl.getAttribute('aria-selected') === 'true';
     if (wasSelected) {
+        // Limpa seleções e listas
+        selectedTemplate = null;
         packetList.innerHTML = '';
         editPacketWrapper.dataset.active = false;
     }
@@ -201,6 +209,7 @@ async function deleteTemplate(templateEl) {
 function selectTemplate(templateEl) {
     // Limpa lista
     packetList.innerHTML = '';
+    ruleList.innerHTML = '';
 
     // Remove seleção dos elementos
     templatesList.querySelectorAll('[aria-selected="true"]').forEach(el => el.setAttribute('aria-selected', 'false'));
@@ -215,8 +224,15 @@ function selectTemplate(templateEl) {
     // Obtêm o template selecionado
     const template = templatesMap.get(templateEl.dataset.id);
     
+    // Salva o template selecionado
+    selectedTemplate = template;
+    
+    // Cria regras
+    template.rules.forEach(rule => { createRule({ rule }) });
+
     // Cria pacotes
     template.packets.forEach(packet => { createPacket({ bytes: packet.bytes.length, values: packet.bytes, pck: packet }) });
+
 }
 
 //* ======================{ Funções auxiliares }======================
@@ -234,7 +250,6 @@ async function postTemplate({ method, url, body }) {
 
     // Cria template
     templatesMap.set(data.template.id, data.template);
-    refreshRulesTemplate({ templates: templatesMap });
     return data.template;
 }
 
@@ -249,9 +264,11 @@ async function getTemplates() {
 
 // Pega cor aleatoria
 function randomColor() {
-    const hue = Math.floor(Math.random() * 360);
+    const r = Math.floor(Math.random() * 256);
+    const g = Math.floor(Math.random() * 256);
+    const b = Math.floor(Math.random() * 256);
 
-    return `hsl(${hue}, 80%, 60%)`;
+    return `rgb(${r}, ${g}, ${b})`;
 }
 
 //* ======================{ Inicialização da página }======================

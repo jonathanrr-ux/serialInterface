@@ -4,10 +4,7 @@ import * as controller from './controller.js';
 const router = express.Router();
 
 // Rota responsável por salvar as regras
-router.post('/', controller.postRule);
-
-// Rota responsável por obter as regras
-router.get('/', controller.getRules);
+router.post('/:id/template', controller.postTemplateRule);
 
 // Rota responsável por deletar todas regras
 router.delete('/', controller.deleteRules);

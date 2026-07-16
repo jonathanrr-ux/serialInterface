@@ -4,7 +4,7 @@ import path from 'path';
 export default async function deleteAllTemplates(req) {
     try {       
         // Obtêm a pasta de templates
-        const templateDir = path.join(process.cwd(), 'src', 'modules', 'templates', 'storage');
+        const templateDir = path.join(process.cwd(), 'data', 'templates');
 
         // Lê todos os arquivos
         const files = await fs.readdir(templateDir);

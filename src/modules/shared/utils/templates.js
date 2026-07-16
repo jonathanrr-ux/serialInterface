@@ -3,7 +3,7 @@ import path from 'path';
 
 export async function getTemplates() {
     // Obtêm a pasta de templates
-    const templateDir = path.join(process.cwd(), 'src', 'modules', 'templates', 'storage');
+    const templateDir = path.join(process.cwd(), 'data', 'templates');
 
     // Lê diretório
     const files = await fs.readdir(templateDir);

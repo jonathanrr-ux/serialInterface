@@ -1,5 +1,4 @@
 node_modules/
 logs/
-src/modules/templates/storage/
-src/modules/rules/storage/
+data/
 .env
