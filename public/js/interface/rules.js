@@ -1,5 +1,6 @@
 import showToast from '../utils/toast-notifications.js';
-import { templatesMap, selectedTemplate } from './template.js';
+import { selectedTemplate, selectedGroup } from './template.js';
+import { groupsMap } from './template-groups.js';
 import { updateInputs } from './home.js';
 import FetchService from '../utils/fetchService.js';
 
@@ -33,13 +34,15 @@ saveNewRuleBtn.addEventListener('click', async(e) => {
     }
     
     // Faz requisição para salvar regra
-    const { message, success, data } = await updateRules({ url: `/api/rules/${selectedTemplate.id}/template`, method: "POST", body: { rules } });
+    const { message, success, data } = await updateRules({ url: `/api/rules/${selectedTemplate}/template/${selectedGroup}/group`, method: "POST", body: { rules } });
     showToast({ type: success ? 'success' : 'error', message });
     if(!success) return;
 
     // Atualiza o Map
-    const template = templatesMap.get(selectedTemplate.id);
-    template.rules = data.rules;
+    const group = groupsMap.get(selectedGroup);
+    const template = group.templates.find(t => t.id === selectedTemplate);
+
+    if (template) template.rules = data.rules;
 
     // Atualiza os indicadores visuais
     [...ruleListChildren].forEach(ruleElement => { updateStatusDot({ el: ruleElement }) });
@@ -97,7 +100,7 @@ function getRuleHTML({ rule = null } = {}) {
                 </div>
 
 
-                <button class="icon-button cursor-pointer size-[2rem]">
+                <button class="delete-button cursor-pointer size-[2rem]">
                     <img src="/img/icons/trash.svg" class="size-full hover:opacity-100 hover:drop-shadow-[0_0_8px_rgba(239,68,68,.7)] opacity-40 transition-all duration-200">
                 </button>
             </div>
@@ -152,7 +155,8 @@ function renderPackets({ container, selected = [] }) {
     // Limpa lista
     container.innerHTML = '';
 
-    const template = templatesMap.get(selectedTemplate.id);
+    const group = groupsMap.get(selectedGroup);
+    const template = group.templates.find(t => t.id === selectedTemplate);
 
     // Itera nos pacotes
     template.packets.forEach(packet => {
@@ -174,7 +178,6 @@ function renderPackets({ container, selected = [] }) {
 
 // Função responsável por controlar o evento de select
 function setupEvents({ el, container }) {
-    
     // Evento de seleção
     const select = el.querySelector('.send-mode');
     select.addEventListener('change', () => { 
@@ -186,7 +189,7 @@ function setupEvents({ el, container }) {
     });
     
     // Evento para deletar regra
-    const iconBtn = el.querySelector('.icon-button');
+    const iconBtn = el.querySelector('.delete-button');
     iconBtn.addEventListener('click', async() => {
         if(!confirm('Tem certeza que deseja excluir essa regra?')) return;
         
@@ -194,7 +197,7 @@ function setupEvents({ el, container }) {
         
         // Caso seja uma regra já carregada deleta
         if(el?.dataset?.id) {
-            const { message, success } = await updateRules({ url: `/api/rules/${el.dataset.id}/template/${template}`, method: 'DELETE' });
+            const { message, success } = await updateRules({ url: `/api/rules/${el.dataset.id}/template/${selectedTemplate}/group/${selectedGroup}`, method: 'DELETE' });
             showToast({ type: success ? 'success' : 'error', message });
             if(!success) return;
         }
@@ -316,7 +319,8 @@ function updateStatusDot({ el }) {
 // Função responsável por recarregar os pacotes das ferramentas
 export function refreshRulePackets() {
     // Obtêm o template
-    const template = templatesMap.get(selectedTemplate.id);
+    const group = groupsMap.get(selectedGroup);
+    const template = group.templates.find(t => t.id === selectedTemplate);
 
     // Obtêm o card
     [...ruleList.children].forEach(ruleEl => {

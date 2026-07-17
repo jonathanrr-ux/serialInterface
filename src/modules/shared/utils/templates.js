@@ -2,22 +2,23 @@ import fs from 'fs/promises';
 import path from 'path';
 
 export async function getTemplates() {
-    // Obtêm a pasta de templates
-    const templateDir = path.join(process.cwd(), 'data', 'templates');
+    const templateDir = path.join(process.cwd(), 'data');
 
-    // Lê diretório
     const files = await fs.readdir(templateDir);
 
-    // Carrega todos os templates
-    const templates = await Promise.all(
-        // Lê conteúdo dos arquivos
-        files.map(async file => {
-            const content = await fs.readFile(path.join(templateDir, file), 'utf-8');
+    const groups = await Promise.all(
+        files
+            .filter(file => file.endsWith('.json'))
+            .map(async file => {
+                const content = await fs.readFile(
+                    path.join(templateDir, file),
+                    'utf-8'
+                );
 
-            // Retorna em json
-            return JSON.parse(content);
-        })
+                return JSON.parse(content);
+            })
     );
 
-    return templates;
+    // Junta todos os templates de todos os grupos
+    return groups.flatMap(group => group.templates ?? []);
 }

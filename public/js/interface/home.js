@@ -1,6 +1,5 @@
 import FetchService from '../utils/fetchService.js';
 import showToast from '../utils/toast-notifications.js';
-import { initTemplates } from './template.js';
 import { refreshRulePackets } from './rules.js';
 
 //* ======================{ Variáveis Globais }======================
@@ -313,7 +312,7 @@ export function updateInputs({ input }) {
 
 document.addEventListener('DOMContentLoaded', async () => {
     // Inicializa página
-    packageEditorContainer.dataset.activeTab = 'templates';
+    packageEditorContainer.dataset.activeTab = 'groups';
 
-    await initTemplates();
+    // await initTemplates();
 });

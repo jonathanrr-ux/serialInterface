@@ -33,3 +33,7 @@
 
     --font-inter-text: "Inter", sans-serif;
 }
+
+:root {
+    --filter-primary: brightness(0) saturate(100%) invert(49%) sepia(80%) saturate(4835%) hue-rotate(225deg) brightness(97%) contrast(94%) drop-shadow(0 0 8px rgba(99,102,241,.6));
+}

@@ -1,8 +1,8 @@
 const { default: services } = await import('./services/index.js');
 
-export async function postSaveTemplate(req, res, next) {
+export async function postTemplate(req, res, next) {
     try {
-        const data = await services.postSaveTemplate(req);
+        const data = await services.postTemplate(req);
         res.status(200).json(data);
     } catch(err) {
         next(err);
@@ -28,9 +28,9 @@ export async function deleteAllTemplates(req, res, next) {
 }
 
 
-export async function postEditTemplate(req, res, next) {
+export async function putTemplate(req, res, next) {
     try {
-        const data = await services.postEditTemplate(req);
+        const data = await services.putTemplate(req);
         res.status(200).json(data);
     } catch(err) {
         next(err);

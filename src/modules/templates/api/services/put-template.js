@@ -2,30 +2,32 @@ import fs from 'fs/promises';
 import path from 'path';
 import { randomUUID } from 'crypto';
 
-export default async function postEditTemplate(req) {
+export default async function putTemplate(req) {
     // Obtêm o nome e pacote a salvar
     let { packet } = req.body;
-    const { id } = req.params;
+    const { id, groupId } = req.params;
     
     try {       
         // Obtêm a pasta de templates
-        const templateDir = path.join(process.cwd(), 'data', 'templates');
-        const file = path.join(templateDir, `${id}.json`);
+        const groupPath = path.join(process.cwd(), 'data', `${groupId}.json`);
         
-        // Adiciona uuid a pacote
+        // Adiciona id aos novos pacotes
         packet = packet.map(p => ({
             ...p,
             id: p.id ?? randomUUID()
         }));
         
-        // Obtêm json
-        const template = JSON.parse(await fs.readFile(file, 'utf8'));
+        // Lê o grupo
+        const group = JSON.parse(await fs.readFile(groupPath, 'utf8'));
         
-        // Substitui packets
+        // Procura o template
+        const template = group.templates.find(t => t.id === id);
+
+        // Atualiza os pacotes
         template.packets = packet;
 
-        // Escreve arquivo
-        await fs.writeFile(file, JSON.stringify(template, null, 4));
+        // Salva o grupo
+        await fs.writeFile(groupPath, JSON.stringify(group, null, 4));
         
         return { data: { template }, message: 'Template editado com sucesso' };
     } catch (err) {

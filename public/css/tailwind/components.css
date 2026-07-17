@@ -93,6 +93,42 @@ select option {
 .template {
     @apply flex justify-between w-full p-4 rounded-xl transition-all duration-300
     bg-linear-to-b from-surface-3 to-surface shadow-[0_8px_24px_rgba(0,0,0,.35),inset_rgba(31,41,55)_1px_1px_1px] 
-    border border-white/10 hover:border-primary hover:shadow-[0_5px_15px_rgba(99,102,241,.25),inset_1px_1px_1px_rgba(31,41,55,.8)]
-    aria-selected:border-primary
+    border border-white/10
+}
+
+.template:hover {
+    border-color: var(--group-color);
+    box-shadow:
+        0 5px 15px color-mix(in srgb, var(--group-color) 25%, transparent),
+        inset 1px 1px 1px rgba(31, 41, 55, .8);
+}
+
+.template[aria-selected="true"] {
+    border-color: var(--group-color);
+}
+
+.icon-button {
+    @apply flex items-center justify-center size-[3rem] rounded-xl border border-border bg-surface-2 transition-all cursor-pointer
+    hover:border-primary hover:bg-surface-3;
+}
+
+.color-button {
+    @apply size-[2.5rem] rounded-full border-2 border-transparent transition-all cursor-pointer flex items-center justify-center;
+}
+
+.color-button:hover {
+    transform: scale(1.08);
+}
+
+.material-symbols-rounded.item {
+    font-size: 55px;
+}
+
+.material-symbols-rounded.template-item {
+    font-size: 30px;
+}
+
+.color-button.selected {
+    @apply border-white;
+    box-shadow: 0 0 12px rgba(255,255,255,.4);
 }

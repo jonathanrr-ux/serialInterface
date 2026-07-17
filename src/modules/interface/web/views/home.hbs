@@ -29,37 +29,22 @@
             <button id="delete-all-templates" class="lg:w-[5rem] xl:w-[8rem] 2xl:w-[10rem] h-[2.5rem] rounded-md text-[0.8em] font-bold base-button danger">Excluir todos</button>
         </div>
 
-        <hr class="w-full text-border">
-
         {{!-- Itens --}}
-        <div id="templates-list" class="flex-1 min-h-0 flex flex-col gap-4 overflow-y-auto">
-            {{!-- <div class="flex flex-col p-3 gap-3 rounded-2xl bg-surface-3 border border-white/5 shadow-[0_10px_30px_rgba(0,0,0,.25)]">
-                <!-- Cabeçalho grupo -->
-                <div class="flex items-center gap-3 px-2">
-                    <svg class="rotate-270 w-3 h-3" xmlns="http://www.w3.org/2000/svg" height="24px" width="24px" viewBox="0 0 24 32">
-                        <path stroke="#6366F1" stroke-width="2" d="M14.44,0,16,1.56,3.12,14.4,16,27.24,14.44,28.8,0,14.4Z"/>
-                    </svg>
-                    <p class="text-[0.7em] font-bold tracking-wide text-text">Parcel Locker</p>
-                </div>
+        <div class="flex-1 min-h-0 flex flex-col overflow-y-auto">
+            <div id="groups-list" class="flex flex-col flex-1 bg-background-2 rounded-xl p-3 gap-5">
+            </div>
 
-                <div class="h-px bg-white/5 w-full"></div>
-
-                <!-- Template selecionado -->
-                <div class="template group" aria-selected="true">
-                    <div class="flex items-center gap-2">
-                        <span class="w-3 h-3 rounded-full color-dot" style="background-color: rgb(71, 93, 235); box-shadow: rgb(71, 93, 235) 0px 0px 10px;"></span>
-                        <p class="text-[0.9em]">Abrir compartimentos</p>
-                    </div>
-                    <img src="/img/icons/more.svg" class="menu-btn cursor-pointer">
-                </div>
-                <div class="template group" aria-selected="false">
-                    <div class="flex items-center gap-2">
-                        <span class="w-3 h-3 rounded-full color-dot" style="background-color: rgb(71, 93, 235); box-shadow: rgb(71, 93, 235) 0px 0px 10px;"></span>
-                        <p class="text-[0.9em]">Abrir compartimentos</p>
-                    </div>
-                    <img src="/img/icons/trash.svg" class="menu-btn cursor-pointer">
-                </div>
-            </div>   --}}
+            <hr class="w-full text-border">
+            <button 
+                commandfor="group-modal" 
+                command="show-modal" 
+                id="add-new-group-button" 
+                class="flex w-full justify-center bg-background-2 py-2 gap-2 text-primary [text-shadow:0_0_8px_var(--color-primary)] 
+                    cursor-pointer hover:bg-surface-2 rounded-b-xl
+            ">
+                <img src="/img/icons/add.svg" class="filter-[var(--filter-primary)]">
+                Adicionar grupo
+            </button>
         </div>
     </div>
 
@@ -93,14 +78,14 @@
 
             <button 
                 aria-selected="true" 
-                data-tab="templates"
+                data-tab="groups"
                 class="flex items-center gap-2 px-10 py-4 -mb-0.5 border-b-2 aria-selected:border-b-2 font-bold 
                     transition-all border-transparent aria-selected:border-primary hover:border-primary aria-selected:bg-primary/5 
                     hover:[text-shadow:0_0_8px_var(--color-primary)] aria-selected:[text-shadow:0_0_8px_var(--color-primary)]" 
                 
             >
                 <img src="/img/icons/rule.svg" class="size-5">
-                Templates
+                Grupos
             </button>
         </div>
 
@@ -176,39 +161,9 @@
         </div>
 
         {{!-- Templates --}}
-        <div class="group-data-[active-tab=templates]:flex flex-col h-full min-h-0 hidden p-4 gap-4 overflow-y-auto">
+        <div class="group-data-[active-tab=groups]:flex flex-col h-full min-h-0 hidden p-4 gap-4 overflow-y-auto">
             {{!-- Lista de regras --}}
-            <div id="templates-groups-list" class="grid grid-cols-2">
-                {{!-- Template --}}
-                <div class="flex flex-col card p-4 justify-between gap-5">
-                    {{!-- Parte de cima --}}
-                    <div class="flex gap-3">
-                        {{!-- Ícone --}}
-                        <div class="size-[4rem] rounded-xl" style="background-color: rgb(71, 93, 235, 0.9); box-shadow: 0 0 20px rgba(71, 93, 235, 0.6);">
-                            <img src="/img/icons/connect.svg" class="size-full p-2">
-                        </div>
-
-                        {{!-- Texto --}}
-                        <div class="flex flex-col gap-2 flex-1 min-w-0">
-                            <p class="text-[0.8em] font-bold">Leitura dispositivo</p>
-                            <p class="text-[0.7em] text-text-secondary">Lê dados do dispositivo conectado</p>
-                        </div>
-                        {{!-- Icone de mais --}}
-                        <div class="size-[2.5rem] rounded-xl shrink-0 bg-surface-3">
-                            <img src="/img/icons/more.svg" class="size-full p-1 rotate-90">
-                        </div>
-                    </div>
-
-                    <div class="flex justify-between">
-                        <div class="flex text-[0.7em] gap-2">
-                            <p class="py-1 px-2 rounded-xl" style="background-color: rgb(71, 93, 235, 0.6); box-shadow: 0 0 20px rgba(71, 93, 235, 0.6);">Leitura</p>
-                            <p class="py-1 px-2 rounded-xl" style="background-color: rgb(71, 93, 235, 0.6); box-shadow: 0 0 20px rgba(71, 93, 235, 0.6);">Serial</p>
-                        </div>
-
-                        {{!-- Favorito --}}
-                        <img src="/img/icons/star.svg" class="size-[2rem] cursor-pointer hover:drop-shadow-[0_0_8px_rgba(71,93,235)]">
-                    </div>
-                </div>
+            <div id="groups-tab-list" class="grid grid-cols-2 gap-3">
             </div>
         </div>
     </div>
@@ -245,22 +200,42 @@
     </div>
 
     {{!-- Modal --}}
-    <dialog id="template-modal" class="m-auto w-[32rem] rounded-xl border-2 border-border bg-surface p-0 text-text backdrop:bg-black/50">
+    <dialog id="template-modal" class="m-auto w-[32rem] rounded-xl border-2 border-border bg-surface text-text backdrop:bg-black/50 p-4">
 
         {{!-- Cabeçalho --}}
-        <div class="border-b-2 border-border p-5">
+        <div class="border-b-2 border-border p-1">
             <p class="font-bold">Adicionar template</p>
             <p class="mt-1 text-[0.7em] text-text-secondary">Escolha como este template vai se chamar</p>
         </div>
 
+        <div class="flex flex-col gap-2 my-4">
+            <p class="text-[0.7em] text-text-secondary">Grupo<span class="text-primary">*</span></p>
+            <select id="group-select" class="input">
+            </select>
+        </div>
+
         {{!-- Input de nome --}}
-        <div class="flex flex-col gap-2 p-4">
-            <p class="text-[0.7em] text-text-secondary">Nome</p>
-            <input id="template-name-input" type="text" placeholder="Ex.: Abrir gaveta" class="input h-[3rem]">
+        <div class="flex flex-col gap-2 my-4">
+            <p class="text-[0.7em] text-text-secondary">Nome<span class="text-primary">*</span></p>
+            {{> input-with-error
+                id="template-name-input"
+                type="text"
+                placeholder="Ex.: Bateria"
+            }}
+        </div>
+
+        {{!-- Input de nome --}}
+        <div class="flex flex-col gap-2 my-4">
+            <p class="text-[0.7em] text-text-secondary">Descrição</p>
+            {{> input-with-error
+                id="template-description-input"
+                type="text"
+                placeholder="Ex.: Status da bateria"
+            }}
         </div>
 
         {{!-- Rodapé --}}
-        <div class="flex justify-end gap-3 border-t-2 border-border p-5">
+        <div class="flex justify-end gap-3 border-t-2 border-border pt-4">
             <button
                 commandfor="template-modal"
                 command="close"
@@ -269,9 +244,104 @@
             </button>
 
             <button 
-                commandfor="template-modal"
-                command="close"
                 id="save-new-template-button" class="base-button success px-5 py-2 rounded-xl">
+                Salvar
+            </button>
+
+        </div>
+
+    </dialog>
+
+    {{!-- Modal --}}
+    <dialog id="group-modal" class="m-auto w-[32rem] rounded-xl border-2 border-border bg-surface text-text backdrop:bg-black/50 p-4">
+
+        {{!-- Cabeçalho --}}
+        <div class="border-b-2 border-border p-1">
+            <p class="font-bold">Adicionar grupo</p>
+            <p class="mt-1 text-[0.7em] text-text-secondary">Adicione e estilize um grupo para templates</p>
+        </div>
+
+        {{!-- Input de nome --}}
+        <div class="flex flex-col gap-2 my-3">
+            <p class="text-[0.7em] text-text-secondary">Pré visualização</p>
+            <div class="flex items-center justify-center card w-full h-[4rem] gap-3">
+                <div id="color-preview" class="size-[2.5rem] rounded-xl flex items-center justify-center">
+                    <span id="icon-preview" class="material-symbols-rounded text-white text-[2rem]">
+                    </span>
+                </div>
+                <p id="visualization-name" class="font-bold"></p>
+            </div>
+        </div>
+
+        {{!-- Input de nome --}}
+        <div class="flex flex-col gap-2 my-4">
+            <p class="text-[0.7em] text-text-secondary">Nome<span class="text-primary">*</span></p>
+            {{> input-with-error
+                id="group-name-input"
+                type="text"
+                placeholder="Ex.: Configurações"
+            }}
+        </div>
+
+        {{!-- Input de nome --}}
+        <div class="flex flex-col gap-2 my-4">
+            <p class="text-[0.7em] text-text-secondary">Descrição</p>
+            {{> input-with-error
+                id="group-description-input"
+                type="text"
+                placeholder="Ex.: Configurações"
+            }}
+        </div>
+
+        {{!-- Ícone --}}
+        <div class="flex flex-col gap-3 my-4">
+            <p class="text-[0.7em] text-text-secondary">Ícone<span class="text-primary">*</span></p>
+
+            {{!-- Categorias --}}
+            <div id="category-list" class="flex gap-2 overflow-x-auto pb-1"></div>
+
+            {{!-- Lista de ícones --}}
+            <div id="icons-list" class="grid grid-cols-7 gap-2 rounded-xl border border-border bg-background-2 p-3 max-h-[14rem] overflow-y-auto"></div>
+        </div>
+
+        {{!-- Cor --}}
+        <div class="flex flex-col gap-3 my-4">
+            <p class="text-[0.7em] text-text-secondary">Cor<span class="text-primary">*</span></p>
+
+            <div id="colors-list" class="grid grid-cols-6 gap-3">
+                <button class="color-button aria-selected:border-white aria-selected:shadow-[0_0_12px_rgba(255,255,255,.4)]" aria-selected="true" data-color="#6366F1" style="background:#6366F1"></button>
+                <button class="color-button aria-selected:border-white aria-selected:shadow-[0_0_12px_rgba(255,255,255,.4)]" aria-selected="false" data-color="#3B82F6" style="background:#3B82F6"></button>
+                <button class="color-button aria-selected:border-white aria-selected:shadow-[0_0_12px_rgba(255,255,255,.4)]" aria-selected="false" data-color="#06B6D4" style="background:#06B6D4"></button>
+                <button class="color-button aria-selected:border-white aria-selected:shadow-[0_0_12px_rgba(255,255,255,.4)]" aria-selected="false" data-color="#10B981" style="background:#10B981"></button>
+                <button class="color-button aria-selected:border-white aria-selected:shadow-[0_0_12px_rgba(255,255,255,.4)]" aria-selected="false" data-color="#84CC16" style="background:#84CC16"></button>
+                <button class="color-button aria-selected:border-white aria-selected:shadow-[0_0_12px_rgba(255,255,255,.4)]" aria-selected="false" data-color="#EAB308" style="background:#EAB308"></button>
+                <button class="color-button aria-selected:border-white aria-selected:shadow-[0_0_12px_rgba(255,255,255,.4)]" aria-selected="false" data-color="#F97316" style="background:#F97316"></button>
+                <button class="color-button aria-selected:border-white aria-selected:shadow-[0_0_12px_rgba(255,255,255,.4)]" aria-selected="false"data-color="#EF4444" style="background:#EF4444"></button>
+                <button class="color-button aria-selected:border-white aria-selected:shadow-[0_0_12px_rgba(255,255,255,.4)]" aria-selected="false" data-color="#EC4899" style="background:#EC4899"></button>
+                <button class="color-button aria-selected:border-white aria-selected:shadow-[0_0_12px_rgba(255,255,255,.4)]" aria-selected="false" data-color="#A855F7" style="background:#A855F7"></button>
+                <button class="color-button aria-selected:border-white aria-selected:shadow-[0_0_12px_rgba(255,255,255,.4)]" aria-selected="false" data-color="#64748B" style="background:#64748B"></button>
+
+                {{!-- Cor personalizada --}}
+                <label id="custom-color-button" class="color-button cursor-pointer bg-surface-2 relative">
+                    <span class="material-symbols-rounded text-white">palette</span>
+
+                    <input id="custom-color" type="color" class="absolute inset-0 opacity-0 size-full cursor-pointer" value="#6366F1">
+                </label>
+            </div>
+        </div>
+
+        {{!-- Rodapé --}}
+        <div class="flex justify-end gap-3 border-t-2 border-border pt-4">
+            <button
+                commandfor="group-modal"
+                command="close"
+                class="base-button px-5 py-2 rounded-xl">
+                Cancelar
+            </button>
+
+            <button 
+                id="save-group-button"
+                class="base-button success px-5 py-2 rounded-xl">
                 Salvar
             </button>
 
@@ -281,5 +351,6 @@
 </section>
 
 <script type="module" src="/js/interface/template.js"></script>
+<script type="module" src="/js/interface/template-groups.js"></script>
 <script type="module" src="/js/interface/rules.js"></script>
 <script type="module" src="/js/interface/logs.js"></script>

@@ -1,0 +1,21 @@
+<div class="flex flex-col w-full">
+    <div class="relative">
+        <input 
+            id="{{id}}" 
+            type="{{type}}" 
+            maxlength="{{maxlength}}" 
+            autocomplete="off" 
+            placeholder="{{placeholder}}" 
+            {{#if disabled}}disabled{{/if}}
+            aria-error="false"
+            value="{{value}}"
+            min="{{min}}"
+            max="{{max}}"
+            {{#if dataId}}data-id="{{dataId}}"{{/if}}
+            {{{data}}} 
+            class="input h-[3rem] w-full aria-error:!border-red-700
+                {{class}}"
+        >
+    </div>
+    <p aria-error="false" class="invisible aria-error:visible self-end text-red-700 text-[0.7em]">{{error}}</p>
+</div>
