@@ -2,8 +2,9 @@ import { ICONS_DEFINITIONS } from "../utils/icons.js";
 import showToast from "../utils/toast-notifications.js";
 import FetchService from "../utils/fetchService.js";
 import { changeInputErrorStatus } from "../utils/input-error.js";
-import { onTemplateClick, setSelectedTemplate, editPacketWrapper, setSelectedGroup, selectedTemplate } from './template.js';
-import { packetList } from './home.js';
+import { onTemplateClick, setSelectedTemplate, editPacketWrapper, setSelectedGroup, selectedTemplate, selectedGroup } from './template.js';
+import { changeTab, packetList } from './home.js';
+import { ruleList } from "./rules.js";
 
 //* ======================{ Variáveis globais }======================
 
@@ -288,12 +289,6 @@ function updatePreview() {
 
 //* ======================{ Controle da tab de grupos }======================
 
-//* Eventos:
-
-document.addEventListener('click', () => {
-    document.querySelectorAll('.pop-over').forEach(pop => pop.classList.add('hidden'));
-});
-
 //* Funções:
 
 // Cria o grupo na lista
@@ -308,10 +303,10 @@ function createGroupInList({ group }) {
         <div class="group-header flex items-center justify-between px-4 cursor-pointer">
             <div class="flex gap-3">
                 <span class="material-symbols-rounded" style="color: var(--group-color)">${group.icon}</span>
-                <p class="group-name text-[0.8em] font-bold">${group.name} <span class="text-[0.8em]">(${group.templates.length})</span></p>
+                <p class="group-name text-[0.8em] font-bold break-all">${group.name} <span class="text-[0.8em] templates-length">(${group.templates.length})</span></p>
             </div>
-            <svg class="group-data-[expanded=true]:rotate-270 rotate-0 w-3 h-3" xmlns="http://www.w3.org/2000/svg" height="24px" width="24px" viewBox="0 0 24 32">
-                <path stroke="#6366F1" stroke-width="2" d="M14.44,0,16,1.56,3.12,14.4,16,27.24,14.44,28.8,0,14.4Z"/>
+            <svg class="group-data-[expanded=true]:rotate-270 rotate-0 w-3 h-3 shrink-0" xmlns="http://www.w3.org/2000/svg" height="24px" width="24px" viewBox="0 0 24 32">
+                <path stroke="#FFF" stroke-width="2" d="M14.44,0,16,1.56,3.12,14.4,16,27.24,14.44,28.8,0,14.4Z"/>
             </svg>
         </div>
         <div class="group-data-[expanded=true]:grid-rows-[1fr] grid grid-rows-[0fr] transition-[grid-template-rows] duration-300 ease-in-out">
@@ -327,6 +322,16 @@ function createGroupInList({ group }) {
     // Adiciona evento para esconder/mostrar grupo
     const groupHeader = div.querySelector('.group-header');
     groupHeader.addEventListener('click', function() {
+        // Verifica se o botão foi clicado para fechar com algum selecionado
+        if(selectedTemplate && this.parentElement.dataset.groupId === selectedGroup && div.dataset.expanded === 'true'){
+            // Tira seleção
+            templatesList.querySelector(`[data-template-id="${selectedTemplate}"]`).setAttribute('aria-selected', false);
+
+            // Limpa páginas
+            editPacketWrapper.dataset.active = false;
+            changeTab({ tab: 'groups' });
+        };
+        
         // Altera estado
         div.dataset.expanded = div.dataset.expanded !== 'true';
     });
@@ -343,7 +348,7 @@ export function createTemplateInList({ template, group, container, creating = fa
 
         // Limpa listas
         packetList.innerHTML = '';
-        // ruleList.innerHTML = '';
+        ruleList.innerHTML = '';
 
         // Salva o template selecionado
         setSelectedTemplate(template.id);
@@ -351,20 +356,21 @@ export function createTemplateInList({ template, group, container, creating = fa
     }
 
     const div = document.createElement('div');
-    div.className = 'template flex gap-3 items-center group-color';
+    div.className = 'template flex gap-3 items-center group-color z-20';
     div.dataset.templateId = template.id;
     div.dataset.groupId = group.id;
     div.setAttribute('aria-selected', creating ? true : false);
     div.style.setProperty('--group-color', group.color);
     div.innerHTML = `
         <div class="flex items-center gap-3">
-            <span class="material-symbols-rounded template-item" style="color: var(--group-color); text-shadow: 0 0 8px var(--group-color);">${group.icon}</span>
+            <span class="shrink-0 size-3 rounded-full inline-block" style="background-color: var(--group-color); box-shadow: 0 0 8px var(--group-color);"></span>
             <div>
-                <p class="text-[0.8em] font-bold">${template.name}</p>
-                <p class="text-[0.7em] text-text-secondary">${template.description ?? ''}</p>
+                <p class="text-[0.8em] font-bold break-all">${template.name}</p>
+                <p class="text-[0.7em] text-text-secondary break-all">${template.description ?? ''}</p>
             </div>
         </div>
-        <img src="/img/icons/more.svg" class="menu-btn cursor-pointer size-[2rem]">`;
+        <img src="/img/icons/more.svg" class="menu-btn cursor-pointer size-[2rem]">
+`;
 
     container.appendChild(div);
 
@@ -393,8 +399,8 @@ function buildGroupTabInnerHtml(group) {
                 <span class="material-symbols-rounded item">${group.icon}</span>
             </div>
             <div class="flex flex-col gap-2 flex-1 min-w-0">
-                <p class="group-name text-[0.8em] font-bold">${group.name} <span class="text-[0.8em]">(${group.templates.length})</span></p>
-                <p class="text-[0.7em] text-text-secondary">${group.description ?? ''}</p>
+                <p class="group-name text-[0.8em] font-bold break-all">${group.name} <span class="text-[0.8em] templates-length">(${group.templates.length})</span></p>
+                <p class="group-description text-[0.7em] text-text-secondary break-all">${group.description ?? ''}</p>
             </div>
             <div class="relative more-button size-[2.5rem] rounded-xl shrink-0 bg-surface-3 cursor-pointer hover:bg-surface-3/70">
                 <img src="/img/icons/more.svg" class="size-full p-1 rotate-90">
@@ -422,11 +428,14 @@ function updateGroupInDom({ group }) {
     groupEls.forEach(g => {
         // Atualiza os nomes
         const name = g.querySelector('.group-name');
-        if(name) name.innerHTML = `${group.name} <span>(${group.templates.length ?? 0})</span>`;
+        if(name) name.innerHTML = `${group.name} <span class="text-[0.8em] templates-length">(${group.templates.length ?? 0})</span>`;
 
         // Atualiza os ícones
         const icon = g.querySelector('.material-symbols-rounded');
-        icon.textContent = group.icon;
+        if(icon) icon.textContent = group.icon;
+        
+        const description = g.querySelector('.group-description');
+        if(description) description.textContent = group.description;
 
         // Atualiza cores
         g.style.setProperty('--group-color', group.color);

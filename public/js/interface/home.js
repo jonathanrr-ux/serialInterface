@@ -37,6 +37,9 @@ tabsBtn.forEach(t => {
 document.addEventListener('click', (e) => {
     // Caso clique for fora do pop over
     if (!details.contains(e.target)) details.removeAttribute('open');
+
+    document.querySelectorAll('.pop-over').forEach(pop => pop.classList.add('hidden'));
+    document.getElementById('popover').classList.add("hidden");
 });
 
 sendAllBtn.addEventListener('click', async() => {
@@ -259,7 +262,7 @@ export function updateAddButton(parent) {
 
 responseInput.addEventListener('input', async function () {
     // Verifica se o valor escrito é valido
-    if (!this.value.trim().length) return;
+    if (!this.value.length) return;
 
     // Envia novo valor a uma rota para fazer a alteração da leitura
     const { success } = await api.request('/api/serial/byte-length', { method: 'POST', body: { byteLength: Number(this.value) } });

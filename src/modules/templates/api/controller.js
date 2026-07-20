@@ -27,19 +27,18 @@ export async function deleteAllTemplates(req, res, next) {
     } 
 }
 
-
-export async function putTemplate(req, res, next) {
+export async function putTemplatePackets(req, res, next) {
     try {
-        const data = await services.putTemplate(req);
+        const data = await services.putTemplatePackets(req);
         res.status(200).json(data);
     } catch(err) {
         next(err);
     } 
 }
 
-export async function getTemplates(req, res, next) {
+export async function putTemplate(req, res, next) {
     try {
-        const data = await services.getTemplates(req);
+        const data = await services.putTemplate(req);
         res.status(200).json(data);
     } catch(err) {
         next(err);

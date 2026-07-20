@@ -1,16 +1,18 @@
 import { createSerialConnection, closeSerialConnection, getSerialConnection, getNewParser } from './core/connection.js';
 import { send } from './core/sender.js';
-import { setSystemConfig } from '../../config/system.js';
+import { setSystemConfig, getSystemConfig } from '../../config/system.js';
 import { handleData } from '../serial/core/handler.js';
 import { getIO } from '../../sockets/index.js';
 import { serialLog } from '../shared/utils/serial-logger.js';
 import { LOGS_DEFINITIONS } from '../../../public/js/utils/logs-definitions.js';
 
+
 // Função para inicializar o serial
 async function setupSerialEvents() {
+    const system = getSystemConfig();
     // Conexão serial
     const { port } = getSerialConnection();
-    const parser = getNewParser();
+    const parser = getNewParser({ byteLength: system.settings.responseLength ?? 9 });
     
     port.on('open', () => {
         // Salva configuração

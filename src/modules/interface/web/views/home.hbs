@@ -9,7 +9,7 @@
             </div>
 
             {{!-- Botões --}}
-            <button commandfor="template-modal" command="show-modal" id="add-new-template" class="size-[2.5rem]">
+            <button id="add-new-template" class="size-[2.5rem]">
                 <img src="/img/icons/add.svg" class="base-button primary size-full">
             </button>
         </div>
@@ -33,19 +33,20 @@
         <div class="flex-1 min-h-0 flex flex-col overflow-y-auto">
             <div id="groups-list" class="flex flex-col flex-1 bg-background-2 rounded-xl p-3 gap-5">
             </div>
-
-            <hr class="w-full text-border">
-            <button 
-                commandfor="group-modal" 
-                command="show-modal" 
-                id="add-new-group-button" 
-                class="flex w-full justify-center bg-background-2 py-2 gap-2 text-primary [text-shadow:0_0_8px_var(--color-primary)] 
-                    cursor-pointer hover:bg-surface-2 rounded-b-xl
-            ">
-                <img src="/img/icons/add.svg" class="filter-[var(--filter-primary)]">
-                Adicionar grupo
-            </button>
         </div>
+
+        {{!-- Adicionar grupo --}}
+        <hr class="w-full text-border">
+        <button 
+            commandfor="group-modal" 
+            command="show-modal" 
+            id="add-new-group-button" 
+            class="flex w-full justify-center bg-background-2 py-2 gap-2 text-primary [text-shadow:0_0_8px_var(--color-primary)] 
+                cursor-pointer hover:bg-surface-2 rounded-b-xl
+        ">
+            <img src="/img/icons/add.svg" class="filter-[var(--filter-primary)]">
+            Adicionar grupo
+        </button>
     </div>
 
     {{!-- Centro --}}
@@ -200,12 +201,12 @@
     </div>
 
     {{!-- Modal --}}
-    <dialog id="template-modal" class="m-auto w-[32rem] rounded-xl border-2 border-border bg-surface text-text backdrop:bg-black/50 p-4">
+    <dialog id="template-modal" data-modal="add" class="group m-auto w-[32rem] rounded-xl border-2 border-border bg-surface text-text backdrop:bg-black/50 p-4">
 
         {{!-- Cabeçalho --}}
         <div class="border-b-2 border-border p-1">
-            <p class="font-bold">Adicionar template</p>
-            <p class="mt-1 text-[0.7em] text-text-secondary">Escolha como este template vai se chamar</p>
+            <p class="title font-bold"></p>
+            <p class="mt-1 text-[0.7em] text-text-secondary">Configure as informações deste template</p>
         </div>
 
         <div class="flex flex-col gap-2 my-4">
@@ -215,7 +216,7 @@
         </div>
 
         {{!-- Input de nome --}}
-        <div class="flex flex-col gap-2 my-4">
+        <div class="group-data-[modal=move]:hidden flex flex-col gap-2 my-4">
             <p class="text-[0.7em] text-text-secondary">Nome<span class="text-primary">*</span></p>
             {{> input-with-error
                 id="template-name-input"
@@ -225,7 +226,7 @@
         </div>
 
         {{!-- Input de nome --}}
-        <div class="flex flex-col gap-2 my-4">
+        <div class="group-data-[modal=move]:hidden flex flex-col gap-2 my-4">
             <p class="text-[0.7em] text-text-secondary">Descrição</p>
             {{> input-with-error
                 id="template-description-input"
@@ -264,12 +265,12 @@
         {{!-- Input de nome --}}
         <div class="flex flex-col gap-2 my-3">
             <p class="text-[0.7em] text-text-secondary">Pré visualização</p>
-            <div class="flex items-center justify-center card w-full h-[4rem] gap-3">
-                <div id="color-preview" class="size-[2.5rem] rounded-xl flex items-center justify-center">
-                    <span id="icon-preview" class="material-symbols-rounded text-white text-[2rem]">
+            <div class="flex items-center justify-center card w-full h-[4rem] gap-3 px-2 overflow-y-auto">
+                <div id="color-preview" class="flex size-[2.5rem] shrink-0 rounded-xl items-center justify-center">
+                    <span id="icon-preview" class="material-symbols-rounded preview text-white">
                     </span>
                 </div>
-                <p id="visualization-name" class="font-bold"></p>
+                <p id="visualization-name" class="font-bold break-all"></p>
             </div>
         </div>
 

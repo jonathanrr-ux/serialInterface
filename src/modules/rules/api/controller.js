@@ -9,15 +9,6 @@ export async function postTemplateRule(req, res, next) {
     } 
 }
 
-export async function deleteRules(req, res, next) {
-    try {
-        const data = await services.deleteRules(req);
-        res.status(200).json(data);
-    } catch(err) {
-        next(err);
-    } 
-}
-
 export async function deleteRule(req, res, next) {
     try {
         const data = await services.deleteRule(req);

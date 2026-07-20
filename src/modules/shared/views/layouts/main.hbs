@@ -23,6 +23,19 @@
 
 
         <main class="min-h-0 overflow-hidden">{{{body}}}</main>
+
+        <div id="popover"
+            class="hidden fixed text-[0.7em] rounded-xl border-2 border-border bg-background z-[9999]">
+            <div class="move-button py-2 px-6 hover:bg-surface-3">
+                <button>Mover para</button>
+            </div>
+            <div class="edit-button py-2 px-6 hover:bg-surface-3">
+                <button>Editar</button>
+            </div>
+            <div class="delete-button py-2 px-6 hover:bg-surface-3">
+                <button>Excluir</button>
+            </div>
+        </div>
     </div>
 
     {{!-- Biblioteca do Socket.IO --}}
