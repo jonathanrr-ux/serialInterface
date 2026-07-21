@@ -1,33 +1,56 @@
-import CustomError from '../../../shared/utils/custom-error.js'
-import path from 'path';
-import fs from 'fs/promises';
-import { randomUUID } from 'crypto';
+import { Op } from 'sequelize';
+import db from '../../../../db/models/index.js';
+import CustomError from '../../../shared/utils/custom-error.js';
 
 export default async function postRule(req) {
     // Obtêm as regras
     const { rules } = req.body;
-    const { id, groupId } = req.params;
+    const { id: templateId } = req.params;
     
-    try {       
-        // Obtêm a pasta de templates
-        const dataDir = path.join(process.cwd(), 'data', `${groupId}.json`);
+    const transaction = await db.sequelize.transaction();
+    
+    try {
+        // IDs das regras que já existem
+        const existingIds = rules.filter(rule => rule.id).map(rule => rule.id);
 
-        // Lê o grupo
-        const group = JSON.parse(await fs.readFile(dataDir, "utf8"));
+        // Remove as que não vieram da interface
+        await db.Rule.destroy({
+            where: {
+                template_id: templateId,
+                ...(existingIds.length && { id: { [Op.notIn]: existingIds } })
+            },
+            transaction
+        });
 
-        const template = group.templates.find(t => t.id === id);
+        await Promise.all(
+            rules.map(rule => {
+                const values = {
+                    name: rule.name,
+                    condition: rule.condition,
+                    action: rule.action,
+                    enabled: rule.enabled,
+                    template_id: templateId
+                };
+
+                if (!rule.id) return db.Rule.create(values, { transaction });
+
+                return db.Rule.update(values, { where: { id: rule.id }, transaction });
+            })
+        );
+
+        // Busca estado final
+        const ruleList = await db.Rule.findAll({ 
+            where: { template_id: templateId },
+            transaction
+        });
         
-        template.rules = rules.map(rule => ({
-            ...rule,
-            id: rule.id ?? randomUUID()
-        }));
-        
-        // Salva o template atualizado
-        await fs.writeFile(dataDir, JSON.stringify(group, null, 4), "utf8");
+        await transaction.commit();
 
-        return { message: 'Regra salva com sucesso', data: { rules: template.rules } };
+        return { message: 'Regras salvas com sucesso', data: { ruleList } };
     } catch (err) {
-        console.error('Erro getting serial ports: ', err)
+        console.error('Erro updating rules: ', err)
+
+        await transaction.rollback();
 
         if (err instanceof CustomError) throw err;
         else throw new CustomError();

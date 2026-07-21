@@ -1,28 +1,15 @@
-import CustomError from '../../../shared/utils/custom-error.js'
-import path from 'path';
-import fs from 'fs/promises';
-import { randomUUID } from 'crypto';
+import CustomError from '../../../shared/utils/custom-error.js';
+import db from '../../../../db/models/index.js';
 
 export default async function postGroup(req) {
     // Obtêm as regras
     const { icon, color, name, description } = req.body;
     
     try {       
-        // Obtêm a pasta de rules
-        const dataDir = path.join(process.cwd(), 'data');
+        // Cria grupo
+        const group = await db.Group.create({ icon, color, name, description });
 
-        // Cria a pasta caso não exista
-        await fs.mkdir(dataDir, { recursive: true });
-
-        // Cria um uuid para o grupo
-        const id = randomUUID();
-
-        // Cria escopo do grupo
-        const group = { id, name, description, icon, color, templates: [] };
-
-        // Escreve no arquivo
-        await fs.writeFile(path.join(process.cwd(), 'data', `${id}.json`), JSON.stringify(group, null, 4));
-
+        // Retorna
         return { message: 'Grupo salvo com sucesso', data : { group } };
     } catch (err) {
         console.error('Erro getting serial ports: ', err)

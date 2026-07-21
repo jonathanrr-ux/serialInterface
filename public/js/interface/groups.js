@@ -5,16 +5,25 @@ import { changeInputErrorStatus } from "../utils/input-error.js";
 import { onTemplateClick, setSelectedTemplate, editPacketWrapper, setSelectedGroup, selectedTemplate, selectedGroup } from './template.js';
 import { changeTab, packetList } from './home.js';
 import { ruleList } from "./rules.js";
+import { fetchAuxiliar, templatesMap } from "./template.js"; 
 
 //* ======================{ Variáveis globais }======================
 
+// Títulos
+let titles = {
+    edit: "Editar grupo",
+    add: "Adicionar grupo"
+}
+
+let editingGroup = null;
+
 const api = new FetchService();
 export const groupsMap = new Map();
-let editingGroupId = null;
 
 // Modal
 const groupModal = document.getElementById('group-modal');
 const addNewGroupBtn = document.getElementById('add-new-group-button');
+const modalTitle = groupModal.querySelector('.title');
 
 // Previews
 const visualizationName = document.getElementById('visualization-name');
@@ -42,8 +51,7 @@ const groupsTabList = document.getElementById('groups-tab-list');
 
 // Adiciona evento de clique ao botão de abrir modal
 addNewGroupBtn.addEventListener('click', () => {
-    resetModalForm();
-    editingGroupId = null;
+    openModal();
 })
 
 // Adiciona evento de clique ao input
@@ -84,18 +92,41 @@ saveGroupBtn.addEventListener('click', function() { saveGroup({ el: this }) } );
 
 // Função responsável por salvar/editar grupo
 async function saveGroup({ el }) {
-    // Evita duplo clique
-    if (el.disabled) return;
+    // Valida os campos
+    const hasError = validateFields();
+    if(hasError) return;
 
-    // Limpa erro
-    changeInputErrorStatus({ id: groupNameInput.id, error: false });
+    // Obtêm a informação do grupo
+    const { icon, color, name, description } = getGroupInfo();
 
-    // Verifica se foi passado nome para o grupo
-    if(!groupNameInput.value) {
-        changeInputErrorStatus({ id: groupNameInput.id, msg: 'Nome obrigatório' });
-        return;
+    // Verifica se está editando
+    const isEditing = groupModal.dataset.modal === 'edit';
+
+    // Faz requisição
+    const { success, data } = await fetchAuxiliar({ 
+        url: isEditing ? `/api/groups/${editingGroup}` : '/api/groups', 
+        method: isEditing ? 'PUT' : 'POST',
+        body: { icon, color, name, description }
+    });
+    if(!success) return;
+    
+    // Seta Map
+    groupsMap.set(data.group.id, data.group);
+
+    // Atualiza no DOM
+    if(isEditing) updateGroupInDom({ group: data.group });
+    else {
+        // Cria elementos
+        createGroupInList({ group: data.group });
+        createGroupInTab({ group: data.group });
     }
+    
+    // Fecha modal e limpa formulário
+    groupModal.close();
+}
 
+// Função responsável por obter as informações do grupo
+function getGroupInfo() {
     // Obtêm itens selecionados
     const { selectedIcon, selectedColor } = getSelectedItens();
 
@@ -105,99 +136,8 @@ async function saveGroup({ el }) {
     const name = groupNameInput.value;
     const description = groupDescriptionInput.value || null;
 
-    const isEditing = editingGroupId !== null;
-
-    // Trava o botão durante a requisição
-    saveGroupBtn.disabled = true;
-
-    try {
-        // Requisição
-        const { message, success, data } = await 
-            fetchAuxiliar({ 
-                url: isEditing ? `/api/groups/${editingGroupId}` : '/api/groups', 
-                method: isEditing ? 'PUT' : 'POST',
-                body: { icon, color, name, description }
-            });
-
-        // Mostra mensagem e retorna
-        showToast({ type: success ? 'success' : 'error', message });
-        if(!success) return;
-
-        // Caso esteja editando
-        if (isEditing) {
-            // Atualiza grupo existente no map e no DOM
-            const updatedGroup = { ...groupsMap.get(String(editingGroupId)), ...data.group };
-
-            // Seta Map
-            groupsMap.set(String(editingGroupId), updatedGroup);
-
-            // Atualiza no DOM
-            updateGroupInDom({ group: updatedGroup });
-        } else {
-            // Cria grupo na lista de templates
-            groupsMap.set(String(data.group.id), data.group);
-
-            // Cria elementos
-            createGroupInList({ group: data.group });
-            createGroupInTab({ group: data.group });
-        }
-        
-        // Fecha modal e limpa formulário
-        groupModal.close();
-        resetModalForm();
-        editingGroupId = null;
-    } finally {
-        saveGroupBtn.disabled = false;
-    }
-}
-
-async function fetchAuxiliar({ url, method, body }) {
-    return api.request(url, { method, body });
-}
-
-// Limpa o formulário do modal e volta ao estado inicial
-function resetModalForm() {
-    groupNameInput.value = '';
-    groupDescriptionInput.value = '';
-    visualizationName.textContent = '';
-
-    // Reseta seleção de ícone para o primeiro da categoria atual
-    const firstIconBtn = iconsList.querySelector('.icon-button');
-    if (firstIconBtn) selectItem({ container: iconsList, element: firstIconBtn });
-
-    // Reseta seleção de cor
-    colorsList.querySelectorAll('[data-selected]').forEach(item => item.setAttribute('data-selected', 'false'));
-    customColorBtn.style.background = '';
-
-    updatePreview();
-}
-
-// Abre o modal já preenchido com os dados do grupo, para edição
-function openEditModal({ group }) {
-    // Salva grupo editado
-    editingGroupId = group.id;
-
-    // Bota informações do grupo
-    groupNameInput.value = group.name;
-    groupDescriptionInput.value = group.description ?? '';
-    visualizationName.textContent = group.name;
-
-    // Seleciona a cor do grupo, se existir entre os botões pré-definidos
-    const matchingColorBtn = colorsList.querySelector(`[data-color="${group.color}"]`);
-    if (matchingColorBtn) selectItem({ container: colorsList, element: matchingColorBtn });
-    else {
-        customColorInput.value = group.color;
-        customColorBtn.style.background = group.color;
-        customColorBtn.dataset.color = group.color;
-        selectItem({ container: colorsList, element: customColorBtn });
-    }
-
-    // Tenta selecionar o ícone correspondente, se estiver na lista renderizada atualmente
-    const matchingIconBtn = Array.from(iconsList.querySelectorAll('.icon-button')).find(btn => btn.querySelector('span').textContent.trim() === group.icon);
-    if (matchingIconBtn) selectItem({ container: iconsList, element: matchingIconBtn });
-
-    updatePreview();
-    groupModal.showModal ? groupModal.showModal() : groupModal.show();
+    // Retorna
+    return { icon, color, name, description }
 }
 
 // Função responsável por criar botões das categorias dos ícones
@@ -252,6 +192,7 @@ function renderIcons({ icons }) {
 
     icons.forEach((icon, index) => {
         const button = document.createElement("button");
+        button.dataset.icon = icon
         button.className = "icon-button aria-selected:!border-primary aria-selected:bg-primary/15 aria-selected:text-primary";
         button.setAttribute('aria-selected', index === 0);
         button.innerHTML = `
@@ -277,14 +218,92 @@ function renderIcons({ icons }) {
 
 // Função responsável por atualizar o preview
 function updatePreview() {
+    // Obtêm cor e ícone selecionados
     const { selectedIcon, selectedColor } = getSelectedItens();
     if (!selectedIcon) return;
 
+    // Obtêm ícone e cor
     const icon = selectedIcon.querySelector("span").textContent.trim();
     const color = selectedColor?.dataset.color ?? "#6366F1";
 
+    // Atualiza
     iconPreview.textContent = icon;
     colorPreview.style.background = color;
+};
+
+// Função responsável por abrir modal
+function openModal({ type = 'add', group = null } = {}) {
+    // Muda dataset do modal
+    groupModal.dataset.modal = type;
+    modalTitle.textContent = titles[type];
+
+    // Limpa inputs
+    clearInputError({ inputs: [groupDescriptionInput, groupNameInput] });
+
+    // Atualiza informações 
+    groupNameInput.value = group ? group.name : '' ;
+    groupDescriptionInput.value = group ? group.description ?? '' : '';
+    visualizationName.textContent = group ? group.name : '';
+
+    // Caso for modal de adicionar
+    if(type === 'add') initializeDefaultSelections();
+    else {
+        selectGroupColor(group.color);
+        selectGroupIcon(group.icon);
+    }
+
+    // Atualiza modal e preview
+    updatePreview();
+    groupModal.showModal();
+}
+
+// Função responsável por inicializar as seleções padrão
+function initializeDefaultSelections() {
+    // Seleciona o ícone padrão
+    const firstIconBtn = iconsList.querySelector('.icon-button');
+    if (firstIconBtn) selectItem({ container: iconsList, element: firstIconBtn });
+
+    // Tira seleção de cores
+    colorsList.querySelectorAll('[data-selected]').forEach(el => el.dataset.selected = false);
+    customColorBtn.style.background = '';
+}
+
+// Função responsável por selecionar a cor
+function selectGroupColor(color) {
+    // Obtêm a cor
+    const button = colorsList.querySelector(`[data-color="${color}"]`);
+
+    // Seleciona caso ache
+    if (button) {
+        selectItem({ container: colorsList, element: button });
+        return;
+    }
+
+    // Caso seja uma cor personalizada
+    customColorInput.value = color;
+    customColorBtn.style.background = color;
+    customColorBtn.dataset.color = color;
+
+    selectItem({ container: colorsList, element: customColorBtn });
+}
+
+// Função responsável por selecionar o ícone
+function selectGroupIcon(icon) {
+    // Obtêm a categoria do ícone
+    const category = Object.entries(ICONS_DEFINITIONS).find(([, value]) => value.icons.includes(icon));
+    if (!category) return;
+
+    const [categoryName, definition] = category;
+
+    // Renderiza os ícones da categoria
+    renderIcons({ icons: definition.icons });
+
+    // Seleciona a categoria
+    selectItem({ container: categoryList, element: categoryList.querySelector(`[data-category="${categoryName}"]`) });
+
+    // Seleciona o ícone
+    const iconButton = iconsList.querySelector(`[data-icon="${icon}"]`);
+    if (iconButton) selectItem({ container: iconsList, element: iconButton });
 }
 
 //* ======================{ Controle da tab de grupos }======================
@@ -303,7 +322,7 @@ function createGroupInList({ group }) {
         <div class="group-header flex items-center justify-between px-4 cursor-pointer">
             <div class="flex gap-3">
                 <span class="material-symbols-rounded" style="color: var(--group-color)">${group.icon}</span>
-                <p class="group-name text-[0.8em] font-bold break-all">${group.name} <span class="text-[0.8em] templates-length">(${group.templates.length})</span></p>
+                <p class="group-name text-[0.8em] font-bold break-all">${group.name} <span class="text-[0.8em] templates-length">(0)</span></p>
             </div>
             <svg class="group-data-[expanded=true]:rotate-270 rotate-0 w-3 h-3 shrink-0" xmlns="http://www.w3.org/2000/svg" height="24px" width="24px" viewBox="0 0 24 32">
                 <path stroke="#FFF" stroke-width="2" d="M14.44,0,16,1.56,3.12,14.4,16,27.24,14.44,28.8,0,14.4Z"/>
@@ -314,67 +333,32 @@ function createGroupInList({ group }) {
             </div>
         </div>
     `;
-    
-    // Cria lista de templates
-    const templatesList = div.querySelector('.templates-list');
-    group.templates.forEach(g => { createTemplateInList({ template: g, container: templatesList, group }) })
 
     // Adiciona evento para esconder/mostrar grupo
     const groupHeader = div.querySelector('.group-header');
     groupHeader.addEventListener('click', function() {
-        // Verifica se o botão foi clicado para fechar com algum selecionado
-        if(selectedTemplate && this.parentElement.dataset.groupId === selectedGroup && div.dataset.expanded === 'true'){
-            // Tira seleção
-            templatesList.querySelector(`[data-template-id="${selectedTemplate}"]`).setAttribute('aria-selected', false);
+        const willClose = div.dataset.expanded === 'true';
+        div.dataset.expanded = !willClose;
 
-            // Limpa páginas
-            editPacketWrapper.dataset.active = false;
-            changeTab({ tab: 'groups' });
-        };
-        
-        // Altera estado
-        div.dataset.expanded = div.dataset.expanded !== 'true';
+        // Se está fechando o grupo
+        if (willClose) {
+            if (selectedGroup === div.dataset.groupId) {
+                setSelectedTemplate(null);
+                setSelectedGroup(null);
+
+                packetList.innerHTML = '';
+                ruleList.innerHTML = '';
+
+                editPacketWrapper.dataset.active = false;
+                changeTab({ tab: 'groups' });
+
+                div.querySelectorAll('[aria-selected="true"]').forEach(el => el.setAttribute('aria-selected', 'false'));
+            }
+        }
     });
 
     // Adiciona ao DOM
     groupsList.appendChild(div);
-}
-
-export function createTemplateInList({ template, group, container, creating = false }) {
-    // Caso esteja criando um novo no momento
-    if(creating) {
-        // Tira seleção de todos
-        groupsList.querySelectorAll('[aria-selected="true"]').forEach(el => el.setAttribute('aria-selected', 'false'));
-
-        // Limpa listas
-        packetList.innerHTML = '';
-        ruleList.innerHTML = '';
-
-        // Salva o template selecionado
-        setSelectedTemplate(template.id);
-        setSelectedGroup(group.id)
-    }
-
-    const div = document.createElement('div');
-    div.className = 'template flex gap-3 items-center group-color z-20';
-    div.dataset.templateId = template.id;
-    div.dataset.groupId = group.id;
-    div.setAttribute('aria-selected', creating ? true : false);
-    div.style.setProperty('--group-color', group.color);
-    div.innerHTML = `
-        <div class="flex items-center gap-3">
-            <span class="shrink-0 size-3 rounded-full inline-block" style="background-color: var(--group-color); box-shadow: 0 0 8px var(--group-color);"></span>
-            <div>
-                <p class="text-[0.8em] font-bold break-all">${template.name}</p>
-                <p class="text-[0.7em] text-text-secondary break-all">${template.description ?? ''}</p>
-            </div>
-        </div>
-        <img src="/img/icons/more.svg" class="menu-btn cursor-pointer size-[2rem]">
-`;
-
-    container.appendChild(div);
-
-    div.addEventListener('click', e => { onTemplateClick({ event: e, el: div, group, template }) });
 }
 
 // Função responsável por criar o grupo na tab
@@ -383,23 +367,13 @@ function createGroupInTab({ group }) {
     div.className = 'flex flex-col card p-4 justify-between gap-5 group-color';
     div.dataset.groupId = group.id;
     div.style.setProperty('--group-color', group.color);
-    div.innerHTML = buildGroupTabInnerHtml(group);
-
-    groupsTabList.appendChild(div);
-
-    // Eventos
-    groupTabEvents({ el: div });
-}
-
-// Função responsável por criar o html do grupo
-function buildGroupTabInnerHtml(group) {
-    return `
+    div.innerHTML = `
         <div class="flex gap-3">
             <div class="flex items-center justify-center size-[4rem] rounded-xl" style="background-color: var(--group-color); box-shadow: 0 0 20px var(--group-color);">
                 <span class="material-symbols-rounded item">${group.icon}</span>
             </div>
             <div class="flex flex-col gap-2 flex-1 min-w-0">
-                <p class="group-name text-[0.8em] font-bold break-all">${group.name} <span class="text-[0.8em] templates-length">(${group.templates.length})</span></p>
+                <p class="group-name text-[0.8em] font-bold break-all">${group.name} <span class="text-[0.8em] templates-length">(0)</span></p>
                 <p class="group-description text-[0.7em] text-text-secondary break-all">${group.description ?? ''}</p>
             </div>
             <div class="relative more-button size-[2.5rem] rounded-xl shrink-0 bg-surface-3 cursor-pointer hover:bg-surface-3/70">
@@ -417,6 +391,11 @@ function buildGroupTabInnerHtml(group) {
         </div>
         <img src="/img/icons/star.svg" class="self-end size-[2rem] cursor-pointer hover:drop-shadow-[0_0_8px_rgba(71,93,235)]">
     `;
+
+    groupsTabList.appendChild(div);
+
+    // Eventos
+    groupTabEvents({ el: div });
 }
 
 // Atualiza o card na tab e o cabeçalho na lista após uma edição
@@ -428,7 +407,7 @@ function updateGroupInDom({ group }) {
     groupEls.forEach(g => {
         // Atualiza os nomes
         const name = g.querySelector('.group-name');
-        if(name) name.innerHTML = `${group.name} <span class="text-[0.8em] templates-length">(${group.templates.length ?? 0})</span>`;
+        if(name) name.innerHTML = `${group.name}`;
 
         // Atualiza os ícones
         const icon = g.querySelector('.material-symbols-rounded');
@@ -467,24 +446,24 @@ function groupTabEvents({ el }) {
         // Manda confirmação
         if(!confirm('Deseja apagar o grupo?')) return;
 
-        // Faz requisição para pagar elemento
-        const { message, success } = await api.request(`/api/groups/${groupsMap.get(el.dataset.groupId).id}`, { method: 'DELETE' });
-        showToast({ type: success ? 'success': 'error', message });
+        // Faz requisição para apagar elemento
+        const { success } = await fetchAuxiliar({ url: `/api/groups/${el.dataset.groupId}`, method: 'DELETE' });
         if(!success) return;
 
         // Limpa map
-        const group = groupsMap.get(el.dataset.groupId);
-
+        const template = templatesMap.get(selectedTemplate);
+        
         // Verifica se o template selecionado pertence ao grupo
-        if (group.templates.some(t => t.id === selectedTemplate)) {
+        if (template && template.group_id === el.dataset.groupId) {
+            // Limpa variáveis
             setSelectedTemplate(null);
             setSelectedGroup(null);
 
-            // Limpa interface
-            packetList.innerHTML = '';
+            // Esconde páginas
             editPacketWrapper.dataset.active = false;
         }
 
+        // Exclui grupo
         groupsMap.delete(el.dataset.groupId);
         document.querySelectorAll(`[data-group-id="${el.dataset.groupId}"]`).forEach(e => e.remove());
     });
@@ -492,9 +471,15 @@ function groupTabEvents({ el }) {
     // Botão de editar
     const editBtn = el.querySelector('.edit-button');
     editBtn.addEventListener('click', () => {
-        const group = groupsMap.get(String(el.dataset.groupId));
+        // Obtêm o grupo
+        const group = groupsMap.get(el.dataset.groupId);
         if (!group) return;
-        openEditModal({ group });
+        
+        // Abre modal de editar
+        openModal({ type: 'edit', group });
+
+        // Seleciona grupo
+        editingGroup = group.id;
     });
 }
 
@@ -502,14 +487,11 @@ function groupTabEvents({ el }) {
 
 // Função responsável por obter os grupos
 async function getGroups() {
-    const { message, success, data } = await api.request('/api/groups');
-    if(!success) {
-        showToast({ message });
-        return;
-    }
+    const { success, data } = await fetchAuxiliar({ url: '/api/groups', toast: false });
+    if(!success) return;
 
     // Cria grupos na lista
-    data.groups.forEach(g => {
+    data.groupList.forEach(g => {
         // Adiciona ao map
         groupsMap.set(g.id, g);
 
@@ -517,6 +499,31 @@ async function getGroups() {
         createGroupInList({ group: g });
         createGroupInTab({ group: g });
     })
+}
+
+// Função responsável por validar os campos
+function validateFields() {
+    // Limpa erro dos inputs
+    clearInputError({ inputs: [groupDescriptionInput, groupNameInput] });
+
+    // Função para setar erro
+    const setError = (input, msg) => {
+        changeInputErrorStatus({ id: input.id, msg });
+        return true;
+    }
+
+    // Verifica se foi passado nome para o grupo
+    if(!groupNameInput.value.trim()) return setError(groupNameInput, 'Nome obrigatório');
+    if(groupNameInput.value.length > 40) return setError(groupNameInput, 'Nome deve conter no máximo 40 caracteres');
+
+    if(groupDescriptionInput && groupDescriptionInput.value.length > 100) return setError(groupDescriptionInput, 'Descrição deve conter no máximo 100 caracteres');
+
+    return false;
+}
+
+// Função responsável por limpar o erro dos inputs
+export function clearInputError({ inputs = [] }) {
+    inputs.forEach(i => changeInputErrorStatus({ id: i.id, error: false }));
 }
 
 // Função responsável por obter os itens selecionados
@@ -534,12 +541,19 @@ function selectItem({ container, element }) {
     element.setAttribute('aria-selected', true);
 }
 
-//* ======================{ Inicialização da página }======================
+export function expandGroup(groupId) {
+    const group = groupsList.querySelector(`[data-group-id="${groupId}"]`);
+    if (!group) return;
 
-document.addEventListener('DOMContentLoaded', () => {
+    group.dataset.expanded = true;
+}
+
+// Função responsável por iniciar a página
+export async function initGroups() {
     // Renderiza icons
     renderIcons({ icons: ICONS_DEFINITIONS.templates.icons });
 
-    getGroups();
-    createCategoryButtons()
-})
+    await getGroups();
+    createCategoryButtons();
+}
+

@@ -4,9 +4,9 @@ import * as controller from './controller.js';
 const router = express.Router();
 
 // Rota responsável por salvar as regras
-router.post('/:id/template/:groupId/group', controller.postTemplateRule);
+router.post('/:id/template', controller.postTemplateRule);
 
 // Rota responsável por deletar uma regra
-router.delete('/:id/template/:templateId/group/:groupId', controller.deleteRule);
+router.delete('/:id', controller.deleteRule);
 
 export default router;

@@ -1,26 +1,18 @@
-import fs from 'fs/promises';
-import path from 'path';
+import db from '../../../../db/models/index.js';
+import CustomError from '../../../shared/utils/custom-error.js';
 
 export default async function deleteTemplate(req) {
-    const { id, groupId } = req.params;
-    try {       
-        // Obtêm a pasta de templates
-        const dataDir = path.join(process.cwd(), 'data', `${groupId}.json`);
+    // Obtêm template a ser excluido
+    const { id } = req.params;
 
-        // Lê o grupo
-        const group = JSON.parse(await fs.readFile(dataDir, "utf8"));
-
-        // Remove o template pelo id
-        group.templates = group.templates.filter(temp => temp.id !== id);
-
-        // Salva novamente o arquivo
-        await fs.writeFile(dataDir, JSON.stringify(group, null, 4), "utf8");
+    try {
+        await db.Template.destroy({ where: { id } });
 
         return { message: 'Template deletado com sucesso' };
     } catch (err) {
-        console.error('Erro getting templates: ', err)
+        console.error('Erro deleting template: ', err)
 
-        if (err instanceof Error) throw err;
-        else throw new Error();
+        if (err instanceof CustomError) throw err;
+        else throw new CustomError();
     }
 }

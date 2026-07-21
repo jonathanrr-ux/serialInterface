@@ -2,7 +2,7 @@ import { serialLog } from "../../shared/utils/serial-logger.js";
 import { LOGS_DEFINITIONS } from "../../../../public/js/utils/logs-definitions.js";
 import { matchCondition } from "../engine/matcher.js";
 import { executeAction } from "../engine/executor.js";
-import { getTemplates } from "../../shared/utils/templates.js";
+import { getRules } from '../../shared/utils/rules.js';
 
 // Função responsável por tratar resposta
 export async function handleData(data) {
@@ -15,19 +15,17 @@ export async function handleData(data) {
     }).catch(console.error);
 
     // Obtêm todas regras
-    const templates = await getTemplates();
+    const rules = await getRules();
     
     // Itera nas regras
-    for (const template of templates) {
-        for (const rule of (template.rules ?? [])) {
-            // Caso a regra não esteja ativada continua
-            if (!rule.enabled) continue;
-    
-            // Caso não feche a com a ação disponível continua
-            if (!await matchCondition({ data, condition: rule.condition })) continue;
-    
-            // Executa ação
-            await executeAction({ action: rule.action, template });
-        }
+    for (const rule of (rules ?? [])) {
+        // Caso a regra não esteja ativada continua
+        if (!rule.enabled) continue;
+
+        // Caso não feche a com a ação disponível continua
+        if (!await matchCondition({ data, condition: rule.condition })) continue;
+
+        // Executa ação
+        await executeAction({ action: rule.action, template: rule.template });
     }
 }

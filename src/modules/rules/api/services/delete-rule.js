@@ -1,22 +1,13 @@
-import fs from 'fs/promises';
-import path from 'path';
+import db from '../../../../db/models/index.js';
+import CustomError from '../../../shared/utils/custom-error.js';
 
 export default async function deleteRule(req) {
-    const { id, templateId, groupId } = req.params;
+    // Obtêm o id
+    const { id } = req.params;
 
     try {       
-        // Obtêm a pasta de templates
-        const dataDir = path.join(process.cwd(), 'data', `${groupId}.json`);
-
-        // Lê o grupo
-        const group = JSON.parse(await fs.readFile(dataDir, "utf8"));
-        const template = group.templates.find(t => t.id === templateId);
-
-        // Remove a rule pelo id
-        template.rules = template.rules.filter(rule => rule.id !== id);
-
-        // Salva novamente o arquivo
-        await fs.writeFile(dataDir, JSON.stringify(group, null, 4), "utf8");
+        // Exclui regra
+        await db.Rule.destroy({ where: { id } });
 
         return { message: 'Regra deletada com sucesso' };
     } catch (err) {

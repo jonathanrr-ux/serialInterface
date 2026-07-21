@@ -17,16 +17,10 @@
         {{!-- Borda --}}
         <hr class="w-full text-border">
 
-
         {{!-- Search --}}
         <div class="relative w-full h-[3rem] 2xl:h-[3.5rem]">
             <input id="search-bar" placeholder="Busque o template" class="input size-full !pl-10">
             <img src="/img/icons/search.svg" class="absolute top-[50%] -translate-y-1/2 left-2">
-        </div>
-
-        {{!-- Botão --}}
-        <div class="flex justify-end w-full">
-            <button id="delete-all-templates" class="lg:w-[5rem] xl:w-[8rem] 2xl:w-[10rem] h-[2.5rem] rounded-md text-[0.8em] font-bold base-button danger">Excluir todos</button>
         </div>
 
         {{!-- Itens --}}
@@ -38,8 +32,6 @@
         {{!-- Adicionar grupo --}}
         <hr class="w-full text-border">
         <button 
-            commandfor="group-modal" 
-            command="show-modal" 
             id="add-new-group-button" 
             class="flex w-full justify-center bg-background-2 py-2 gap-2 text-primary [text-shadow:0_0_8px_var(--color-primary)] 
                 cursor-pointer hover:bg-surface-2 rounded-b-xl
@@ -178,7 +170,7 @@
             </div>
             <div class="flex justify-between bg-surface-light border-2 border-border font-bold rounded-md">
                 <p class="self-center text-[0.8em] px-2">Tamanho da resposta:</p>
-                <input id="response-input" value="{{system.settings.responseLength}}" maxlength="1" class="bg-background size-[3rem] outline-none text-center p-2 border-l-2 border-border">
+                <input id="response-input" value="{{system.settings.responseLength}}" maxlength="1" class="rounded-r-md bg-background size-[3rem] outline-none text-center p-2 border-l-2 border-border">
             </div>
             <button id="clear-all-logs-button" class="flex h-[3rem] base-button rounded-xl p-2 gap-2">
                 <img src="/img/icons/trash.svg" class="">
@@ -221,6 +213,7 @@
             {{> input-with-error
                 id="template-name-input"
                 type="text"
+                maxlength=40
                 placeholder="Ex.: Bateria"
             }}
         </div>
@@ -231,6 +224,7 @@
             {{> input-with-error
                 id="template-description-input"
                 type="text"
+                maxlength=100
                 placeholder="Ex.: Status da bateria"
             }}
         </div>
@@ -254,11 +248,11 @@
     </dialog>
 
     {{!-- Modal --}}
-    <dialog id="group-modal" class="m-auto w-[32rem] rounded-xl border-2 border-border bg-surface text-text backdrop:bg-black/50 p-4">
+    <dialog id="group-modal" data-modal="add" class="m-auto w-[32rem] rounded-xl border-2 border-border bg-surface text-text backdrop:bg-black/50 p-4">
 
         {{!-- Cabeçalho --}}
         <div class="border-b-2 border-border p-1">
-            <p class="font-bold">Adicionar grupo</p>
+            <p class="title font-bold">Adicionar grupo</p>
             <p class="mt-1 text-[0.7em] text-text-secondary">Adicione e estilize um grupo para templates</p>
         </div>
 
@@ -280,6 +274,7 @@
             {{> input-with-error
                 id="group-name-input"
                 type="text"
+                maxlength=40
                 placeholder="Ex.: Configurações"
             }}
         </div>
@@ -290,6 +285,7 @@
             {{> input-with-error
                 id="group-description-input"
                 type="text"
+                maxlength=100
                 placeholder="Ex.: Configurações"
             }}
         </div>
@@ -352,6 +348,6 @@
 </section>
 
 <script type="module" src="/js/interface/template.js"></script>
-<script type="module" src="/js/interface/template-groups.js"></script>
+<script type="module" src="/js/interface/groups.js"></script>
 <script type="module" src="/js/interface/rules.js"></script>
 <script type="module" src="/js/interface/logs.js"></script>

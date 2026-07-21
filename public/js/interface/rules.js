@@ -1,6 +1,6 @@
 import showToast from '../utils/toast-notifications.js';
-import { selectedTemplate, selectedGroup } from './template.js';
-import { groupsMap } from './template-groups.js';
+import { selectedTemplate, selectedGroup, templatesMap, templateContentMap, fetchAuxiliar } from './template.js';
+import { groupsMap } from './groups.js';
 import { updateInputs } from './home.js';
 import FetchService from '../utils/fetchService.js';
 
@@ -16,17 +16,16 @@ const saveNewRuleBtn = document.getElementById('save-new-rule-button');
 
 // Adiciona nova regra
 newRuleBtn.addEventListener('click', () => {
-    createRule();
+    createRule({ scroll: true });
 });
 
 // ADiciona botão de clique para salvar regra
 saveNewRuleBtn.addEventListener('click', async(e) => {
     const ruleListChildren = ruleList.children;
     
-    // Obtêm regras 
-    const total = ruleListChildren.length;
+    // Obtêm regras
     const rules = [...ruleListChildren].map(validateFields);
-
+    
     // Caso existam regras inválidas retorna
     if (rules.some(rule => rule === null)) {
         showToast({ message: 'Existem regras com campos obrigatórios não preenchidos' });
@@ -34,15 +33,10 @@ saveNewRuleBtn.addEventListener('click', async(e) => {
     }
     
     // Faz requisição para salvar regra
-    const { message, success, data } = await updateRules({ url: `/api/rules/${selectedTemplate}/template/${selectedGroup}/group`, method: "POST", body: { rules } });
-    showToast({ type: success ? 'success' : 'error', message });
+    const { success, data } = await fetchAuxiliar({ url: `/api/rules/${selectedTemplate}/template`, method: "POST", body: { rules } });
     if(!success) return;
-
-    // Atualiza o Map
-    const group = groupsMap.get(selectedGroup);
-    const template = group.templates.find(t => t.id === selectedTemplate);
-
-    if (template) template.rules = data.rules;
+    
+    templateContentMap.get(selectedTemplate).rules = data.ruleList;
 
     // Atualiza os indicadores visuais
     [...ruleListChildren].forEach(ruleElement => { updateStatusDot({ el: ruleElement }) });
@@ -51,7 +45,7 @@ saveNewRuleBtn.addEventListener('click', async(e) => {
 //* Funções:
 
 // Função responsável por criar uma nova regra
-export function createRule({ rule = null } = {}) {
+export function createRule({ rule = null, scroll = false } = {}) {
     // Cria elemento
     const div = document.createElement('div');
     if (rule?.id) div.dataset.id = rule.id;
@@ -64,16 +58,46 @@ export function createRule({ rule = null } = {}) {
     
     // Renderiza os pacotes
     const packetList = div.querySelector('.byte-packets-list')
-    renderPackets({ 
-        container: packetList,
-        selected: rule ? rule.action.packets : []
-    });
+    renderPackets({ container: packetList, selected: rule ? rule.action.packets : [] });
 
     // Gerencia eventos
     setupEvents({ el: div, container: packetList });
 
     // Adiciona ao DOM
     ruleList.append(div);
+    
+    // Faz scroll até a nova regra
+    if (scroll) {
+        requestAnimationFrame(() => {
+            div.scrollIntoView({
+                behavior: 'smooth',
+                block: 'center'
+            });
+        });
+    }
+}
+
+function scrollToSelectedPacket({ container }) {
+    const selected = container.querySelector('input:checked');
+
+    if (!selected) return;
+
+    const item = selected.closest('label');
+
+    requestAnimationFrame(() => {
+        const containerRect = container.getBoundingClientRect();
+        const itemRect = item.getBoundingClientRect();
+
+        const scrollPosition = 
+            itemRect.top - containerRect.top + container.scrollTop
+            - (container.clientHeight / 2)
+            + (item.clientHeight / 2);
+
+        container.scrollTo({
+            top: scrollPosition,
+            behavior: 'smooth'
+        });
+    });
 }
 
 // Função responsável por montar o html
@@ -84,7 +108,7 @@ function getRuleHTML({ rule = null } = {}) {
                 <svg class="group-data-[expanded=true]:rotate-270 show-rule rotate-180 w-3 h-3 cursor-pointer" xmlns="http://www.w3.org/2000/svg" height="24px" width="24px" viewBox="0 0 24 32">
                     <path stroke="#6366F1" stroke-width="2" d="M14.44,0,16,1.56,3.12,14.4,16,27.24,14.44,28.8,0,14.4Z"/>
                 </svg>
-                <span class="status-dot size-3 rounded-full ${rule?.enabled ? 'bg-success shadow-[0_0_10px_rgba(34,197,94,0.9)]' : 'bg-danger shadow-[0_0_8px_rgba(239,68,68,0.8)]'}"></span>
+                <span class="status-dot size-3 rounded-full ${rule?.enabled ? 'bg-success shadow-[0_0_10px_rgba(34,197,94,0.9)]' : !rule ? 'bg-success shadow-[0_0_10px_rgba(34,197,94,0.9)]' : 'bg-danger shadow-[0_0_8px_rgba(239,68,68,0.8)]'}"></span>
                 <input class="input name-input font-bold w-[18rem]" value="${rule?.name ?? 'Nova regra'}">
             </div>
 
@@ -92,7 +116,7 @@ function getRuleHTML({ rule = null } = {}) {
                 <div class="flex items-center gap-2">
                     <p class="text-[0.7em]">Resposta automática:</p>
                     <label class="relative inline-flex items-center cursor-pointer">
-                        <input type="checkbox" ${rule?.enabled ? 'checked' : ''} class="toggle-response sr-only peer">
+                        <input type="checkbox" ${rule?.enabled ? 'checked' : !rule ? 'checked' : ''} class="toggle-response sr-only peer">
 
                         <div class="w-12 h-6 rounded-full bg-surface-3 peer-checked:bg-primary transition-colors"></div>
                         <div class="absolute left-1 top-1 size-4 rounded-full bg-white transition-transform peer-checked:translate-x-6"></div>
@@ -154,10 +178,11 @@ function getRuleHTML({ rule = null } = {}) {
 function renderPackets({ container, selected = [] }) {
     // Limpa lista
     container.innerHTML = '';
-
-    const group = groupsMap.get(selectedGroup);
-    const template = group.templates.find(t => t.id === selectedTemplate);
-
+    
+    // Obtêm as regras
+    const template = templateContentMap.get(selectedTemplate);
+    if (!template) return;
+    
     // Itera nos pacotes
     template.packets.forEach(packet => {
         const checked = selected?.includes(packet.id);
@@ -174,6 +199,8 @@ function renderPackets({ container, selected = [] }) {
             </label>
         `);
     });
+
+    scrollToSelectedPacket({ container });
 }
 
 // Função responsável por controlar o evento de select
@@ -184,8 +211,9 @@ function setupEvents({ el, container }) {
         // Altera dataset para estilo
         el.dataset.type = select.value
         
-        // Renderiza pacotes
-        renderPackets({ container })
+        const selected = [...container.querySelectorAll('input:checked')].map(input => input.value);
+
+        renderPackets({ container, selected });
     });
     
     // Evento para deletar regra
@@ -193,14 +221,16 @@ function setupEvents({ el, container }) {
     iconBtn.addEventListener('click', async() => {
         if(!confirm('Tem certeza que deseja excluir essa regra?')) return;
         
-        el.remove();
-        
         // Caso seja uma regra já carregada deleta
         if(el?.dataset?.id) {
-            const { message, success } = await updateRules({ url: `/api/rules/${el.dataset.id}/template/${selectedTemplate}/group/${selectedGroup}`, method: 'DELETE' });
-            showToast({ type: success ? 'success' : 'error', message });
+            const { success } = await fetchAuxiliar({ url: `/api/rules/${el.dataset.id}`, method: 'DELETE' });
             if(!success) return;
+
+            const content = templateContentMap.get(selectedTemplate);
+            content.rules = content.rules.filter(rule => rule.id !== el.dataset.id);
         }
+
+        el.remove();
     });
     
     // Evento para inputs
@@ -230,16 +260,23 @@ function setupEvents({ el, container }) {
     // Evento de esconder/mostrar regra
     const showRule = el.querySelector('.show-rule');
     showRule.addEventListener('click', function() {
-        el.dataset.expanded === 'true' ? el.dataset.expanded = false : el.dataset.expanded = true; 
+        const willClose = el.dataset.expanded === 'true';
+
+        el.dataset.expanded = !willClose;
+
+        // Se abriu a regra
+        if (!willClose) {
+            setTimeout(() => {
+                el.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'center'
+                });
+            }, 300);
+        }
     });
 }
 
 //* ======================{ Funções auxiliares }======================
-
-// Função responsável por fazer fetch
-async function updateRules({ url, method, body }) {
-    return api.request(url, { method, body });
-}
 
 // Função responsável por extrair conteúdos para salvar
 function getRuleData(ruleElement) {
@@ -263,7 +300,7 @@ function getRuleData(ruleElement) {
         // Obtêm ações
         action: {
             type,
-            packets: type === 'packets' ?  [...ruleElement.querySelectorAll('.byte-packets-list input:checked')].map(input => input.value) : null
+            packets: type === 'packets' ? [...ruleElement.querySelectorAll('.byte-packets-list input:checked')].map(input => input.value) : null
         }
     };
 }
@@ -277,6 +314,13 @@ function validateFields(ruleElement) {
     if(rule.name === '') return null;
     if(rule.condition.field === '' || rule.condition.operator  === '' || rule.condition.value == null || Number.isNaN(rule.condition.value)) return null;
     if(rule.action.type === '') return null;
+
+    if (rule.condition.field === 'sequence') {
+        if (rule.condition.value.some(Number.isNaN)) return null;
+    }
+    else { 
+        if (Number.isNaN(rule.condition.value)) return null;
+    }
 
     return rule;
 }
@@ -303,7 +347,6 @@ function formatConditionValue(value) {
     return value?.toString(16).toUpperCase().padStart(2, "0") ?? '';
 }
 
-
 // Função responsável por atualizar as bolinhas
 function updateStatusDot({ el }) {
     const enabled = el.querySelector('.toggle-response').checked;
@@ -318,20 +361,12 @@ function updateStatusDot({ el }) {
 
 // Função responsável por recarregar os pacotes das ferramentas
 export function refreshRulePackets() {
-    // Obtêm o template
-    const group = groupsMap.get(selectedGroup);
-    const template = group.templates.find(t => t.id === selectedTemplate);
-
-    // Obtêm o card
     [...ruleList.children].forEach(ruleEl => {
-        // Obtêm lista de pacotes
         const container = ruleEl.querySelector('.byte-packets-list');
 
-        // mantém os já marcados
-        const selected = [...container.querySelectorAll('input:checked')].map(input => input.value);
+        const ruleId = ruleEl.dataset.id;
+        const rule = templateContentMap.get(selectedTemplate)?.rules?.find(r => r.id === ruleId);
 
-        renderPackets({ container, selected });
+        renderPackets({ container, selected: rule?.action?.packets ?? [] });
     });
 }
-
-//* ======================{ Inicialização da página }======================

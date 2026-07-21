@@ -6,6 +6,6 @@
         "responseLength": 4
     },
     "serial": {
-        "connected": false
+        "connected": true
     }
 }

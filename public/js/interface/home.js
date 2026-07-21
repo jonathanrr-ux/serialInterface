@@ -1,6 +1,8 @@
 import FetchService from '../utils/fetchService.js';
 import showToast from '../utils/toast-notifications.js';
-import { refreshRulePackets } from './rules.js';
+import { refreshRulePackets, ruleList } from './rules.js';
+import { initGroups } from './groups.js';
+import { initTemplates } from './template.js';
 
 //* ======================{ Variáveis Globais }======================
 
@@ -68,14 +70,14 @@ createNewPacketBtn.addEventListener('click', () => {
     const value = Number(bytesQuantityInput.value);
 
     // Cria pacote de bytes
-    createPacket({ bytes: value });
+    createPacket({ bytes: value, scroll: true });
 });
 
 
 //* Funções:
 
 // Função responsável por criar o pacote de bytes
-export function createPacket({ bytes, values = [], pck = '' }) {
+export function createPacket({ bytes, values = [], pck = '', scroll = false }) {
     if(!bytes) return;
     
     const packet = document.createElement('div');
@@ -84,7 +86,7 @@ export function createPacket({ bytes, values = [], pck = '' }) {
     packet.innerHTML = `
         <div class="flex items-center gap-3">
             <img src="/img/icons/grip.svg" class="cursor-grab drag-handle active:cursor-grabbing">
-            <input class="packet-name text-[0.8em] outline-none pt-1" value="${pck.name ? pck.name : 'Novo pacote'}">
+            <input class="w-full packet-name text-[0.8em] outline-none pt-1" value="${pck.name ? pck.name : 'Novo pacote'}">
         </div>
         <div class="flex w-full items-center justify-between">
             <div class="packet flex gap-1"></div>
@@ -115,6 +117,17 @@ export function createPacket({ bytes, values = [], pck = '' }) {
     
     // Cria botão de adicionar
     updateAddButton(packetContent);
+
+    if(scroll) {
+        // Scroll até o pacote criado
+        requestAnimationFrame(() => {
+            packet.scrollIntoView({
+                behavior: 'smooth',
+                block: 'center'
+            });
+        });
+    }
+
 }
 
 // Função responsável por criar os bytes
@@ -215,7 +228,7 @@ packetList.addEventListener('click', async(e) => {
     if (e.target.closest('.send-btn')) {
         // Obtêm o pacote
         const packetData = [...packetContainer.querySelectorAll('.packet-byte input')].map(input => parseInt(input.value, 16));
-
+        
         // Faz requisição para enviar
         const { message, success } = await api.request('/api/serial/send', { method: 'POST',  body: { bytes: packetData } });
         if(!success) return;
@@ -260,16 +273,26 @@ export function updateAddButton(parent) {
 
 //* ======================{ Controle do recebimento de pacotes }======================
 
+let lastValidValue = responseInput.value;
+
 responseInput.addEventListener('input', async function () {
     // Verifica se o valor escrito é valido
     if (!this.value.length) return;
 
+    const value = Number(this.value);
+
     // Envia novo valor a uma rota para fazer a alteração da leitura
-    const { success } = await api.request('/api/serial/byte-length', { method: 'POST', body: { byteLength: Number(this.value) } });
-    if(!success) return;
+    const { success } = await api.request('/api/serial/byte-length', { method: 'POST', body: { byteLength: Number(value) } });
+    if(!success) {
+        this.value = lastValidValue;
+        return;
+    }
 
     await api.request('/api/settings/save', { method: 'POST', body: { responseLength: Number(this.value) } });
-})
+
+    // Só atualiza depois que tudo salvou
+    lastValidValue = this.value;
+});
 
 //* ======================{ Funções auxiliares }======================
 
@@ -284,7 +307,9 @@ export function changeTab({ tab }) {
     // Seleciona
     packageEditorContainer.dataset.activeTab = tab;
 
-    if(tab === 'rules') refreshRulePackets();
+    if(tab === 'rules') {
+        refreshRulePackets();
+    }
 }
 
 
@@ -317,5 +342,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Inicializa página
     packageEditorContainer.dataset.activeTab = 'groups';
 
-    // await initTemplates();
+    await initGroups();
+    await initTemplates();
 });
