@@ -19,6 +19,11 @@ export default (sequelize, DataTypes) => {
                 as: 'rules',
                 onDelete: 'CASCADE'
             });
+            Template.hasMany(models.AutoSend, {
+                foreignKey: 'template_id',
+                as: 'auto_sends',
+                onDelete: 'CASCADE'
+            });
         }
     }
     Template.init({

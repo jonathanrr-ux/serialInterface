@@ -49,3 +49,30 @@ header::after {
 
     filter: blur(22px);
 }
+
+footer {
+    @apply
+        relative
+        flex
+        w-full
+        items-center
+        justify-between
+        px-8
+        py-5
+        border-t
+        border-white/10
+        overflow-hidden;
+
+    background: linear-gradient(
+        90deg,
+        #0b1020,
+        #11192d,
+        #151f38,
+        #11192d,
+        #0b1020
+    );
+
+    box-shadow:
+        0 1px rgba(255,255,255,.05),
+        0 10px 40px rgba(99,102,241,.08);
+}

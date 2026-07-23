@@ -21,4 +21,7 @@ router.put('/:id', controller.putTemplate);
 // Rota responsável por deletar template
 router.delete('/:id', controller.deleteTemplate);
 
+// Rota responsável por copiar template
+router.post('/:id/copy', controller.postCopyTemplate);
+
 export default router;

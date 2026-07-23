@@ -5,6 +5,7 @@ import FetchService from "../utils/fetchService.js";
 import { ruleList, createRule } from "./rules.js";
 import { packetList, changeTab } from "./home.js";
 import { createPacket } from "./home.js";
+import { createAutoSend } from "./auto-send.js";
 
 //* ======================{ Variáveis globais }======================
 
@@ -32,6 +33,7 @@ const popover = document.getElementById("popover");
 const deleteTemplate = popover.querySelector('.delete-button');
 const editTemplate = popover.querySelector('.edit-button');
 const moveTemplate = popover.querySelector('.move-button');
+const copyTemplate = popover.querySelector('.copy-button');
 
 export const editPacketWrapper = document.querySelector('[data-active]');
 const saveTemplateBtn = document.getElementById('save-template-button');
@@ -219,6 +221,10 @@ async function activateTemplate({ el, group, template }) {
     packetList.innerHTML = '';
     ruleList.innerHTML = '';
 
+    // Salva seleção
+    setSelectedGroup(group.id);
+    setSelectedTemplate(template.id);
+
     // Carrega conteúdo
     await getTemplateContent({ templateId: template.id });
 
@@ -231,10 +237,6 @@ async function activateTemplate({ el, group, template }) {
     // Abre editor
     editPacketWrapper.dataset.active = true;
     changeTab({ tab: 'packets' });
-
-    // Salva seleção
-    setSelectedGroup(group.id);
-    setSelectedTemplate(template.id);
 }
 
 // Função responsável por obter o conteúdo do template
@@ -251,7 +253,7 @@ async function getTemplateContent({ templateId }) {
         // Atualiza Map
         templateContentMap.set(templateId, response.data);
     }
-
+    
     data.packets.forEach(packet => {
         // Cria pacotes
         createPacket({ bytes: packet.bytes.length, values: packet.bytes, pck: packet });
@@ -261,6 +263,10 @@ async function getTemplateContent({ templateId }) {
         // Cria regras
         createRule({ rule });
     });
+
+    data.autoSends.forEach(a => {
+        createAutoSend({ autoSend: a });
+    })
 }
 
 //* ======================{ Controle do pop over da lista }======================
@@ -322,6 +328,34 @@ moveTemplate.addEventListener('click', () => {
     openModal({ type: 'move', group: template.group_id });
 })
 
+copyTemplate.addEventListener('click', async() => {
+    // Obtêm o template
+    const template = templatesMap.get(selectedTemplateMenu);
+    if (!template) return;
+
+    // Faz requisição
+    const { success, data } = await fetchAuxiliar({ url: `/api/templates/${template.id}/copy`, method: 'POST', body: { groupId: template.group_id } });
+    if (!success) return;
+
+    // Obtêm o novo template
+    const newTemplate = data.template;
+
+    // Seta Map
+    templatesMap.set(newTemplate.id, newTemplate);
+
+    // Cria template
+    const container = groupsList.querySelector(`[data-group-id="${newTemplate.group_id}"] .templates-list`);
+    createTemplateInList({
+        template: newTemplate,
+        group: groupsMap.get(newTemplate.group_id),
+        container,
+        creating: true,
+        expand: true
+    });
+
+    popover.classList.add('hidden');
+});
+
 //* Funções:
 
 // Função responsável pelo controle do pop over
@@ -368,7 +402,7 @@ function getPackets() {
 
     // Obtêm pacotes
     const packetData = [];
-    for (const packet of packetContainer) {
+    packetContainer.forEach((packet, index) => {
         // Obtêm nome
         const name = packet.querySelector('.packet-name').value;
         const id = packet?.dataset?.id ?? null;
@@ -381,8 +415,8 @@ function getPackets() {
 
         // Obtêm os bytes
         const bytes = [...packet.querySelectorAll('.packet .packet-byte input')].map(input => parseInt(input.value, 16));
-        packetData.push({ id, name, bytes });
-    }
+        packetData.push({ id, name, bytes, order: index });
+    });
 
     // Retorna os pacotes
     return packetData;
@@ -426,9 +460,9 @@ async function getTemplates() {
 export async function fetchAuxiliar({ method, url, body, toast = true }) {
     // Faz requisição para atualizar template
     const response = await api.request(url, { method, body });
-
+    
     // Verifica resposta
-    if (!response.success) showToast({ message: response.message });
+    if (!response.success && toast) showToast({ message: response.message });
     else if(toast) showToast({ type: "success", message: response.message });
 
     return response;

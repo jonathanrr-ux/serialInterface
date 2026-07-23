@@ -3,52 +3,74 @@
 import { Model } from 'sequelize';
 
 export default (sequelize, DataTypes) => {
-    class Packet extends Model {
+    class AutoSend extends Model {
         static associate(models) {
-            Packet.belongsTo(models.Template, {
+            AutoSend.belongsTo(models.Template, {
                 foreignKey: 'template_id',
                 as: 'template',
                 onDelete: 'CASCADE'
             });
-            Packet.hasMany(models.AutoSend, {
+
+            AutoSend.belongsTo(models.Packet, {
                 foreignKey: 'packet_id',
-                as: 'autoSends'
+                as: 'packet'
             });
         }
     }
-    Packet.init({
+
+    AutoSend.init({
         id: {
             type: DataTypes.UUID,
             primaryKey: true,
             allowNull: false,
             defaultValue: DataTypes.UUIDV4
         },
+
         template_id: {
             type: DataTypes.UUID,
             allowNull: false
         },
+
+        packet_id: {
+            type: DataTypes.UUID,
+            allowNull: true
+        },
+
         name: {
             type: DataTypes.STRING(40),
             allowNull: false
         },
-        bytes: {
-            type: DataTypes.JSON,
-            allowNull: false,
-            defaultValue: []
+
+        type: {
+            type: DataTypes.ENUM('packet', 'template'),
+            allowNull: false
         },
-        order: {
+
+        interval: {
             type: DataTypes.INTEGER,
+            allowNull: false
+        },
+
+        enabled: {
+            type: DataTypes.BOOLEAN,
             allowNull: false,
-            defaultValue: 0
+            defaultValue: true
+        },
+
+        start_on_connect: {
+            type: DataTypes.BOOLEAN,
+            allowNull: false,
+            defaultValue: true
         }
+
     }, {
         sequelize,
-        modelName: 'Packet',
-        tableName: 'packet',
+        modelName: 'AutoSend',
+        tableName: 'auto_send',
         timestamps: true,
         createdAt: 'created_at',
         updatedAt: 'updated_at',
     });
 
-    return Packet;
+    return AutoSend;
 };

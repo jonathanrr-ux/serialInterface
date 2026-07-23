@@ -28,8 +28,8 @@ export default async function putTemplatePackets(req) {
 
         for(const packet of packets) {
             // Caso exista ID atualiza
-            if(packet.id) await db.Packet.update({ name: packet.name, bytes: packet.bytes }, { where: { id: packet.id }, transaction });
-            else await db.Packet.create({ template_id: templateId, name: packet.name, bytes: packet.bytes }, { transaction });
+            if(packet.id) await db.Packet.update({ name: packet.name, bytes: packet.bytes, order: packet.order }, { where: { id: packet.id }, transaction });
+            else await db.Packet.create({ template_id: templateId, name: packet.name, bytes: packet.bytes, order: packet.order }, { transaction });
         }
 
         await transaction.commit();

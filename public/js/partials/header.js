@@ -1,6 +1,7 @@
 import FetchService from '../utils/fetchService.js';
 import showToast from '../utils/toast-notifications.js';
 import CustomSelect from '../utils/custom-select.js';
+import { updateFooter } from '../interface/auto-send.js';
 
 //* ======================{ Variáveis globais }======================
 
@@ -137,13 +138,27 @@ socket.on('serial:close', () => {
     serialStatus.dataset.connected = false;
 
     serialStatusInfo.textContent = '-';
+
+    // Muda conexão
+    document.querySelectorAll('#auto-send-list > .group').forEach(el => {
+        el.dataset.connected = false;
+    });
+
+    // Atualiza para 0
+    updateFooter({ count: 1 });
 });
 
 // Escuta conexão
-socket.on('serial:open', async(data) => {
+socket.on('serial:open', ({ port, baudRate, autoSends }) => {
     // Adiciona dataset
     serialStatus.dataset.connected = true;
-
+    
     // Adiciona serialStatusTexto
-    serialStatusInfo.textContent = `${data.port} • ${data.baudRate} baud`;
+    serialStatusInfo.textContent = `${port} • ${baudRate} baud`;
+
+    // Muda conexão
+    autoSends.forEach(id => {
+        const el = document.querySelector(`[data-id="${id}"]`);
+        if (el) el.dataset.connected = true;
+    });
 });

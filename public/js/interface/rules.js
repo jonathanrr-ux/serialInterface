@@ -11,6 +11,7 @@ const api = new FetchService();
 const newRuleBtn = document.getElementById('new-rule-button');
 export const ruleList = document.getElementById('rule-list');
 const saveNewRuleBtn = document.getElementById('save-new-rule-button');
+const toggleAllRules = document.getElementById('toggle-all-rules');
 
 //* ======================{ Controle da página }======================
 
@@ -39,8 +40,19 @@ saveNewRuleBtn.addEventListener('click', async(e) => {
     templateContentMap.get(selectedTemplate).rules = data.ruleList;
 
     // Atualiza os indicadores visuais
-    [...ruleListChildren].forEach(ruleElement => { updateStatusDot({ el: ruleElement }) });
+    [...ruleListChildren].forEach(ruleElement => { 
+        updateStatusDot({ el: ruleElement });
+    });
 })
+
+toggleAllRules.addEventListener('change', () => {
+    const enabled = toggleAllRules.checked;
+
+    ruleList.querySelectorAll('.toggle-response')
+        .forEach(toggle => {
+            toggle.checked = enabled;
+        });
+});
 
 //* Funções:
 
@@ -52,7 +64,7 @@ export function createRule({ rule = null, scroll = false } = {}) {
     div.dataset.type = rule?.action?.type ?? 'template';
     div.dataset.expanded = !rule ? true : false;
     div.className = 'card p-4 group';
-
+    
     // Obtêm HTML
     div.innerHTML = getRuleHTML({ rule });
     
@@ -77,9 +89,9 @@ export function createRule({ rule = null, scroll = false } = {}) {
     }
 }
 
+// Função responsável por dar scroll
 function scrollToSelectedPacket({ container }) {
     const selected = container.querySelector('input:checked');
-
     if (!selected) return;
 
     const item = selected.closest('label');
@@ -185,12 +197,13 @@ function renderPackets({ container, selected = [] }) {
     
     // Itera nos pacotes
     template.packets.forEach(packet => {
-        const checked = selected?.includes(packet.id);
+        const checked = selected ? selected.some(s => s.id === packet.id) : null;
 
         container.insertAdjacentHTML('beforeend', `
             <label class="flex items-center gap-3 cursor-pointer">
                 <input
                     value="${packet.id}"
+                    data-order="${packet.order}"
                     type="checkbox"
                     class="checkbox"
                     ${checked ? 'checked' : ''}
@@ -215,7 +228,7 @@ function setupEvents({ el, container }) {
 
         renderPackets({ container, selected });
     });
-    
+
     // Evento para deletar regra
     const iconBtn = el.querySelector('.delete-button');
     iconBtn.addEventListener('click', async() => {
@@ -300,7 +313,12 @@ function getRuleData(ruleElement) {
         // Obtêm ações
         action: {
             type,
-            packets: type === 'packets' ? [...ruleElement.querySelectorAll('.byte-packets-list input:checked')].map(input => input.value) : null
+            packets: type === 'packets' ? [...ruleElement.querySelectorAll('.byte-packets-list input:checked')]
+                    .map(input => ({
+                        id: input.value,
+                        order: Number(input.dataset.order)
+                    }))
+                : null,
         }
     };
 }
@@ -341,7 +359,7 @@ function parseConditionValue(ruleElement) {
 }
 
 // Função responsável por formatar valor recebido
-function formatConditionValue(value) {
+export function formatConditionValue(value) {
     if (Array.isArray(value)) return value.map(byte => byte.toString(16).toUpperCase().padStart(2, "0")).join(" ");
 
     return value?.toString(16).toUpperCase().padStart(2, "0") ?? '';

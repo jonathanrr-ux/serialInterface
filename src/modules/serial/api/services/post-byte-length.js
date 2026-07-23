@@ -1,8 +1,8 @@
 import { getNewParser } from '../../core/connection.js';
 import { handleData } from '../../core/handler.js';
 import CustomError from '../../../shared/utils/custom-error.js';
-import { serialLog } from '../../../shared/utils/serial-logger.js'; 
-import { LOGS_DEFINITIONS } from '../../../../../public/js/utils/logs-definitions.js';
+import { createLog } from '../../../shared/utils/serial-logger.js'; 
+import { LOG_TYPES } from '../../../../../public/js/utils/logs-definitions.js';
 import { getSerialConnection } from '../../core/connection.js';
 
 export default async function postSendBytes(req) {
@@ -13,13 +13,8 @@ export default async function postSendBytes(req) {
     
     try {    
         if (!port || !port.isOpen) {
-            const log = LOGS_DEFINITIONS["error"];
-            serialLog({ 
-                type:  "error", 
-                label: log.label, 
-                msg: 'Erro ao alterar tamanho da resposta: Nenhuma porta aberta'
-            }).catch(console.error);
-
+            // Cria log
+            createLog({ type: LOG_TYPES.ERROR, msg: 'Erro ao alterar tamanho da resposta: Nenhuma porta aberta' });
             throw new CustomError();
         }
 

@@ -11,7 +11,7 @@ export async function getRules() {
             include: [{
                 model: db.Packet,
                 as: 'packets',
-                attributes: ['id', 'bytes']
+                attributes: ['id', 'bytes', 'order']
             }]
         }]
     });

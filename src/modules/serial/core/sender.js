@@ -1,6 +1,6 @@
 import { getSerialConnection } from "./connection.js";
-import { serialLog } from '../../shared/utils/serial-logger.js';
-import { LOGS_DEFINITIONS } from "../../../../public/js/utils/logs-definitions.js";
+import { createLog } from '../../shared/utils/serial-logger.js';
+import { LOG_TYPES } from "../../../../public/js/utils/logs-definitions.js";
 
 // Função responsável por enviar buffer
 export async function send({ bytes }) {
@@ -11,13 +11,8 @@ export async function send({ bytes }) {
     const buffer = Buffer.from(bytes); 
 
     // Cria log
-    const log = LOGS_DEFINITIONS["tx"];
-    serialLog({ 
-        type: "tx", 
-        label: log.label, 
-        bytes
-    }).catch(console.error);
+    createLog({ type: LOG_TYPES.TX, bytes });
 
     // Escreve
-    port.write(buffer);
+    port.write(buffer)
 }

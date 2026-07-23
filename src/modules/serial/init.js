@@ -1,10 +1,10 @@
 import { createSerialConnection, closeSerialConnection, getSerialConnection, getNewParser } from './core/connection.js';
 import { send } from './core/sender.js';
 import { setSystemConfig, getSystemConfig } from '../../config/system.js';
-import { handleData } from '../serial/core/handler.js';
+import { handleData, handleOpen, handleClose } from '../serial/core/handler.js';
 import { getIO } from '../../sockets/index.js';
-import { serialLog } from '../shared/utils/serial-logger.js';
-import { LOGS_DEFINITIONS } from '../../../public/js/utils/logs-definitions.js';
+import { createLog } from '../shared/utils/serial-logger.js';
+import { LOG_TYPES } from '../../../public/js/utils/logs-definitions.js';
 
 
 // Função para inicializar o serial
@@ -14,20 +14,18 @@ async function setupSerialEvents() {
     const { port } = getSerialConnection();
     const parser = getNewParser({ byteLength: system.settings.responseLength ?? 9 });
     
-    port.on('open', () => {
+    port.on('open', async() => {
+        // Log
+        createLog({ type: LOG_TYPES.CONNECTION_STARTED });
+
         // Salva configuração
         setSystemConfig({ serial: { connected: true } });
         
+        // Tenta iniciar os auto envios
+        const started = await handleOpen();
+        
         // Emite socket para enviar a conexão aberta
-        getIO()?.emit('serial:open', { port: port.settings.path, baudRate: port.settings.baudRate });
-
-        // Log
-        const log = LOGS_DEFINITIONS["connection-started"];
-        serialLog({ 
-            type: "connection-started", 
-            label: log.label, 
-            msg: log.msg 
-        }).catch(console.error);
+        getIO()?.emit('serial:open', { port: port.settings.path, baudRate: port.settings.baudRate, autoSends: started });
     });
     
     // Evento de escuta para para recebimento de dados
@@ -40,23 +38,19 @@ async function setupSerialEvents() {
         getIO()?.emit('serial:close');
 
         // Log
-        const log = LOGS_DEFINITIONS["connection-closed"];
-        serialLog({ 
-            type: "connection-closed", 
-            label: log.label, 
-            msg: log.msg 
-        }).catch(console.error);
+        createLog({ type: LOG_TYPES.CONNECTION_CLOSED });
+        
+        // Fecha todos auto envio
+        handleClose();
     });
     
     // Evento de escuta de erro no serial
     port.on('error', async (err) => {
         // Cria log
-        const log = LOGS_DEFINITIONS["error"];
-        serialLog({ 
-            type: "error", 
-            label: log.label,
-            msg: err.message
-        }).catch(console.error);
+        createLog({ type: LOG_TYPES.ERROR, msg: err.message });
+
+        // Fecha todos auto envio
+        handleClose();
     });
 }
 

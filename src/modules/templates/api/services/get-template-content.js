@@ -8,9 +8,9 @@ export default async function getTemplateContent(req) {
     try {
         // Obtêm os pacotes
         const packets = await db.Packet.findAll({
-            attributes: ['id', 'template_id', 'name', 'bytes'],
+            attributes: ['id', 'template_id', 'name', 'bytes', 'order'],
             where: { template_id: id },
-            order: [['updated_at', 'ASC']]
+            order: [['order', 'ASC']]
         });
         
         // Obtêm as regras
@@ -18,8 +18,14 @@ export default async function getTemplateContent(req) {
             attributes: ['id', 'template_id', 'name', 'condition', 'action', 'enabled'],
             where: { template_id: id }
         });
+
+        // Obtêm as regras
+        const autoSends = await db.AutoSend.findAll({
+            attributes: ['id', 'template_id', 'packet_id', 'name', 'type', 'interval', 'enabled', 'start_on_connect'],
+            where: { template_id: id }
+        });
         
-        return { data: { packets, rules } };
+        return { data: { packets, rules, autoSends } };
     } catch (err) {
         console.error('Erro template content: ', err)
 

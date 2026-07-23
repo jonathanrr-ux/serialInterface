@@ -1,7 +1,7 @@
 import { send } from '../../core/sender.js';
 import CustomError from '../../../shared/utils/custom-error.js';
-import { serialLog } from '../../../shared/utils/serial-logger.js'; 
-import { LOGS_DEFINITIONS } from '../../../../../public/js/utils/logs-definitions.js';
+import { createLog } from '../../../shared/utils/serial-logger.js'; 
+import { LOG_TYPES } from '../../../../../public/js/utils/logs-definitions.js';
 import { getSerialConnection } from '../../core/connection.js';
 
 export default async function postSendBytes(req) {
@@ -13,19 +13,14 @@ export default async function postSendBytes(req) {
 
     // Verifica se a porta está aberta
     if(!port?.isOpen) {
-        const log = LOGS_DEFINITIONS["error"];
-        serialLog({ 
-            type:  "error", 
-            label: log.label, 
-            msg: 'Erro ao enviar os dados: Porta fechada'
-        }).catch(console.error);
-
+        // Cria log
+        createLog({ type: LOG_TYPES.ERROR, msg: 'Erro ao enviar os dados: Porta fechada' });
         throw new CustomError();
     }
     
     // Transforma todos pacotes em array
     const packets = Array.isArray(bytes[0]) ? bytes : [bytes];
-    
+    console.log(bytes)
     try {    
         // Manda cada array
         for(const byte of packets) {

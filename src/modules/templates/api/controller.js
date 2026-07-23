@@ -53,3 +53,12 @@ export async function putTemplate(req, res, next) {
         next(err);
     } 
 }
+
+export async function postCopyTemplate(req, res, next) {
+    try {
+        const data = await services.postCopyTemplate(req);
+        res.status(200).json(data);
+    } catch(err) {
+        next(err);
+    } 
+}

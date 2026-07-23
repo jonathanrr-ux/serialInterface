@@ -3,6 +3,7 @@ import showToast from '../utils/toast-notifications.js';
 import { refreshRulePackets, ruleList } from './rules.js';
 import { initGroups } from './groups.js';
 import { initTemplates } from './template.js';
+import { refreshAutoSendPackets } from './auto-send.js';
 
 //* ======================{ Variáveis Globais }======================
 
@@ -82,7 +83,7 @@ export function createPacket({ bytes, values = [], pck = '', scroll = false }) {
     
     const packet = document.createElement('div');
     packet.className = 'packet-container flex flex-col border-b-2 border-border p-2 gap-2';
-    if(pck.id) packet.dataset.id = pck.id
+    if(pck.id) packet.dataset.id = pck.id;
     packet.innerHTML = `
         <div class="flex items-center gap-3">
             <img src="/img/icons/grip.svg" class="cursor-grab drag-handle active:cursor-grabbing">
@@ -307,9 +308,8 @@ export function changeTab({ tab }) {
     // Seleciona
     packageEditorContainer.dataset.activeTab = tab;
 
-    if(tab === 'rules') {
-        refreshRulePackets();
-    }
+    if(tab === 'rules') refreshRulePackets();
+    if(tab === 'auto-send') refreshAutoSendPackets();
 }
 
 

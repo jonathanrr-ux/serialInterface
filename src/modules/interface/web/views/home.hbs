@@ -33,10 +33,9 @@
         <hr class="w-full text-border">
         <button 
             id="add-new-group-button" 
-            class="flex w-full justify-center bg-background-2 py-2 gap-2 text-primary [text-shadow:0_0_8px_var(--color-primary)] 
-                cursor-pointer hover:bg-surface-2 rounded-b-xl
+            class="base-button primary rounded-b-xl py-2
         ">
-            <img src="/img/icons/add.svg" class="filter-[var(--filter-primary)]">
+            <img src="/img/icons/add.svg" class="">
             Adicionar grupo
         </button>
     </div>
@@ -48,9 +47,9 @@
             <button 
                 aria-selected="false" 
                 data-tab="packets"
-                class="group-data-[active=true]:flex hidden items-center gap-2 px-10 py-4 text-text font-bold 
+                class="group-data-[active=true]:flex hidden items-center gap-2 px-8 py-4 text-text font-bold 
                     transition-all border-b-2 border-transparent -mb-0.5 aria-selected:[text-shadow:0_0_8px_var(--color-primary)]  
-                    aria-selected:border-b-2  aria-selected:border-primary  aria-selected:bg-primary/5 hover:[text-shadow:0_0_8px_var(--color-primary)] 
+                    aria-selected:border-b-2  aria-selected:border-primary  aria-selected:bg-primary/5 hover:[text-shadow:0_0_8px_var(--color-primary)] text-[0.9em] 
                     hover:border-primary" 
             >
                 <img src="/img/icons/packet.svg" class="size-5">
@@ -60,9 +59,9 @@
             <button 
                 aria-selected="false" 
                 data-tab="rules"
-                class="group-data-[active=true]:flex hidden items-center gap-2 px-10 py-4 -mb-0.5 border-b-2 aria-selected:border-b-2 font-bold 
+                class="group-data-[active=true]:flex hidden items-center gap-2 px-8 py-4 -mb-0.5 border-b-2 aria-selected:border-b-2 font-bold 
                     transition-all border-transparent aria-selected:border-primary hover:border-primary aria-selected:bg-primary/5 
-                    hover:[text-shadow:0_0_8px_var(--color-primary)] aria-selected:[text-shadow:0_0_8px_var(--color-primary)]" 
+                    hover:[text-shadow:0_0_8px_var(--color-primary)] aria-selected:[text-shadow:0_0_8px_var(--color-primary)] text-[0.9em]" 
                 
             >
                 <img src="/img/icons/rule.svg" class="size-5">
@@ -70,14 +69,26 @@
             </button>
 
             <button 
-                aria-selected="true" 
-                data-tab="groups"
-                class="flex items-center gap-2 px-10 py-4 -mb-0.5 border-b-2 aria-selected:border-b-2 font-bold 
+                aria-selected="false" 
+                data-tab="auto-send"
+                class="group-data-[active=true]:flex hidden items-center gap-2 px-8 py-4 -mb-0.5 border-b-2 aria-selected:border-b-2 font-bold 
                     transition-all border-transparent aria-selected:border-primary hover:border-primary aria-selected:bg-primary/5 
-                    hover:[text-shadow:0_0_8px_var(--color-primary)] aria-selected:[text-shadow:0_0_8px_var(--color-primary)]" 
+                    hover:[text-shadow:0_0_8px_var(--color-primary)] aria-selected:[text-shadow:0_0_8px_var(--color-primary)] text-[0.9em]" 
                 
             >
-                <img src="/img/icons/rule.svg" class="size-5">
+                <img src="/img/icons/clock.svg" class="size-5 filter-[var(--filter-primary)]">
+                Auto envios
+            </button>
+
+            <button 
+                aria-selected="true" 
+                data-tab="groups"
+                class="flex items-center gap-2 px-8 py-4 -mb-0.5 border-b-2 aria-selected:border-b-2 font-bold 
+                    transition-all border-transparent aria-selected:border-primary hover:border-primary aria-selected:bg-primary/5 
+                    hover:[text-shadow:0_0_8px_var(--color-primary)] aria-selected:[text-shadow:0_0_8px_var(--color-primary)] text-[0.9em]" 
+                
+            >
+                <img src="/img/icons/groups.svg" class="size-5">
                 Grupos
             </button>
         </div>
@@ -90,10 +101,24 @@
                     Motor de regras
                     <p class="text-[0.7em] text-text-secondary font-normal">Defina ações automáticas baseadas nos dados recebidos</p>
                 </div>
-                <button id="new-rule-button" class="base-button primary flex items-center gap-2 p-2 text-text font-bold text-[0.8em]">
-                    <img src="/img/icons/add.svg" class="size-[2rem]">
-                    Nova regra
-                </button>
+
+                <div class="flex flex-col gap-5"> 
+                    <button id="new-rule-button" class="base-button primary flex items-center gap-2 p-2 text-text font-bold text-[0.8em]">
+                        <img src="/img/icons/add.svg" class="size-[2rem]">
+                        Nova regra
+                    </button>
+                    <!-- Controle global -->
+                    <div class="flex items-center gap-2 text-[0.8em]">
+                        <span class="font-bold">Regras automáticas</span>
+
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input id="toggle-all-rules" type="checkbox" class="sr-only peer">
+
+                            <div class="w-12 h-6 rounded-full bg-surface-3 peer-checked:bg-primary transition-colors"></div>
+                            <div class="absolute left-1 top-1 size-4 rounded-full bg-white transition-transform peer-checked:translate-x-6"></div>
+                        </label>
+                    </div>
+                </div>
             </div>
             <hr class="text-border w-full mt-2">
 
@@ -104,6 +129,36 @@
             <div id="save-new-rule-button" class="border-t-2 border-border flex justify-end pt-2">
                 <button class="base-button success rounded-xl px-6 py-3">
                     Salvar regras
+                </button>
+            </div>
+        </div>
+
+        {{!-- Auto envio --}}
+        <div class="group-data-[active-tab=auto-send]:group-data-[active=true]:flex flex-col h-full min-h-0 hidden p-4">
+            {{!-- Título --}}
+            <div class="flex justify-between items-center w-full p-4">
+
+                <div class="flex flex-col font-bold gap-3">
+                    Auto envio
+                    <p class="text-[0.7em] text-text-secondary font-normal">Configure envios automáticos de pacotes em intervalos definidos</p>
+                </div>
+
+                <div class="flex flex-col gap-5"> 
+                    <button id="new-auto-send-button" class="base-button primary flex items-center gap-2 p-2 text-text font-bold text-[0.8em]">
+                        <img src="/img/icons/add.svg" class="size-[2rem]">
+                        Novo auto envio
+                    </button>
+                </div>
+            </div>
+            <hr class="text-border w-full mt-2">
+
+            {{!-- Lista de regras --}}
+            <div id="auto-send-list" class="flex flex-col gap-4 p-4 overflow-y-auto flex-1 min-h-0">
+            </div>
+
+            <div id="save-auto-send-button" class="border-t-2 border-border flex justify-end pt-2">
+                <button class="base-button success rounded-xl px-6 py-3">
+                    Salvar auto envios
                 </button>
             </div>
         </div>
@@ -146,7 +201,8 @@
                     <button id="save-template-button" class="w-[48%] disabled:opacity-30 px-6 py-3 base-button success rounded-xl">
                         Salvar template
                     </button>
-                    <button id="send-all-button" class="w-[48%] disabled:opacity-30 rounded-xl px-6 py-3 base-button primary">
+                    <button id="send-all-button" class="flex w-[48%] disabled:opacity-30 rounded-xl px-6 py-3 base-button primary gap-3">
+                        <img src="/img/icons/send.svg" class="rotate-310 size-[1.5rem]">
                         Enviar todos
                     </button>
                 </div>
@@ -347,6 +403,7 @@
     </dialog>
 </section>
 
+<script type="module" src="/js/interface/auto-send.js"></script>
 <script type="module" src="/js/interface/template.js"></script>
 <script type="module" src="/js/interface/groups.js"></script>
 <script type="module" src="/js/interface/rules.js"></script>

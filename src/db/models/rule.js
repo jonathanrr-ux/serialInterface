@@ -37,6 +37,11 @@ export default (sequelize, DataTypes) => {
             allowNull: false,
             defaultValue: {}
         },
+        time: {
+            type: DataTypes.JSON,
+            allowNull: false,
+            defaultValue: {}
+        },
         enabled: {
             type: DataTypes.BOOLEAN,
             allowNull: false,

@@ -8,6 +8,7 @@ import { api as serialApi } from './serial/index.js';
 import { api as rulesApi } from './rules/index.js';
 import { api as templatesApi } from './templates/index.js';
 import { api as groupsApi } from './groups/index.js';
+import { api as autoSendApi } from './auto-send/index.js';
 
 const router = express.Router();
 
@@ -34,5 +35,6 @@ router.use('/api/rules', rulesApi);
 router.use('/api/templates', templatesApi);
 router.use('/api/interface', interfaceApi);
 router.use('/api/groups', groupsApi);
+router.use('/api/auto-send', autoSendApi);
 
 export default router;

@@ -47,13 +47,20 @@ function createLog({ log }) {
     const content = log.bytes ? log.bytes.map(b => b.toString(16).padStart(2, '0').toUpperCase()).join(' ') : log.msg;
     
     const p = document.createElement('p');
-    p.className = `border-b-2 border-border py-2`;
-    p.dataset.type = (log.type === 'connection-started') || (log.type === 'connection-closed') ? 'connection' : log.type;
+    p.className = 'border-b border-border py-2';
+    p.dataset.type = log.type.startsWith('connection') ? 'connection' : log.type;
     p.innerHTML = `
-        <span class="${definition.color}">
-            [${formatted}] ${definition.label}:
+        <span class="text-text-secondary shrink-0">
+            [${formatted}]
         </span>
-        ${content}
+
+        <span class="${definition.color} font-semibold shrink-0">
+            ${definition.label}:
+        </span>
+
+        <span class="break-all">
+            ${content}
+        </span>
     `;
 
     return p;

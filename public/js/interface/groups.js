@@ -6,6 +6,7 @@ import { onTemplateClick, setSelectedTemplate, editPacketWrapper, setSelectedGro
 import { changeTab, packetList } from './home.js';
 import { ruleList } from "./rules.js";
 import { fetchAuxiliar, templatesMap } from "./template.js"; 
+import { autoSendList } from './auto-send.js';
 
 //* ======================{ Variáveis globais }======================
 
@@ -348,6 +349,7 @@ function createGroupInList({ group }) {
 
                 packetList.innerHTML = '';
                 ruleList.innerHTML = '';
+                autoSendList.innerHTML = '';
 
                 editPacketWrapper.dataset.active = false;
                 changeTab({ tab: 'groups' });

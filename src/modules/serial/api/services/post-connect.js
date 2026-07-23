@@ -2,8 +2,8 @@ import CustomError from '../../../shared/utils/custom-error.js'
 import { getSystemConfig } from '../../../../config/system.js';
 import { initSerial } from '../../init.js';
 import { getSerialConnection } from '../../core/connection.js';
-import { LOGS_DEFINITIONS } from '../../../../../public/js/utils/logs-definitions.js';
-import { serialLog } from '../../../shared/utils/serial-logger.js';
+import { LOG_TYPES } from '../../../../../public/js/utils/logs-definitions.js';
+import { createLog } from '../../../shared/utils/serial-logger.js';
 
 export default async function postConnect(req) {
     try {       
@@ -14,24 +14,14 @@ export default async function postConnect(req) {
         const { port } = getSerialConnection();
 
         if(port?.isOpen) {
-            const log = LOGS_DEFINITIONS["error"];
-            serialLog({ 
-                type:  "error", 
-                label: log.label, 
-                msg: 'Erro ao iniciar conexão: Porta já aberta'
-            }).catch(console.error);
-
+            // Cria log
+            createLog({ type: LOG_TYPES.ERROR, msg: 'Erro ao iniciar conexão: Porta já aberta' });
             throw new CustomError();
         }
 
         if(!settings.serialPort || !settings.baudRate) {
-            const log = LOGS_DEFINITIONS["error"];
-            serialLog({ 
-                type:  "error", 
-                label: log.label, 
-                msg: 'Erro ao iniciar conexão: Nenhuma configuração serial encontrada'
-            }).catch(console.error);
-
+            // Cria log
+            createLog({ type: LOG_TYPES.ERROR, msg: 'Erro ao iniciar conexão: Nenhuma configuração serial encontrada' });
             throw new CustomError();
         }
         

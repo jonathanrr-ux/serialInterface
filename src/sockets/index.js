@@ -1,3 +1,4 @@
+import initAutoSendEvents from './events/auto-send.js';
 let ioInstance;
 
 export function getIO() {
@@ -9,4 +10,6 @@ export default function initSockets(io) {
 
     io.on('connection', (socket) => {
     });
+
+    initAutoSendEvents();
 }
