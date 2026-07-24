@@ -50,7 +50,13 @@ saveAutoSendBtn.addEventListener('click', async() => {
     const { success, data } = await fetchAuxiliar({ url: `/api/auto-send/${selectedTemplate}/template`, method: "POST", body: { autoSends } });
     if(!success) return;
     
-    templateContentMap.get(selectedTemplate).autoSends = data.autoSendList;
+    const savedAutoSends = data.autoSendList;
+    templateContentMap.get(selectedTemplate).autoSends = savedAutoSends;
+
+    // Atualiza os elementos HTML
+    [...autoSendList.children].forEach((el, index) => {
+        el.dataset.id = savedAutoSends[index].id;
+    });
 });
 
 //* Funções:
@@ -210,9 +216,6 @@ function setupEvents({ el, autoSend }) {
         const { success } = await fetchAuxiliar({ url: `/api/auto-send/${el?.dataset?.id}/start`, method: 'POST', toast: false });
         if(!success) return;
 
-        // count++;
-        // updateCountFooter({ count });
-
         el.dataset.connected = true;
     });
 
@@ -220,9 +223,6 @@ function setupEvents({ el, autoSend }) {
     stopBtn.addEventListener('click', async() => {
         const { success } = await fetchAuxiliar({ url: `/api/auto-send/${el?.dataset?.id}/stop`, method: 'POST', toast: false });
         if(!success) return;
-
-        // count--;
-        // updateCountFooter({ count });
 
         el.dataset.connected = false;
     });
@@ -334,9 +334,9 @@ function updateNextJob() {
 
     // Salva
     nextAutoSendRun = nextJob?.nextRun ?? null;
-
+    
     // Atualiza texto
-    if (nextJob) nextAutoSendNameValue = `${nextJob.name} + ${activeJobs.length - 1}`;
+    if (nextJob) nextAutoSendNameValue = activeJobs.length > 1 ? `${nextJob.name} + ${activeJobs.length - 1}` : nextJob.name;
     else nextAutoSendNameValue = 'Nenhum';
 }
 

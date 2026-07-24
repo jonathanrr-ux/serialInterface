@@ -1,7 +1,7 @@
 import FetchService from '../utils/fetchService.js';
 import showToast from '../utils/toast-notifications.js';
 import { refreshRulePackets, ruleList } from './rules.js';
-import { initGroups } from './groups.js';
+import { initGroups, groupsList } from './groups.js';
 import { initTemplates } from './template.js';
 import { refreshAutoSendPackets } from './auto-send.js';
 
@@ -15,6 +15,7 @@ const sendAllBtn = document.getElementById('send-all-button');
 const responseInput = document.getElementById('response-input');
 const tabsBtn = document.querySelectorAll('[data-tab]');
 const packageEditorContainer = document.getElementById('package-editor-container');
+const searchBar = document.getElementById('search-bar');
 
 // Editor de pacotes
 export const packetList = document.getElementById('packet-list');
@@ -333,6 +334,62 @@ export function updateInputs({ input }) {
         }
 
         input.value = input.value.padStart(2, '0');
+    });
+}
+
+//* ======================{ Search }======================
+
+searchBar.addEventListener('input', searchTemplates);
+
+function searchTemplates() {
+    // Obtêm search
+    const search = searchBar.value.trim().toLowerCase();
+
+    // Obtêm grupos
+    const groups = groupsList.querySelectorAll('[data-group-id]');
+
+    // Restaura tudo caso n tenha pesquisa
+    if (!search) {
+        groups.forEach(group => { 
+            // Tira hidden de todos grupos
+            group.hidden = false;
+
+            // Tira hidden de todos templates
+            group.querySelectorAll(".template").forEach(template => { template.hidden = false });
+
+            // Deixa todos grupos fechados
+            group.dataset.expanded = false;
+        });
+
+        // Retorna
+        return;
+    }
+
+    // Percorre os grupos
+    groups.forEach(group => {
+        // Obtêm templates
+        const templates = group.querySelectorAll('.template');
+
+        // Auxiliar
+        let hasVisibleTemplate = false;
+
+        // Percorre templates
+        templates.forEach(template => {
+            // Verifica se busca fecha com o nome
+            const match = search === '' || template.dataset.name.includes(search);
+
+            // Esconde os que não fecham
+            template.hidden = !match;
+
+            // Muda variável
+            if (match) hasVisibleTemplate = true;
+        });
+
+        // Abre grupo se encontrou algum template
+        group.dataset.expanded = hasVisibleTemplate;
+
+        // Esconde grupos sem resultado
+        group.hidden = !hasVisibleTemplate;
     });
 }
 

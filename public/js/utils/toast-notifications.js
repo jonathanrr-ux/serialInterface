@@ -41,7 +41,7 @@ export default function showToast({ type = 'error', message = '', duration = 500
         // Obtêm o tamanho do cabeçalho
         const headerHeight = document.querySelector('header').getBoundingClientRect().height;
 
-        container.className = `fixed right-2 flex flex-col-reverse gap-3 z-40`;
+        container.className = `fixed right-2 flex flex-col-reverse gap-3 z-9999`;
         container.style.top = `${headerHeight + 5}px`;
 
         document.body.appendChild(container);

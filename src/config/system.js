@@ -15,7 +15,6 @@ function verifySystemConfig() {
                 settings: {
                     serialPort: null,
                     baudRate: null,
-                    autoReconnect: false,
                     responseLength: 9
                 },
                 serial: {

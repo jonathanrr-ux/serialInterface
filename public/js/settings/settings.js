@@ -6,7 +6,6 @@ import { setFlashMessage } from '../utils/flash-message.js';
 //* ======================{ Variáveis globais }======================
 
 const connectBtn = document.getElementById('connect-button');
-const autoReconnect = document.getElementById('auto-reconnect');
 
 const api = new FetchService();
 const selectSerialPort = new CustomSelect('select-serial-port', { options: getSerialPorts });
@@ -34,7 +33,7 @@ connectBtn.addEventListener('click', async function() {
     }
 
     // Faz requisição para salvar as configs
-    const { message, success } = await api.request('/api/settings/save', { method: 'POST', body: { serialPort: selectSerialPort.value, baudRate: selectBaudRate.value, autoReconnect: autoReconnect.checked } });
+    const { message, success } = await api.request('/api/settings/save', { method: 'POST', body: { serialPort: selectSerialPort.value, baudRate: selectBaudRate.value } });
     
     // Mostra notificação
     setFlashMessage({ type: success ? 'success' : 'error', message });

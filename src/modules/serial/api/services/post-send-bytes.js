@@ -20,7 +20,7 @@ export default async function postSendBytes(req) {
     
     // Transforma todos pacotes em array
     const packets = Array.isArray(bytes[0]) ? bytes : [bytes];
-    console.log(bytes)
+    
     try {    
         // Manda cada array
         for(const byte of packets) {

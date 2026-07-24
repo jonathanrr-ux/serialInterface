@@ -71,6 +71,7 @@ export function createRule({ rule = null, scroll = false } = {}) {
     // Renderiza os pacotes
     const packetList = div.querySelector('.byte-packets-list')
     renderPackets({ container: packetList, selected: rule ? rule.action.packets : [] });
+    div.selectedPackets = rule?.action?.packets ?? [];
 
     // Gerencia eventos
     setupEvents({ el: div, container: packetList });
@@ -224,9 +225,21 @@ function setupEvents({ el, container }) {
         // Altera dataset para estilo
         el.dataset.type = select.value
         
-        const selected = [...container.querySelectorAll('input:checked')].map(input => input.value);
+        const selected = [...container.querySelectorAll('input:checked')].map(input => ({ id: input.value, order: Number(input.dataset.order) }));
 
         renderPackets({ container, selected });
+
+        // Se não tem próximo elemento da scroll para o fim da página
+        if (!el.nextElementSibling && select.value === 'packets') {
+            el.scrollIntoView({
+                behavior: 'smooth',
+                block: 'end'
+            });
+        }
+    });
+
+    container.addEventListener('change', () => {
+        el.selectedPackets = [...container.querySelectorAll('input:checked')].map(input => ({ id: input.value, order: Number(input.dataset.order) }));
     });
 
     // Evento para deletar regra
@@ -379,12 +392,23 @@ function updateStatusDot({ el }) {
 
 // Função responsável por recarregar os pacotes das ferramentas
 export function refreshRulePackets() {
+    const template = templateContentMap.get(selectedTemplate);
+
     [...ruleList.children].forEach(ruleEl => {
         const container = ruleEl.querySelector('.byte-packets-list');
 
-        const ruleId = ruleEl.dataset.id;
-        const rule = templateContentMap.get(selectedTemplate)?.rules?.find(r => r.id === ruleId);
+        let selected = ruleEl.selectedPackets ?? [];
 
-        renderPackets({ container, selected: rule?.action?.packets ?? [] });
+        // Se a regra já foi salva, usa os dados atualizados do template
+        if (ruleEl.dataset.id) {
+            const rule = template?.rules?.find(r => r.id === ruleEl.dataset.id);
+
+            if (rule) {
+                selected = rule.action.packets;
+                ruleEl.selectedPackets = selected;
+            }
+        }
+
+        renderPackets({ container, selected });
     });
 }

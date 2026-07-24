@@ -391,7 +391,6 @@ function createGroupInTab({ group }) {
                 </div>
             </div>
         </div>
-        <img src="/img/icons/star.svg" class="self-end size-[2rem] cursor-pointer hover:drop-shadow-[0_0_8px_rgba(71,93,235)]">
     `;
 
     groupsTabList.appendChild(div);
@@ -483,6 +482,13 @@ function groupTabEvents({ el }) {
         // Seleciona grupo
         editingGroup = group.id;
     });
+
+    el.addEventListener('click', (e) => {
+        e.stopPropagation();
+
+        const group = document.querySelector(`[data-group-id="${el.dataset.groupId}"]`);
+        if(group) group.dataset.expanded = true;
+    })
 }
 
 //* ======================{ Funções auxiliares }======================

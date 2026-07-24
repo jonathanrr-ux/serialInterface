@@ -6,7 +6,6 @@ import { getIO } from '../../sockets/index.js';
 import { createLog } from '../shared/utils/serial-logger.js';
 import { LOG_TYPES } from '../../../public/js/utils/logs-definitions.js';
 
-
 // Função para inicializar o serial
 async function setupSerialEvents() {
     const system = getSystemConfig();

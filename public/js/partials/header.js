@@ -1,7 +1,6 @@
 import FetchService from '../utils/fetchService.js';
 import showToast from '../utils/toast-notifications.js';
 import CustomSelect from '../utils/custom-select.js';
-import { updateFooter } from '../interface/auto-send.js';
 
 //* ======================{ Variáveis globais }======================
 
@@ -15,7 +14,6 @@ const serialConnectionBtn = document.getElementById('serial-connection-button');
 
 // Modal config
 const saveConfigBtn = document.getElementById('save-config-button');
-const editAutoReconnect = document.getElementById('edit-auto-reconnect');
 const editSerialPort = new CustomSelect('edit-serial-port', { options: getSerialPorts });
 const editBaudRate = new CustomSelect('edit-baud-rate', 
     { 
@@ -51,7 +49,7 @@ saveConfigBtn?.addEventListener('click', async function() {
     }
 
     // Faz requisição para salvar as configs
-    const { message, success } = await api.request('/api/settings/save', { method: 'POST', body: { serialPort: editSerialPort.value, baudRate: editBaudRate.value, autoReconnect: editAutoReconnect.checked } });
+    const { message, success } = await api.request('/api/settings/save', { method: 'POST', body: { serialPort: editSerialPort.value, baudRate: editBaudRate.value } });
     
     // Mostra notificação
     showToast({ type: success ? 'success' : 'error', message });
@@ -77,7 +75,6 @@ async function getSettings() {
     // Preenche serialStatusInformações
     editSerialPort.value = settings.serialPort;
     editBaudRate.value = settings.baudRate;
-    editAutoReconnect.checked = settings.autoReconnect;
 }
 
 // Função responsável por obter todas portas seriais e preencher o select
@@ -106,23 +103,9 @@ async function stopSerialConnection() {
     }
 }
 
-// Função responsável por atualizar o status
-function updateSerialStatus({ connected }) {
-    // Atualiza dataset
-    serialStatus.dataset.connected = connected;
-
-    // Atualiza pontinho
-    serialStatusDot.className = `size-3 rounded-full ${ connected ? 'bg-success' : 'bg-danger' }`;
-
-    // Atualiza serialStatusTextos
-    serialStatusText.serialStatusTextContent = connected ? 'Conectado' : 'Desconectado';
-    serialStatusInfo.serialStatusTextContent = connected ? `${port} • ${baudRate} baud` : 'Sem conexão';
-    serialConnectionBtn.serialStatusTextContent = connected ? 'Desconectar' : 'Conectar';
-
-    // Atualiza cores
-    serialConnectionBtn.classList.toggle('bg-success', !connected);
-    serialConnectionBtn.classList.toggle('bg-danger', connected);
-}
+window.addEventListener('beforeunload', () => {
+    stopSerialConnection();
+})
 
 //* ======================{ Inicialização da página }======================
 
@@ -143,9 +126,6 @@ socket.on('serial:close', () => {
     document.querySelectorAll('#auto-send-list > .group').forEach(el => {
         el.dataset.connected = false;
     });
-
-    // Atualiza para 0
-    updateFooter({ count: 1 });
 });
 
 // Escuta conexão

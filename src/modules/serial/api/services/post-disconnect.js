@@ -1,10 +1,10 @@
 import CustomError from '../../../shared/utils/custom-error.js'
 import { closeSerialConnection } from '../../core/connection.js';
 
-export default async function postConnect(req) {
+export default async function postDisconnect(req) {
     try {
         // Fecha comunicação serial
-        closeSerialConnection();
+        await closeSerialConnection();
 
         return {};
     } catch (err) {

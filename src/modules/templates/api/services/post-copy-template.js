@@ -19,12 +19,16 @@ export default async function postCopyTemplate(req) {
                 {
                     model: db.Rule,
                     as: 'rules'
+                },
+                {
+                    model: db.AutoSend,
+                    as: 'auto_sends'
                 }
             ],
             transaction
         });
         if (!template) throw new CustomError(404, 'Template não encontrado');
-
+        
         // Cria novo template
         const newTemplate = await db.Template.create(
             { name: `${template.name} (Cópia)`, description: template.description, group_id: groupId ?? template.group_id }, 
@@ -37,6 +41,7 @@ export default async function postCopyTemplate(req) {
                 template.packets.map(packet => ({
                     name: packet.name,
                     bytes: packet.bytes,
+                    order: packet.order,
                     template_id: newTemplate.id
                 })),
                 { transaction }
@@ -50,6 +55,22 @@ export default async function postCopyTemplate(req) {
                     name: rule.name,
                     condition: rule.condition,
                     action: rule.action,
+                    template_id: newTemplate.id
+                })),
+                { transaction }
+            );
+        }
+
+        // Copia regras
+        if (template.auto_sends.length) {
+            await db.AutoSend.bulkCreate(
+                template.auto_sends.map(as => ({
+                    name: as.name,
+                    type: as.type,
+                    interval: as.interval,
+                    enabled: as.enabled,
+                    start_on_connect: as.start_on_connect,
+                    packet_id: as.packet_id,
                     template_id: newTemplate.id
                 })),
                 { transaction }

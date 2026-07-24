@@ -5,7 +5,7 @@ import FetchService from "../utils/fetchService.js";
 import { ruleList, createRule } from "./rules.js";
 import { packetList, changeTab } from "./home.js";
 import { createPacket } from "./home.js";
-import { createAutoSend } from "./auto-send.js";
+import { createAutoSend, autoSendList } from "./auto-send.js";
 
 //* ======================{ Variáveis globais }======================
 
@@ -153,6 +153,7 @@ function createGroups() {
 function validateModalInputs() {
     // Limpa erros
     clearInputError({ inputs: [templateNameInput, templateDescriptionInput] });
+    groupSelect.classList.remove('!border-danger');
 
     // Função para setar erro
     const setError = (id, msg) => {
@@ -162,7 +163,7 @@ function validateModalInputs() {
     }
 
     if(!groupSelect.value) {
-        showToast({ message: 'Grupo é obrigatório' });
+        groupSelect.classList.add('!border-danger');
         return true;
     } 
     if(!templateNameInput.value) return setError(templateNameInput.id, 'Nome obrigatório');
@@ -182,6 +183,7 @@ export async function createTemplateInList({ template, group, container, creatin
     const div = document.createElement('div');
     div.className = 'template flex gap-3 items-center group-color z-20';
     div.dataset.templateId = template.id;
+    div.dataset.name = template.name.toLowerCase();
     div.setAttribute('aria-selected', selectedTemplate === template.id);
     div.style.setProperty('--group-color', group.color);
     div.innerHTML = `
@@ -220,6 +222,7 @@ async function activateTemplate({ el, group, template }) {
     // Limpa listas
     packetList.innerHTML = '';
     ruleList.innerHTML = '';
+    autoSendList.innerHTML = '';
 
     // Salva seleção
     setSelectedGroup(group.id);
@@ -471,10 +474,14 @@ export async function fetchAuxiliar({ method, url, body, toast = true }) {
 function updateTemplateCount(groupId) {
     const total = [...templatesMap.values()].filter(template => template.group_id === groupId).length;
 
-    const groupElement = groupsList.querySelector(`[data-group-id="${groupId}"]`);
-    if (!groupElement) return;
+    const groupElement = document.querySelectorAll(`[data-group-id="${groupId}"]`);
 
-    groupElement.querySelector(".templates-length").textContent = `(${total})`;
+    for(const group of groupElement) {
+        const tempLength = group.querySelector(".templates-length");
+        if(!tempLength) continue;
+            
+        tempLength.textContent = `(${total})`;
+    }
 }
 
 // Função responsável por atualizar o template selecionado

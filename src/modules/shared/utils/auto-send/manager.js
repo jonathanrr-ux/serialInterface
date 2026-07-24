@@ -1,6 +1,7 @@
 import { send } from '../../../serial/core/sender.js';
 import CustomError from '../custom-error.js';
 import EventEmitter from 'events';
+import { getUpdatedAutoSend } from '../auto-sends.js';
 
 export default class AutoSendManager extends EventEmitter {
     // Cria jobs
@@ -105,13 +106,17 @@ export default class AutoSendManager extends EventEmitter {
 
     // Função responsável por mandar os bytes
     async #execute(autoSend) {
+        // Obtêm o auto send atualizado
+        const updatedAutoSend = await getUpdatedAutoSend(autoSend.id);
+        if (!updatedAutoSend) return { success: false, message: 'Auto envio não encontrado' };
+        
         // Caso for para mandar pacotes
-        if (autoSend.type === 'packet') {
-            await send({ bytes: autoSend.packet.bytes });
+        if (updatedAutoSend.type === 'packet') {
+            await send({ bytes: updatedAutoSend.packet.bytes });
             return;
         }
 
         // Caso for para mandar um template
-        for (const packet of autoSend.template.packets) await send({ bytes: packet.bytes });
+        for (const packet of updatedAutoSend.template.packets) await send({ bytes: packet.bytes });
     }
 }

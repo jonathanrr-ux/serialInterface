@@ -4,7 +4,7 @@ import { response } from 'express';
 
 export default async function postConfig(req) {
     // Obtêm as informações da req
-    const { serialPort, baudRate, autoReconnect, responseLength } = req.body;
+    const { serialPort, baudRate, responseLength } = req.body;
 
     try {    
         const settings = {};
@@ -12,7 +12,6 @@ export default async function postConfig(req) {
         // Verifica opções
         if (serialPort !== undefined) settings.serialPort = serialPort;
         if (baudRate !== undefined) settings.baudRate = Number(baudRate);
-        if (autoReconnect !== undefined) settings.autoReconnect = autoReconnect;
         if (responseLength !== undefined) settings.responseLength = responseLength;
 
         // Atualiza configurações
