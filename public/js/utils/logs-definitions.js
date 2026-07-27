@@ -10,11 +10,6 @@ export const LOG_TYPES = {
 };
 
 export const LOGS_DEFINITIONS = {
-    [LOG_TYPES.ERROR]: {
-        label: 'Erro',
-        color: 'text-red-500'
-    },
-
     [LOG_TYPES.CONNECTION_STARTED]: {
         label: 'Conexão',
         color: 'text-blue-400',
@@ -25,6 +20,16 @@ export const LOGS_DEFINITIONS = {
         label: 'Conexão',
         color: 'text-blue-400',
         msg: 'Conexão fechada'
+    },
+
+    [LOG_TYPES.TX]: {
+        label: 'Enviado',
+        color: 'text-cyan-400'
+    },
+
+    [LOG_TYPES.RX]: {
+        label: 'Recebido',
+        color: 'text-emerald-400'
     },
 
     [LOG_TYPES.AUTO_SEND_STARTED]: {
@@ -42,13 +47,8 @@ export const LOGS_DEFINITIONS = {
         color: 'text-red-400'
     },
 
-    [LOG_TYPES.TX]: {
-        label: 'Enviado',
-        color: 'text-cyan-400'
-    },
-
-    [LOG_TYPES.RX]: {
-        label: 'Recebido',
-        color: 'text-emerald-400'
+    [LOG_TYPES.ERROR]: {
+        label: 'Erro',
+        color: 'text-red-500'
     }
 };

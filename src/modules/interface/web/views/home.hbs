@@ -224,10 +224,6 @@
                 <img src="/img/icons/list.svg" class="size-[2rem] drop-shadow-[0_0_8px_rgba(99,102,241,0.6)]">
                 Logs
             </div>
-            <div class="flex justify-between bg-surface-light border-2 border-border font-bold rounded-md">
-                <p class="self-center text-[0.8em] px-2">Tamanho da resposta:</p>
-                <input id="response-input" value="{{system.settings.responseLength}}" maxlength="1" class="rounded-r-md bg-background size-[3rem] outline-none text-center p-2 border-l-2 border-border">
-            </div>
             <button id="clear-all-logs-button" class="flex h-[3rem] base-button rounded-xl p-2 gap-2">
                 <img src="/img/icons/trash.svg" class="">
                 Limpar
@@ -235,14 +231,24 @@
         </div>
 
         <div id="filter-logs-buttons" class="flex flex-wrap w-full justify-evenly text-[0.8em] gap-2">
-            <button data-filter="tx">Enviado</button>
-            <button data-filter="rx">Recebido</button>
-            <button data-filter="connection">Conexão</button>
-            <button data-filter="error">Erro</button>
-            <button data-filter="all">Todos</button>
         </div>
 
-        <hr class="text-border mt-4">
+        <hr class="text-border w-full mt-4">
+
+        <div class="flex w-full justify-between p-2 text-[0.8em]">
+            <div class="flex justify-between bg-surface-light border-2 border-border font-bold rounded-md">
+                <p class="self-center px-2">Tamanho da resposta</p>
+                <input id="response-input" value="{{system.settings.responseLength}}" maxlength="1" class="rounded-r-md bg-background size-[3rem] outline-none text-center p-2 border-l-2 border-border">
+            </div>
+            <div class="flex justify-between bg-surface-light border-2 border-border font-bold rounded-md">
+                <p class="self-center px-2">Visualização</p>
+                <select id="view-select" class="rounded-r-md bg-background outline-none text-center p-2 border-l-2 border-border">
+                    <option value="hex" {{#if (eq system.settings.mode "hex")}}selected{{/if}}>Hex</option>
+                    <option value="ascii" {{#if (eq system.settings.mode "ascii")}}selected{{/if}}>ASCII</option>
+                    <option value="decimal" {{#if (eq system.settings.mode "decimal")}}selected{{/if}}>Decimal</option>
+                </select>
+            </div>
+        </div>
 
         <div id="logs-list" class="w-full h-full min-h-0 font-mono text-[0.7em] overflow-y-auto bg-background p-4">
         </div>

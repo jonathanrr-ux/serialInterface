@@ -1,0 +1,11 @@
+{
+    "settings": {
+        "serialPort": "/dev/ttyUSB0",
+        "baudRate": 115200,
+        "responseLength": 9,
+        "mode": "ascii"
+    },
+    "serial": {
+        "connected": false
+    }
+}

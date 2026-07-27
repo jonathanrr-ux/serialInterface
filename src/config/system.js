@@ -15,7 +15,8 @@ function verifySystemConfig() {
                 settings: {
                     serialPort: null,
                     baudRate: null,
-                    responseLength: 9
+                    responseLength: 9,
+                    mode: 'hex'
                 },
                 serial: {
                     connected: false

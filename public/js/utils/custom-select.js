@@ -301,6 +301,15 @@ export default class CustomSelect {
         this.#config.options = l;
 
         this.#renderDropdownList();
+
+        // Se a opção selecionada não existe mais, limpa
+        const exists = l.some(
+            item => (item.id || item.value || item.code) == this.selectedValue
+        );
+
+        if (!exists) {
+            this.clear();
+        }
     }
 
     ready() {

@@ -31,7 +31,8 @@ export default (app) => {
         partialsDir: [ path.join(root, 'src', 'modules', 'shared', 'views', 'partials') ],
         defaultLayout: 'main',
         helpers: {
-            not: (value) => !value
+            not: (value) => !value,
+            eq: (a, b) => a === b
         }
     }));
 

@@ -6,6 +6,7 @@ import { setFlashMessage } from '../utils/flash-message.js';
 //* ======================{ Variáveis globais }======================
 
 const connectBtn = document.getElementById('connect-button');
+const socket = io();
 
 const api = new FetchService();
 const selectSerialPort = new CustomSelect('select-serial-port', { options: getSerialPorts });
@@ -55,3 +56,14 @@ async function getSerialPorts() {
     
     return data.ports.map(p => ({ value: p.path, name: `${p.path} - ${p.manufacturer}` }));
 }
+
+
+socket.on('serial:connected', async () => {
+    selectSerialPort.options = await getSerialPorts();
+});
+
+socket.on('serial:disconnected', async () => {
+    const ports = await getSerialPorts();
+
+    selectSerialPort.options = ports;
+});

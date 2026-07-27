@@ -11,10 +11,11 @@ const socket = io();
 const serialStatus = document.querySelector('[data-connected]');
 const serialStatusInfo = document.getElementById('serial-status-info');
 const serialConnectionBtn = document.getElementById('serial-connection-button');
+const configBtn = document.getElementById('config-button');
 
 // Modal config
 const saveConfigBtn = document.getElementById('save-config-button');
-const editSerialPort = new CustomSelect('edit-serial-port', { options: getSerialPorts });
+const editSerialPort = new CustomSelect('edit-serial-port', { options: [] });
 const editBaudRate = new CustomSelect('edit-baud-rate', 
     { 
         options: [
@@ -39,6 +40,14 @@ serialConnectionBtn?.addEventListener('click', async function() {
 });
 
 //* ======================{ Controle do modal de config }======================
+
+configBtn?.addEventListener('click', async() => {
+    const ports = await getSerialPorts();
+
+    editSerialPort.options = ports;
+
+    await getSettings();
+});
 
 // Adiciona evento de clique ao botão de conectar
 saveConfigBtn?.addEventListener('click', async function() {
@@ -71,9 +80,9 @@ async function getSettings() {
     }
     
     const { settings } = data;
-
-    // Preenche serialStatusInformações
-    editSerialPort.value = settings.serialPort;
+    
+    // Preenche
+    editSerialPort.value = settings.serialPort ?? '';
     editBaudRate.value = settings.baudRate;
 }
 
@@ -111,12 +120,10 @@ window.addEventListener('beforeunload', () => {
 
 document.addEventListener('DOMContentLoaded',async () => {
     await editSerialPort.ready();
-
-    await getSettings();
 })
 
 // Escuta desconexão
-socket.on('serial:close', () => {
+socket.on('serial:close', async() => {
     // Adiciona dataset
     serialStatus.dataset.connected = false;
 
@@ -141,4 +148,14 @@ socket.on('serial:open', ({ port, baudRate, autoSends }) => {
         const el = document.querySelector(`[data-id="${id}"]`);
         if (el) el.dataset.connected = true;
     });
+});
+
+socket.on('serial:connected', async () => {
+    editSerialPort.options = await getSerialPorts();
+});
+
+socket.on('serial:disconnected', async () => {
+    const ports = await getSerialPorts();
+
+    editSerialPort.options = ports;
 });
