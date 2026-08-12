@@ -15,12 +15,15 @@ Desenvolvida utilizando **HTML**, **JavaScript**, **Tailwind CSS** e **Node.js**
 ## ✨ Funcionalidades
 
 - 🔌 Conexão com dispositivos via Serial
-- 📤 Envio de comandos
-- 📥 Leitura de respostas em tempo real
-- ⚙️ Configuração da conexão serial
-- 📝 Histórico de mensagens
-- 🚀 Interface responsiva
-- 🎨 Design moderno utilizando Tailwind CSS
+- 📤 Envio manual de comandos
+- 🤖 Envio automático de comandos
+- 📥 Monitoramento de dados recebidos em tempo real
+- ⚡ Automação baseada em respostas recebidas
+- 🔄 Regras condicionais para respostas seriais
+- ⚙️ Configuração dos parâmetros da conexão serial
+- 📝 Histórico de comandos e mensagens
+- 📊 Visualização dos dados enviados e recebidos
+- 🎨 Design moderno com Tailwind CSS
 
 ---
 
