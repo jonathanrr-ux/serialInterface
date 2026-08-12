@@ -136,10 +136,8 @@ Frontend
 
 ## 📈 Próximas melhorias
 
-- [ ] Logs em arquivo
 - [ ] Reconexão automática
 - [ ] Múltiplas conexões
-- [ ] Histórico persistente
 
 ---
 
