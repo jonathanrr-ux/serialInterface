@@ -80,10 +80,7 @@ Entre na pasta
 cd serialInterface
 ```
 
-### Backend
-
 ```bash
-cd backend
 
 npm install
 
